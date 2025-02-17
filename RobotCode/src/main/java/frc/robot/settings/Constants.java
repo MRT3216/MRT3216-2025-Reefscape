@@ -48,6 +48,6 @@ public final class Constants {
 	}
 
 	public static final class ELEVATOR {
-
+		// TODO: add elevator constants
 	}
 }
