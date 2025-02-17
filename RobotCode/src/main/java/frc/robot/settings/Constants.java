@@ -13,8 +13,13 @@ public final class Constants {
 	public static boolean DEBUG = false;
 
 	public static final class DRIVETRAIN {
-		public static final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-		public static final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+		public static final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts
+																									// desired top speed
+		public static final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a
+																										// rotation per
+																										// second max
+																										// angular
+																										// velocity
 
 		public static final PIDConstants CLOSE_TRANSLATION_PID = new PIDConstants(3.0, 0, 0);
 		public static final PIDConstants CLOSE_ROTATION_PID = new PIDConstants(2.0, 0, 0);
@@ -40,5 +45,9 @@ public final class Constants {
 	public static final class AUTO {
 		public static final PIDConstants TRANSLATION_PID = new PIDConstants(10, 0, 0);
 		public static final PIDConstants ANGLE_PID = new PIDConstants(7, 0, 0);
+	}
+
+	public static final class ELEVATOR {
+
 	}
 }
