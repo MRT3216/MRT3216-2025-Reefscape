@@ -2,17 +2,13 @@ package frc.robot.settings;
 
 public final class RobotMap {
     public static final class ROBOT {
-        public static class INTAKE {
-            public static class CAN {
-                public static final int MOTOR = 16;
-            }
-
-            public static class DIO {
-                public static final int BREAK_BEAM = 0;
-            }
+        public static final class ElevatorMap {
+            public static final int leadMotorCANID = 5;
+            public static final int followerMotorCANID = 6;
+    
         }
 
-        public static class CLIMBER {
+        public static class ClimberMap {
             public static class CAN {
                 public static final int LEFT_MOTOR = 19;
                 public static final int RIGHT_MOTOR = 20;
