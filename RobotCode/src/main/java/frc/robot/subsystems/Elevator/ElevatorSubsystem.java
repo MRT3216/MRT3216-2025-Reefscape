@@ -1,8 +1,5 @@
 package frc.robot.subsystems.Elevator;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Rotations;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -12,19 +9,12 @@ import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.settings.Constants.ElevatorConstants;
 import frc.robot.settings.RobotMap.ROBOT.ElevatorMap;
 
@@ -47,7 +37,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         SparkMaxConfig followerConfig = new SparkMaxConfig();
 
         leadConfig.idleMode(IdleMode.kBrake)
-                .inverted(ElevatorConstants.kLeftMotorInverted)
+                .inverted(!ElevatorConstants.kMotorInverted)
                 .smartCurrentLimit(ElevatorConstants.kMotorCurrentLimit)
                 .voltageCompensation(ElevatorConstants.kVoltageCompensation)
                 .openLoopRampRate(ElevatorConstants.kElevatorRampRate);
@@ -58,21 +48,25 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         leadMotorController.configure(leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        followerConfig.follow(leadMotorController, false)
+        followerConfig.follow(leadMotorController, ElevatorConstants.kMotorInverted)
                 .idleMode(IdleMode.kBrake)
-                .inverted(ElevatorConstants.kRightMotorInverted)
                 .smartCurrentLimit(ElevatorConstants.kMotorCurrentLimit)
                 .voltageCompensation(ElevatorConstants.kVoltageCompensation);
 
         followerMotorController.configure(followerConfig, ResetMode.kResetSafeParameters,
-                PersistMode.kPersistParameters); // TODO: improve this bs
+                PersistMode.kPersistParameters);
 
+        //TODO: replace relative encoder with absolute encoder
+        /* encoder = leadMotor.getAbsoluteEncoder();
+        AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
+        encoderConfig.positionConversionFactor(360); */
         encoder = leadMotorController.getEncoder();
         encoder.setPosition(0);
 
+        TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(ElevatorConstants.kMaxElevatorVelocity, ElevatorConstants.kMaxElevatorAcceleration);
+
         m_controller = new ProfiledPIDController(ElevatorConstants.kElevatorKp, ElevatorConstants.kElevatorKi,
-                ElevatorConstants.kElevatorKd, new TrapezoidProfile.Constraints(ElevatorConstants.kMaxElevatorVelocity,
-                        ElevatorConstants.kMaxElevatorAcceleration));
+                ElevatorConstants.kElevatorKd, constraints);
 
         m_elevatorFeedForward = new ElevatorFeedforward(ElevatorConstants.kElevatorkS,
                 ElevatorConstants.kElevatorkG, ElevatorConstants.kElevatorkV, ElevatorConstants.kElevatorkA);

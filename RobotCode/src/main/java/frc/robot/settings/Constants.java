@@ -1,7 +1,6 @@
 package frc.robot.settings;
 
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -100,9 +99,7 @@ public final class Constants {
 	}
 
 	public static final class ElevatorConstants {
-		public static final boolean kLeftMotorInverted = true;
-		public static final boolean kRightMotorInverted = false;
-		public static final int kMotorCurrentLimit = 60;
+		public static final boolean kMotorInverted = true;		public static final int kMotorCurrentLimit = 60;
 		public static final int kVoltageCompensation = 10;
 		// public static final double kMaxPivotErrorDegrees = 1.0; // Degrees
 		// // The soft limits are set in the motor controller to limit
