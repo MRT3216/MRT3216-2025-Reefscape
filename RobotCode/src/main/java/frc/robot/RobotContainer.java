@@ -16,9 +16,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
 import frc.robot.settings.Constants.ReefBranch;
-import frc.robot.settings.OIUtils;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.ElevatorSim.ElevatorSubsystem;
+import frc.robot.subsystems.ElevatorSim.ElevatorCommandFactory;
 
 public class RobotContainer {
     // #region Fields
@@ -40,7 +41,9 @@ public class RobotContainer {
     private final CommandXboxController operatorController = new CommandXboxController(
             RobotMap.ROBOT.DRIVE_STATION.OPERATOR_USB_XBOX_CONTROLLER);
 
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    private final ElevatorSubsystem elevator = new ElevatorSubsystem();
+    private ElevatorCommandFactory elevatorCommandFactory = new ElevatorCommandFactory(elevator);
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("None");;
@@ -119,6 +122,7 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         /* Run the path selected from the auto chooser */
-        return autoChooser.getSelected();
+        // return autoChooser.getSelected();
+        return elevatorCommandFactory.createMoveUpAndDownCommand();
     }
 }

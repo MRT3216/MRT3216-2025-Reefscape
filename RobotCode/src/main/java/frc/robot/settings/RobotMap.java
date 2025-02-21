@@ -2,15 +2,13 @@ package frc.robot.settings;
 
 public final class RobotMap {
     public static final class ROBOT {
-        public static final class ELEVATOR {
-            public static final int kLeadMotorPwmPort = 0;
-            public static final int kFollowerMotorPwmPort = 1;
+        public static final class ElevatorMap {
+            public static final int leadMotorCANID = 5;
+            public static final int followerMotorCANID = 6;
     
-            public static final int kEncoderAChannel = 0;
-            public static final int kEncoderBChannel = 1;
         }
 
-        public static class CLIMBER {
+        public static class ClimberMap {
             public static class CAN {
                 public static final int LEFT_MOTOR = 19;
                 public static final int RIGHT_MOTOR = 20;

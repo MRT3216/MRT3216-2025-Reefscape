@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.generated.TunerConstants;
-import frc.robot.settings.Constants.BranchSide;
 
 public final class Constants {
 	public static final class DRIVETRAIN {
@@ -96,6 +95,25 @@ public final class Constants {
 	}
 
 	public static final class ElevatorConstants {
+		public static final boolean kLeftMotorInverted = true;
+		public static final boolean kRightMotorInverted = false;
+		public static final int kMotorCurrentLimit = 60;
+		public static final int kVoltageCompensation = 10;
+		// public static final double kMaxPivotErrorDegrees = 1.0; // Degrees
+		// // The soft limits are set in the motor controller to limit
+		// // movement past a certain point. Consider this an emergency limit
+		// public static final double kSoftForwardLimitDegrees = 105;
+		// public static final double kSoftReverseLimitDegrees = 20;
+		// // These limits should be used to set how far we allow
+		// // code to move the arm. These should allow less movement than
+		// // the soft limits
+		// public static final double kMovementForwardLimitDegrees = 100;
+		// public static final double kMovementReverseLimitDegrees = 15;
+		// public static final double kOffsetDegrees = 0;
+		// This is scaled by the gear ratio of encoder to pivot
+		// public static final double kScaleFactor = 1.176;
+		public static final double kPositionTolerance = 0.1;
+
 		public static final double kElevatorGearing = 10.0;
 		public static final double kElevatorDrumRadius = Units.inchesToMeters(2);
 		public static final double kCarriageMass = 4.0; // kg
