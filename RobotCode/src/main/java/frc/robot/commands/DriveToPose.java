@@ -14,25 +14,32 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.settings.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class DriveToPose extends Command {
-
     private final CommandSwerveDrivetrain m_drivetrain;
     private final ProfiledPIDController m_translationController, m_thetaController;
     private Translation2d m_lastSetpointTranslation;
     private Pose2d m_goalPose;
     private SwerveRequest.ApplyFieldSpeeds m_drive;
-    Transform2d m_shift;
-    private boolean isLeftCoral = true;
 
-    public DriveToPose(CommandSwerveDrivetrain drivetrain, Transform2d shift, boolean isLeftCoral) {
-        m_shift = shift;
-        this.isLeftCoral = isLeftCoral;
-        m_translationController = new ProfiledPIDController(4.0, 0.0, 0.0,
-                new TrapezoidProfile.Constraints(2, 2));
+    public DriveToPose(CommandSwerveDrivetrain drivetrain, Pose2d goalPose) {
+        m_goalPose = goalPose;
+        m_translationController = new ProfiledPIDController(
+                Constants.CLOSE_PATHING.TRANSLATION_PID.kP,
+                Constants.CLOSE_PATHING.TRANSLATION_PID.kI,
+                Constants.CLOSE_PATHING.TRANSLATION_PID.kD,
+                new TrapezoidProfile.Constraints(
+                        Constants.CLOSE_PATHING.maxVelocityMPS,
+                        Constants.CLOSE_PATHING.maxAccelerationMPSSq));
         m_thetaController = new ProfiledPIDController(
-                5.0, 0.0, 0.0, new TrapezoidProfile.Constraints(1 * Math.PI, 1 * Math.PI));
+                Constants.CLOSE_PATHING.ANGLE_PID.kP,
+                Constants.CLOSE_PATHING.ANGLE_PID.kP,
+                Constants.CLOSE_PATHING.ANGLE_PID.kP,
+                new TrapezoidProfile.Constraints(
+                        Constants.CLOSE_PATHING.maxAngularVelocityRPS,
+                        Constants.CLOSE_PATHING.maxAngularAccelerationRPS));
         this.m_drivetrain = drivetrain;
 
         m_drive = new SwerveRequest.ApplyFieldSpeeds()
@@ -44,7 +51,6 @@ public class DriveToPose extends Command {
 
     @Override
     public void initialize() {
-        m_goalPose = m_drivetrain.vision.getNearestReefFaceInitial(isLeftCoral).transformBy(m_shift);
         Pose2d initialPose = m_drivetrain.getState().Pose;
 
         m_translationController.setTolerance(0.05);
@@ -52,17 +58,20 @@ public class DriveToPose extends Command {
 
         m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-        ChassisSpeeds robotVelocity = getFieldRelativeChassisSpeeds(m_drivetrain.getState().Speeds, initialPose);
+        ChassisSpeeds robotVelocity = getFieldRelativeChassisSpeeds(m_drivetrain.getState().Speeds,
+                initialPose);
 
         m_translationController.reset(
                 initialPose.getTranslation().getDistance(m_goalPose.getTranslation()),
                 Math.min(
                         0.0,
-                        -new Translation2d(robotVelocity.vxMetersPerSecond, robotVelocity.vyMetersPerSecond)
+                        -new Translation2d(robotVelocity.vxMetersPerSecond,
+                                robotVelocity.vyMetersPerSecond)
                                 .rotateBy(
                                         m_goalPose
                                                 .getTranslation()
-                                                .minus(initialPose.getTranslation())
+                                                .minus(initialPose
+                                                        .getTranslation())
                                                 .getAngle()
                                                 .unaryMinus())
                                 .getX()));
@@ -96,14 +105,19 @@ public class DriveToPose extends Command {
                 currentPose.getTranslation().minus(m_goalPose.getTranslation()).getAngle())
                 .transformBy(
                         new Transform2d(
-                                new Translation2d(m_translationController.getSetpoint().position, 0.0),
+                                new Translation2d(
+                                        m_translationController
+                                                .getSetpoint().position,
+                                        0.0),
                                 new Rotation2d()))
                 .getTranslation();
 
         double thetaVelocity = m_thetaController.getSetpoint().velocity * ffScaler
                 + m_thetaController.calculate(
-                        currentPose.getRotation().getRadians(), m_goalPose.getRotation().getRadians());
-        double thetaErrorAbsolute = Math.abs(currentPose.getRotation().minus(m_goalPose.getRotation()).getRadians());
+                        currentPose.getRotation().getRadians(),
+                        m_goalPose.getRotation().getRadians());
+        double thetaErrorAbsolute = Math
+                .abs(currentPose.getRotation().minus(m_goalPose.getRotation()).getRadians());
         if (thetaErrorAbsolute < m_thetaController.getPositionTolerance())
             thetaVelocity = 0.0;
 
@@ -111,13 +125,18 @@ public class DriveToPose extends Command {
                 new Translation2d(),
                 currentPose.getTranslation().minus(m_goalPose.getTranslation()).getAngle())
                 .transformBy(
-                        new Transform2d(new Translation2d(driveVelocityScalar, 0.0), new Rotation2d()))
+                        new Transform2d(new Translation2d(driveVelocityScalar, 0.0),
+                                new Rotation2d()))
                 .getTranslation();
 
         final ChassisSpeeds CS = new ChassisSpeeds(driveVelocity.getX(), driveVelocity.getY(), thetaVelocity);
 
         m_drivetrain.setControl(m_drive.withSpeeds(CS));
+    }
 
+    @Override
+    public boolean isFinished() {
+        return m_translationController.atGoal() && m_thetaController.atGoal();
     }
 
     public ChassisSpeeds getFieldRelativeChassisSpeeds(ChassisSpeeds roboSpeed, Pose2d pose) {

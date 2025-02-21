@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 // #region Imports
 
 import static edu.wpi.first.units.Units.Microseconds;
+import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -38,7 +40,14 @@ import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
+import frc.robot.settings.AllianceFlipUtil;
+import frc.robot.settings.Constants;
+import frc.robot.settings.Constants.BargeCage;
+import frc.robot.settings.Constants.BranchSide;
+import frc.robot.settings.Constants.CoralStationSide;
+import frc.robot.settings.Constants.ReefBranch;
 import frc.robot.settings.FieldConstants;
 
 // #endregion
@@ -49,11 +58,6 @@ import frc.robot.settings.FieldConstants;
  */
 public class Vision {
     /**
-     * April Tag Field Layout of the year.
-     */
-    // public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(
-    //         AprilTagFields.k2025Reefscape);
-    /**
      * Photon Vision Simulation
      */
     public VisionSystemSim visionSim;
@@ -61,12 +65,11 @@ public class Vision {
      * Current pose from the pose estimator using wheel odometry.
      */
     private Supplier<Pose2d> currentPose;
+
     /**
      * Field from {@link swervelib.SwerveDrive#field}
      */
     private Field2d field2d;
-
-    public double currentNearestReefDistance = 1000;
 
     /**
      * Constructor for the Vision class.
@@ -106,45 +109,53 @@ public class Vision {
         }
     }
 
-    public Pose2d getNearestCoralStationPose() {
-        double rightCoralStationDist = getDistanceFromRobotPose(FieldConstants.CoralStation.rightCenterFace);
-        double leftCoralStationDist = getDistanceFromRobotPose(FieldConstants.CoralStation.leftCenterFace);
-
-        return rightCoralStationDist > leftCoralStationDist
-                ? FieldConstants.CoralStation.leftCenterFace
-                        .transformBy(FieldConstants.CoralStation.coralStationOffsetPose)
-                : FieldConstants.CoralStation.rightCenterFace
-                        .transformBy(FieldConstants.CoralStation.coralStationOffsetPose);
-    }
-
-    public Pose2d getNearestReefFaceInitial(boolean isLeftCoral) {
-        return getNearestReefFace().transformBy(FieldConstants.Reef.getReefOffsetPoseInitial(isLeftCoral));
+    public Pose2d getNearestReefFaceInitial(BranchSide side) {
+        return getNearestReefFace().transformBy(Constants.FIELD_OFFSETS.getReefOffsetPoseInitial(side));
     }
 
     public Pose2d getNearestReefFace() {
-        // double nearest = 1000;
-        // Pose2d nearestPose = new Pose2d();
-
-        // for (Pose2d p : FieldConstants.Reef.centerFaces) {
-        //     double distanceToPose = getDistanceFromRobotPose(p);
-
-        //     if (distanceToPose < nearest) {
-        //         nearest = distanceToPose;
-        //         nearestPose = p;
-        //     }
-        // }
-        Pose2d pose = currentPose.get().nearest(Arrays.asList(FieldConstants.Reef.centerFaces));
-        currentNearestReefDistance = getDistanceFromRobotPose(pose);
-        return pose;
+        // Alliance flip the robot pose, find the nearest blue side reef, then reflip
+        Pose2d pose = AllianceFlipUtil.apply(currentPose.get())
+                .nearest(Arrays.asList(FieldConstants.Reef.centerFaces));
+        return AllianceFlipUtil.apply(pose);
     }
 
     public Pose2d getProcessorPose() {
-        return FieldConstants.Processor.centerFace.transformBy(FieldConstants.Processor.processorOffset);
+        // Alliance flip the pose
+        return AllianceFlipUtil.apply(
+                FieldConstants.Processor.centerFace.transformBy(Constants.FIELD_OFFSETS.processorOffset));
     }
 
-    public Pose2d getBargePose() {
-        return new Pose2d(FieldConstants.Barge.closeCage, Rotation2d.fromDegrees(0))
-                .transformBy(FieldConstants.Barge.cageOffset);
+    public Pose2d getBargePose(BargeCage cage) {
+        Translation2d bargeTranslation = new Translation2d();
+
+        switch (cage) {
+            case farCage:
+                bargeTranslation = FieldConstants.Barge.farCage;
+                break;
+            case middleCage:
+                bargeTranslation = FieldConstants.Barge.middleCage;
+                break;
+            case closeCage:
+                bargeTranslation = FieldConstants.Barge.closeCage;
+        }
+
+        // Alliance flip the pose
+        return AllianceFlipUtil.apply(
+                new Pose2d(bargeTranslation, Rotation2d.fromDegrees(0))
+                        .transformBy(Constants.FIELD_OFFSETS.cageOffset));
+    }
+
+    public Pose2d getCoralStationPose(CoralStationSide side) {
+        return AllianceFlipUtil.apply(
+                side.equals(CoralStationSide.LEFT) ? FieldConstants.CoralStation.leftCenterFace
+                        : FieldConstants.CoralStation.rightCenterFace)
+                .transformBy(Constants.FIELD_OFFSETS.coralStationOffsetPose);
+    }
+
+    public Pose2d getReefPolePose(ReefBranch reefBranch) {
+        return AllianceFlipUtil.apply(FieldConstants.Reef.centerFaces[reefBranch.getReefSide().getValue()]
+                .transformBy(Constants.FIELD_OFFSETS.getReefOffsetPoseInitial(reefBranch.getBranchSide())));
     }
 
     /**
@@ -168,6 +179,7 @@ public class Vision {
         }
 
         for (Cameras camera : Cameras.values()) {
+            //camera.addHeadingData(currentPose.get().getRotation());
             Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
 
             if (poseEst.isPresent()) {
@@ -253,29 +265,29 @@ public class Vision {
     }
 
     /**
-     * Update the {@link Field2d} to include tracked targets/
-     */
-    public void updateVisionField() {
-        List<PhotonTrackedTarget> targets = new ArrayList<PhotonTrackedTarget>();
-        for (Cameras c : Cameras.values()) {
-            if (!c.resultsList.isEmpty()) {
-                PhotonPipelineResult latest = c.resultsList.get(0);
-                if (latest.hasTargets()) {
-                    targets.addAll(latest.targets);
-                }
-            }
-        }
+    //  * Update the {@link Field2d} to include tracked targets/
+    //  */
+    // public void updateVisionField() {
+    //     List<PhotonTrackedTarget> targets = new ArrayList<PhotonTrackedTarget>();
+    //     for (Cameras c : Cameras.values()) {
+    //         if (!c.resultsList.isEmpty()) {
+    //             PhotonPipelineResult latest = c.resultsList.get(0);
+    //             if (latest.hasTargets()) {
+    //                 targets.addAll(latest.targets);
+    //             }
+    //         }
+    //     }
 
-        List<Pose2d> poses = new ArrayList<>();
-        for (PhotonTrackedTarget target : targets) {
-            if (FieldConstants.fieldLayout.getTagPose(target.getFiducialId()).isPresent()) {
-                Pose2d targetPose = FieldConstants.fieldLayout.getTagPose(target.getFiducialId()).get().toPose2d();
-                poses.add(targetPose);
-            }
-        }
+    //     List<Pose2d> poses = new ArrayList<>();
+    //     for (PhotonTrackedTarget target : targets) {
+    //         if (FieldConstants.fieldLayout.getTagPose(target.getFiducialId()).isPresent()) {
+    //             Pose2d targetPose = FieldConstants.fieldLayout.getTagPose(target.getFiducialId()).get().toPose2d();
+    //             poses.add(targetPose);
+    //         }
+    //     }
 
-        field2d.getObject("tracked targets").setPoses(poses);
-    }
+    //     field2d.getObject("tracked targets").setPoses(poses);
+    // }
 
     /**
      * Camera Enum to select each camera
@@ -284,15 +296,45 @@ public class Vision {
         /**
         * Center Camera
         */
-        CENTER_CAM("Center_Cam",
+        FRONT_LEFT("Front_Left",
                 new Rotation3d(
                         Units.degreesToRadians(0),
-                        Units.degreesToRadians(5),
-                        Units.degreesToRadians(-5)),
+                        Units.degreesToRadians(-15),
+                        Units.degreesToRadians(-15)),
                 new Translation3d(
-                        Units.inchesToMeters(-0.3225),
-                        Units.inchesToMeters(4.4432),
-                        Units.inchesToMeters(12.6533)),
+                        Units.inchesToMeters(12.214),
+                        Units.inchesToMeters(12.643),
+                        Units.inchesToMeters(8.5)), //6.797)),
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+        FRONT_RIGHT("Front_Right",
+                new Rotation3d(
+                        Units.degreesToRadians(0),
+                        Units.degreesToRadians(-15),
+                        Units.degreesToRadians(15)),
+                new Translation3d(
+                        Units.inchesToMeters(12.214),
+                        Units.inchesToMeters(-12.643),
+                        Units.inchesToMeters(8.5)), //6.797)),
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+        BACK("Back",
+                new Rotation3d(
+                        Units.degreesToRadians(0),
+                        Units.degreesToRadians(-20),
+                        Units.degreesToRadians(160)),
+                new Translation3d(
+                        Units.inchesToMeters(0.265),
+                        Units.inchesToMeters(8),
+                        Units.inchesToMeters(24)), //12.814)),
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+        BACK_RIGHT("Back_Right",
+                new Rotation3d(
+                        Units.degreesToRadians(0),
+                        Units.degreesToRadians(-20),
+                        Units.degreesToRadians(200)),
+                new Translation3d(
+                        Units.inchesToMeters(0.265),
+                        Units.inchesToMeters(-8),
+                        Units.inchesToMeters(24)), //12.814)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
         /**
@@ -340,6 +382,8 @@ public class Vision {
          */
         private double lastReadTimestamp = Microseconds.of(NetworkTablesJNI.now()).in(Seconds);
 
+        static double timestampOffset = 0;
+
         /**
          * Construct a Photon Camera class with help. Standard deviations are fake values, experiment and determine
          * estimation noise on an actual robot.
@@ -360,7 +404,7 @@ public class Vision {
             robotToCamTransform = new Transform3d(robotToCamTranslation, robotToCamRotation);
 
             poseEstimator = new PhotonPoseEstimator(FieldConstants.fieldLayout,
-                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.CONSTRAINED_SOLVEPNP,
                     robotToCamTransform);
             poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
@@ -370,9 +414,9 @@ public class Vision {
             if (Robot.isSimulation()) {
                 SimCameraProperties cameraProp = new SimCameraProperties();
                 // A 640 x 480 camera with a 100 degree diagonal FOV.
-                cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(100));
+                cameraProp.setCalibration(1280, 800, Rotation2d.fromDegrees(97.75));
                 // Approximate detection noise with average and standard deviation error in pixels.
-                cameraProp.setCalibError(0.25, 0.08);
+                //cameraProp.setCalibError(0.25, 0.08);
                 // Set the camera image capture framerate (Note: this is limited by robot loop rate).
                 cameraProp.setFPS(30);
                 // The average and standard deviation in milliseconds of image data latency.
@@ -443,12 +487,19 @@ public class Vision {
          * Update the latest results, cached with a maximum refresh rate of 1req/15ms. Sorts the list by timestamp.
          */
         private void updateUnreadResults() {
-            // double mostRecentTimestamp = resultsList.isEmpty() ? 0.0 : resultsList.get(0).getTimestampSeconds();
+            // double mostRecentTimestamp = resultsList.isEmpty() ? 0.0
+            //         : resultsList.get(0).getTimestampSeconds() - timestampOffset;
             // double currentTimestamp = Microseconds.of(NetworkTablesJNI.now()).in(Seconds);
-
+            // if (currentTimestamp < mostRecentTimestamp) {
+            //     timestampOffset = mostRecentTimestamp - currentTimestamp;
+            // }
             // double debounceTime = Milliseconds.of(15).in(Seconds);
+            // SmartDashboard.putNumber("Current Stamp", currentTimestamp);
+            // SmartDashboard.putNumber("Recent Stamp", mostRecentTimestamp);
+
             // for (PhotonPipelineResult result : resultsList) {
-            //     mostRecentTimestamp = Math.max(mostRecentTimestamp, result.getTimestampSeconds());
+            //     mostRecentTimestamp = Math.max(mostRecentTimestamp, result.getTimestampSeconds() - timestampOffset);
+            //     SmartDashboard.putNumber("Most Recent Timestamp", mostRecentTimestamp);
             // }
             // if ((resultsList.isEmpty() || (currentTimestamp - mostRecentTimestamp >= debounceTime)) &&
             //         (currentTimestamp - lastReadTimestamp) >= debounceTime) {
@@ -458,7 +509,16 @@ public class Vision {
             //     resultsList.sort((PhotonPipelineResult a, PhotonPipelineResult b) -> {
             //         return a.getTimestampSeconds() >= b.getTimestampSeconds() ? 1 : -1;
             //     });
-            resultsList = camera.getAllUnreadResults();
+            //     if (!resultsList.isEmpty()) {
+            //         updateEstimatedGlobalPose();
+            //     }
+            // }
+
+            // // // TODO: Not sure what is best here (do they need sorted)
+            resultsList = Robot.isReal() ? camera.getAllUnreadResults() : cameraSim.getCamera().getAllUnreadResults();
+            // // // resultsList.sort((PhotonPipelineResult a, PhotonPipelineResult b) -> {
+            // // //   return a.getTimestampSeconds() >= b.getTimestampSeconds() ? 1 : -1;
+            // // // });
             if (!resultsList.isEmpty()) {
                 updateEstimatedGlobalPose();
             }
@@ -482,6 +542,10 @@ public class Vision {
                 updateEstimationStdDevs(visionEst, change.getTargets());
             }
             estimatedRobotPose = visionEst;
+        }
+
+        public void addHeadingData(Rotation2d heading) {
+            poseEstimator.addHeadingData(Microseconds.of(NetworkTablesJNI.now()).in(Seconds), heading);
         }
 
         /**

@@ -11,12 +11,11 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
-import frc.robot.settings.FieldConstants;
+import frc.robot.settings.Constants.ReefBranch;
 import frc.robot.settings.OIUtils;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -44,15 +43,21 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     /* Path follower */
-    private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("None");;
 
     // #endregion
 
     public RobotContainer() {
-        autoChooser = AutoBuilder.buildAutoChooser("None");
-        SmartDashboard.putData("Auto Mode", autoChooser);
-
+        configureAutos();
         configureBindings();
+    }
+
+    private void configureAutos() {
+        autoChooser.addOption("Left 3P", drivetrain.getLeft3PAuto());
+        autoChooser.addOption("Center 1P", drivetrain.getCenter1PAuto());
+        autoChooser.addOption("Right 3P", drivetrain.getRight3PAuto());
+
+        SmartDashboard.putData("Auto Mode", autoChooser);
     }
 
     private void configureBindings() {
@@ -101,49 +106,16 @@ public class RobotContainer {
         driverController.start().and(driverController.x())
                 .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-        // reset the field-centric heading on left bumper press
+        // reset the field-centric heading on start press
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        driverController.leftTrigger().whileTrue(
-                Commands.deferredProxy(
-                        () -> drivetrain.driveToNearestReefThenAlign(true)));
-
-        driverController.rightTrigger().whileTrue(
-                Commands.deferredProxy(
-                        () -> drivetrain.driveToNearestReefThenAlign(false)));
-
-        driverController.a().whileTrue(
-                Commands.deferredProxy(
-                        () -> drivetrain.driveToPose(FieldConstants.CoralStation.leftCenterFace.transformBy(
-                                FieldConstants.CoralStation.coralStationOffsetPose))));
-
-        driverController.b().whileTrue(
-                Commands.deferredProxy(
-                        () -> drivetrain.driveToPose(FieldConstants.CoralStation.rightCenterFace.transformBy(
-                                FieldConstants.CoralStation.coralStationOffsetPose))));
-
-        driverController.x().whileTrue(
-                Commands.deferredProxy(
-                        () -> drivetrain.driveToPose(
-                                drivetrain.vision.getBargePose())));
-
-        driverController.y().whileTrue(
-                Commands.deferredProxy(
-                        () -> drivetrain.driveToPose(
-                                drivetrain.vision.getProcessorPose())));
-
-        // driverController.y().whileTrue(
-        //         Commands.deferredProxy(
-        //                 () -> drivetrain.driveToPose(
-        //                         drivetrain.vision.getOffsetPoseByTagId(17, false))));
-        // driverController.rightBumper().whileTrue(
-        //         Commands.deferredProxy(
-        //                 () -> drivetrain.driveToPoseThenAlign(
-        //                         drivetrain.vision.getOffsetPoseByTagId(17, false))));
-
-        //driverController.leftBumper().whileTrue();
-
-        //PhotonTrackedTarget target = drivetrain.vision.getTargetFromId(17, drivetrain.vision.Cameras.CENTER_CAM);
+        driverController.leftTrigger().whileTrue(drivetrain.driveToNearestLeftReefPole());
+        driverController.rightTrigger().whileTrue(drivetrain.driveToNearestRightReefPole());
+        driverController.rightBumper().whileTrue(drivetrain.driveAndAlignToReefBranch(ReefBranch.A));
+        driverController.a().whileTrue(drivetrain.driveToLeftCoralStation());
+        driverController.b().whileTrue(drivetrain.driveToRightCoralStation());
+        driverController.x().whileTrue(drivetrain.driveToBargeClimb());
+        driverController.y().whileTrue(drivetrain.driveToProcessor());
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

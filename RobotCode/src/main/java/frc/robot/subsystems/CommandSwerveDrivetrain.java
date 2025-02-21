@@ -13,12 +13,10 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -29,11 +27,13 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.CloseDriveToPose;
 import frc.robot.commands.DriveToPose;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.settings.Constants;
-import frc.robot.settings.FieldConstants;
+import frc.robot.settings.Constants.BargeCage;
+import frc.robot.settings.Constants.BranchSide;
+import frc.robot.settings.Constants.CoralStationSide;
+import frc.robot.settings.Constants.ReefBranch;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -67,7 +67,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
     /** Field object. */
-    public Field2d field = new Field2d();
+    private Field2d field = new Field2d();
+
+    // #endregion
 
     // #region SysId
 
@@ -124,7 +126,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
 
-    // #endregion
     // #endregion
 
     // #region Constructors
@@ -211,33 +212,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     // #endregion
 
-    private void configureAutoBuilder() {
-        try {
-            var config = RobotConfig.fromGUISettings();
-            AutoBuilder.configure(
-                    () -> getState().Pose, // Supplier of current robot pose
-                    this::resetPose, // Consumer for seeding pose against auto
-                    () -> getState().Speeds, // Supplier of current robot speeds
-                    // Consumer of ChassisSpeeds and feedforwards to drive the robot
-                    (speeds, feedforwards) -> setControl(
-                            m_pathApplyRobotSpeeds.withSpeeds(speeds)
-                                    .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-                                    .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
-                    new PPHolonomicDriveController(
-                            // PID constants for translation
-                            Constants.AUTO.TRANSLATION_PID,
-                            // PID constants for rotation
-                            Constants.AUTO.ANGLE_PID),
-                    config,
-                    // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-                    () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-                    this // Subsystem for requirements
-            );
-        } catch (Exception ex) {
-            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder",
-                    ex.getStackTrace());
-        }
-    }
+    // #region Commands
 
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
@@ -271,43 +246,129 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
-    /**
-    * Setup the photon vision class.
-    */
-    public void setupPhotonVision() {
-        vision = new Vision(() -> getState().Pose, field);
+    private Command driveToPose(Pose2d pose) {
+        return vision.getDistanceFromRobotPose(pose) > Constants.PATHING.pathingMinimumDistance
+                ? AutoBuilder.pathfindToPose(pose, Constants.PATHING.pathConstraints, 0)
+                : new DriveToPose(this, pose);
     }
 
-    public Command driveToPose(Pose2d pose) {
-        return AutoBuilder.pathfindToPose(pose, getPathConstrants(), 0);
+    public Command driveToBargeClimb() {
+        return this.defer(
+                () -> this.driveToPose(
+                        this.vision.getBargePose(BargeCage.middleCage)));
     }
 
-    public Command driveToNearestReefThenAlign(boolean isLeftCoral) {
-        Pose2d reefPose = vision.getNearestReefFaceInitial(isLeftCoral);
-        Pose2d reefPoseClose = reefPose.transformBy(FieldConstants.Reef.reefOffsetPoseCloseAdj);
-        System.out.println("Distance: " + vision.currentNearestReefDistance);
-        
-        if (vision.currentNearestReefDistance < FieldConstants.FIELD_OFFSETS.reefXOffsetInitial) {
-            return closeDriveToPoseBetter(reefPoseClose, isLeftCoral);
+    public Command driveToProcessor() {
+        return this.defer(
+                () -> this.driveToPose(
+                        this.vision.getProcessorPose()));
+    }
+
+    public Command driveToLeftCoralStation() {
+        return this.defer(
+                () -> this.driveToPose(
+                        vision.getCoralStationPose(CoralStationSide.LEFT)));
+    }
+
+    public Command driveToRightCoralStation() {
+        return this.defer(
+                () -> this.driveToPose(
+                        vision.getCoralStationPose(CoralStationSide.RIGHT)));
+    }
+
+    public Command driveToNearestLeftReefPole() {
+        return this.defer(() -> driveToNearestReefThenAlign(BranchSide.LEFT));
+    }
+
+    public Command driveToNearestRightReefPole() {
+        return this.defer(() -> driveToNearestReefThenAlign(BranchSide.RIGHT));
+    }
+
+    private Command driveToNearestReefThenAlign(BranchSide side) {
+        Pose2d reefPose = vision.getNearestReefFaceInitial(side);
+
+        return driveToReefPoseThenAlign(reefPose);
+    }
+
+    private Command driveToReefPoseThenAlign(Pose2d reefPose) {
+        Pose2d reefPoseClose = reefPose.transformBy(
+                Constants.FIELD_OFFSETS.getReefOffsetPositionClose());
+
+        if (vision.getDistanceFromRobotPose(reefPose) < Constants.PATHING.pathingMinimumDistance) {
+            return new DriveToPose(this, reefPoseClose);
         } else {
-            return AutoBuilder.pathfindToPose(reefPose, getPathConstrants(), 2)
-                    .andThen(closeDriveToPoseBetter(reefPoseClose, isLeftCoral));
+            return AutoBuilder
+                    .pathfindToPose(reefPose, Constants.PATHING.pathConstraints,
+                            Constants.PATHING.pathToCloseAlignEndVelocityMPS)
+                    .andThen(new DriveToPose(this, reefPoseClose));
         }
     }
 
-    private Command closeDriveToPose(Pose2d pose) {
-        return new CloseDriveToPose(this, pose);
+    public Command driveAndAlignToReefBranch(ReefBranch reefBranch) {
+        return this.defer(
+                () -> this.driveToReefPoseThenAlign(
+                        vision.getReefPolePose(reefBranch)));
     }
 
-    private Command closeDriveToPoseBetter(Pose2d pose, boolean isLeftCoral) {
-        return new DriveToPose(this, FieldConstants.Reef.reefOffsetPoseCloseAdj, isLeftCoral);
+    public Command getLeft3PAuto() {
+        // Create a path following command using AutoBuilder. This will also trigger event markers.
+        return driveAndAlignToReefBranch(ReefBranch.J)
+                .andThen(driveToLeftCoralStation())
+                .andThen(driveAndAlignToReefBranch(ReefBranch.K))
+                .andThen(driveToLeftCoralStation())
+                .andThen(driveAndAlignToReefBranch(ReefBranch.L))
+                .andThen(driveToLeftCoralStation());
     }
 
-    public PathConstraints getPathConstrants() {
-        // Create the constraints to use while pathfinding
-        return new PathConstraints(
-                Constants.PATHING.maxVelocityMPS, Constants.PATHING.maxAccelerationMPSSq,
-                Constants.PATHING.maxAngularVelocityRPS, Constants.PATHING.maxAngularAccelerationRPSS);
+    public Command getCenter1PAuto() {
+        return driveAndAlignToReefBranch(ReefBranch.H);
+    }
+
+    public Command getRight3PAuto() {
+        // Create a path following command using AutoBuilder. This will also trigger event markers.
+        return driveAndAlignToReefBranch(ReefBranch.E)
+                .andThen(driveToRightCoralStation())
+                .andThen(driveAndAlignToReefBranch(ReefBranch.D))
+                .andThen(driveToRightCoralStation())
+                .andThen(driveAndAlignToReefBranch(ReefBranch.C))
+                .andThen(driveToRightCoralStation());
+    }
+
+    // #endregion
+
+    private void configureAutoBuilder() {
+        try {
+            var config = RobotConfig.fromGUISettings();
+            AutoBuilder.configure(
+                    () -> getState().Pose, // Supplier of current robot pose
+                    this::resetPose, // Consumer for seeding pose against auto
+                    () -> getState().Speeds, // Supplier of current robot speeds
+                    // Consumer of ChassisSpeeds and feedforwards to drive the robot
+                    (speeds, feedforwards) -> setControl(
+                            m_pathApplyRobotSpeeds.withSpeeds(speeds)
+                                    .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                                    .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
+                    new PPHolonomicDriveController(
+                            // PID constants for translation
+                            Constants.PATHING.TRANSLATION_PID,
+                            // PID constants for rotation
+                            Constants.PATHING.ANGLE_PID),
+                    config,
+                    // Assume the path needs to be flipped for Red vs Blue, this is normally the case
+                    () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+                    this // Subsystem for requirements
+            );
+        } catch (Exception ex) {
+            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder",
+                    ex.getStackTrace());
+        }
+    }
+
+    /**
+    * Setup the photon vision class.
+    */
+    private void setupPhotonVision() {
+        vision = new Vision(() -> getState().Pose, field);
     }
 
     @Override
@@ -328,7 +389,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-
         vision.updatePoseEstimation(this);
     }
 
