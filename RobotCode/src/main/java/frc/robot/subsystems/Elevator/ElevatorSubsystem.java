@@ -1,20 +1,30 @@
-package frc.robot.subsystems.ElevatorSim;
+package frc.robot.subsystems.Elevator;
 
-import com.revrobotics.spark.SparkAbsoluteEncoder;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Rotations;
+
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkRelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.AbsoluteEncoderConfig;
+import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.settings.Constants.ElevatorConstants;
 import frc.robot.settings.RobotMap.ROBOT.ElevatorMap;
 
@@ -22,7 +32,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     private final SparkFlex leadMotorController;
     private final SparkFlex followerMotorController;
-    private SparkRelativeEncoder encoder;
+    private RelativeEncoder encoder;
     private ProfiledPIDController m_controller;
     private ElevatorSimulation m_elevatorSimContainer;
     private ElevatorFeedforward m_elevatorFeedForward;
@@ -39,13 +49,14 @@ public class ElevatorSubsystem extends SubsystemBase {
         leadConfig.idleMode(IdleMode.kBrake)
                 .inverted(ElevatorConstants.kLeftMotorInverted)
                 .smartCurrentLimit(ElevatorConstants.kMotorCurrentLimit)
-                .voltageCompensation(ElevatorConstants.kVoltageCompensation);
+                .voltageCompensation(ElevatorConstants.kVoltageCompensation)
+                .openLoopRampRate(ElevatorConstants.kElevatorRampRate);
 
-        // AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
-        // encoderConfig.positionConversionFactor(360);
-        // leadConfig.apply(encoderConfig);
+        EncoderConfig encoderConfig = new EncoderConfig();
+        encoderConfig.positionConversionFactor(360);
+        leadConfig.apply(encoderConfig);
 
-        leadMotorController.configure(leadConfig, null, PersistMode.kPersistParameters);
+        leadMotorController.configure(leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         followerConfig.follow(leadMotorController, false)
                 .idleMode(IdleMode.kBrake)
@@ -53,9 +64,11 @@ public class ElevatorSubsystem extends SubsystemBase {
                 .smartCurrentLimit(ElevatorConstants.kMotorCurrentLimit)
                 .voltageCompensation(ElevatorConstants.kVoltageCompensation);
 
-        followerMotorController.configure(followerConfig, null, PersistMode.kPersistParameters); // TODO: improve this bs
+        followerMotorController.configure(followerConfig, ResetMode.kResetSafeParameters,
+                PersistMode.kPersistParameters); // TODO: improve this bs
 
-        encoder = (SparkRelativeEncoder) leadMotorController.getEncoder();
+        encoder = leadMotorController.getEncoder();
+        encoder.setPosition(0);
 
         m_controller = new ProfiledPIDController(ElevatorConstants.kElevatorKp, ElevatorConstants.kElevatorKi,
                 ElevatorConstants.kElevatorKd, new TrapezoidProfile.Constraints(ElevatorConstants.kMaxElevatorVelocity,
@@ -84,10 +97,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         double feedForward = m_elevatorFeedForward.calculate(m_controller.getSetpoint().velocity);
         double motorEffortVoltage = pidOutput + feedForward;
 
-        SmartDashboard.putNumber("Motor voltage", motorEffortVoltage);
-        SmartDashboard.putNumber("Encoder Position",         encoder.getPosition());
-
-        leadMotorController.setVoltage(12);
+        leadMotorController.setVoltage(motorEffortVoltage);
     }
 
     protected void enable() {
