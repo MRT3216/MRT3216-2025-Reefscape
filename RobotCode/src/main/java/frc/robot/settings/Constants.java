@@ -95,8 +95,34 @@ public final class Constants {
 		public static final double kRotationExpo = 0;
 	}
 
-	public static final class ELEVATOR {
-		// TODO: add elevator constants
+	public static final class ElevatorConstants {
+		public static final double kElevatorGearing = 10.0;
+		public static final double kElevatorDrumRadius = Units.inchesToMeters(2);
+		public static final double kCarriageMass = 4.0; // kg
+
+		public static final double kMinElevatorHeightMeters = 0;
+		public static final double kMaxElevatorHeightMeters = 2;
+
+		public static final double kElevatorKp = 500;
+		public static final double kElevatorKi = 10;
+		public static final double kElevatorKd = 0;
+
+		public static final double kElevatorkS = 0.0; // volts (V)
+		public static final double kElevatorkG = 0.762; // volts (V)
+		public static final double kElevatorkV = 0.762; // volt per velocity (V/(m/s))
+		public static final double kElevatorkA = 0.0; // volt per acceleration (V/(m/s²))
+
+		public static final double kMaxElevatorVelocity = 2.45; // m/s
+		public static final double kMaxElevatorAcceleration = 2.45; // m/s²
+
+		// distance per pulse = (distance per revolution) / (pulses per revolution)
+		// = (Pi * D) / ppr
+		public static final double kElevatorEncoderDistPerPulse = 2.0 * Math.PI * kElevatorDrumRadius / 4096;
+	}
+
+	public static final class SimulationConstants {
+		public static final double kSimulationTimeStep = 0.02; // seconds
+		public static final double kVisualizationPixelMultiplier = 100;
 	}
 
 	public static final class AUTO {
