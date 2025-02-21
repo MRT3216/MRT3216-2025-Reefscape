@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.generated.TunerConstants;
+import frc.robot.settings.Constants.BranchSide;
 
 public final class Constants {
 	public static final class DRIVETRAIN {
@@ -90,8 +91,12 @@ public final class Constants {
 
 	public static final class OI {
 		public static final double kJoystickDeadband = 0.1;
-		public static final double kTranslationExpo = 75;
+		public static final double kTranslationExpo = 0;
 		public static final double kRotationExpo = 0;
+	}
+
+	public static final class ELEVATOR {
+		// TODO: add elevator constants
 	}
 
 	public static final class AUTO {
@@ -105,6 +110,13 @@ public final class Constants {
 	public enum CoralStationSide {
 		LEFT,
 		RIGHT
+	}
+
+	public enum BranchLevel {
+		L4,
+		L3,
+		L2,
+		L1
 	}
 
 	public enum ReefSide {

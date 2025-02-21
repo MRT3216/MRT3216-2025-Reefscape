@@ -68,19 +68,16 @@ public class RobotContainer {
                 drivetrain.applyRequest(
                         () -> drive
                                 .withVelocityX(
-                                        OIUtils.modifyAxis(-driverController
-                                                .getLeftY(),
-                                                Constants.OI.kTranslationExpo)
+                                        -driverController
+                                                .getLeftY()
                                                 * Constants.DRIVETRAIN.MaxSpeed) // Drive forward with negative Y (forward)
                                 .withVelocityY(
-                                        OIUtils.modifyAxis(-driverController
-                                                .getLeftX(),
-                                                Constants.OI.kTranslationExpo)
+                                        -driverController
+                                                .getLeftX()
                                                 * Constants.DRIVETRAIN.MaxSpeed) // Drive left with negative X (left)
                                 .withRotationalRate(
-                                        OIUtils.modifyAxis(-driverController
-                                                .getRightX(),
-                                                Constants.OI.kTranslationExpo)
+                                        -driverController
+                                                .getRightX()
                                                 * Constants.DRIVETRAIN.MaxAngularRate) // Drive counterclockwise with negative X (left)
                 ));
 
