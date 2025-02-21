@@ -141,8 +141,27 @@ public final class Constants {
 		// distance per pulse = (distance per revolution) / (pulses per revolution)
 		// = (Pi * D) / ppr
 		public static final double kElevatorEncoderDistPerPulse = 2.0 * Math.PI * kElevatorDrumRadius / 4096;
+
+		public enum ElevatorHeights {
+
+			ELEVATOR_POS_L1(0.5), 
+			ELEVATOR_POS_L2(1), 
+			ELEVATOR_POS_L3(1.5),
+			ELEVATOR_POS_L4(3);
+
+			private double value;
+
+			private ElevatorHeights(double value) {
+				this.value = value;
+			}
+
+			public double getValue() {
+				return value;
+			}
+		}
 	}
 
+	
 	public static final class SimulationConstants {
 		public static final double kSimulationTimeStep = 0.02; // seconds
 		public static final double kVisualizationPixelMultiplier = 100;

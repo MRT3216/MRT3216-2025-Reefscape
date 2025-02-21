@@ -38,14 +38,4 @@ public final class ElevatorCommandFactory {
         command = addStart(command);
         return addRequirement(command);
     }
-
-    public Command createMoveUpAndDownCommand() {
-        System.out.println("Creating move up and down command");
-        Command command = new SequentialCommandGroup(
-                moveElevatorToHeight(1.5),
-                moveElevatorToHeight(0.5));
-
-        command = addStart(command);
-        return addRequirement(command);
-    }
 }

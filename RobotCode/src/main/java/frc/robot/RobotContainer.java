@@ -124,9 +124,6 @@ public class RobotContainer {
                 drivetrain.registerTelemetry(logger::telemeterize);
         }
 
-        public Command getAutonomousCommand() {
-                /* Run the path selected from the auto chooser */
-                // return autoChooser.getSelected();
-                return elevatorCommandFactory.createMoveUpAndDownCommand();
-        }
+        // public Command getAutonomousCommand() {
+        // }
 }

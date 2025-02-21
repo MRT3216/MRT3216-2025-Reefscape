@@ -57,9 +57,9 @@ public class ElevatorSubsystem extends SubsystemBase {
                 PersistMode.kPersistParameters);
 
         //TODO: replace relative encoder with absolute encoder
-        /* encoder = leadMotor.getAbsoluteEncoder();
-        AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
-        encoderConfig.positionConversionFactor(360); */
+        // encoder = leadMotor.getAbsoluteEncoder();
+        // AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
+        // encoderConfig.positionConversionFactor(360);
         encoder = leadMotorController.getEncoder();
         encoder.setPosition(0);
 
