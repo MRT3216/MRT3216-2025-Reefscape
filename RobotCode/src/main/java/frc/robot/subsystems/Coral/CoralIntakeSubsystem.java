@@ -7,9 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.settings.Constants.CoralIntakeConstants;
 
 public class CoralIntakeSubsystem extends SubsystemBase{
-    private static CoralIntakeSubsystem instance;
     private final TalonFX intakeMotor;
-
 
     public CoralIntakeSubsystem() {
         intakeMotor = new TalonFX(0);
@@ -35,12 +33,5 @@ public class CoralIntakeSubsystem extends SubsystemBase{
 
     public void stopIntake() {
         intakeMotor.set(0);
-    }
-
-    public static CoralIntakeSubsystem getInstance() {
-        if (instance == null) {
-            instance = new CoralIntakeSubsystem();
-        }
-        return instance;
     }
 }

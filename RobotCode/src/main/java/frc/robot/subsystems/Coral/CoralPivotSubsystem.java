@@ -16,10 +16,9 @@ import frc.robot.settings.Constants.CoralPivotConstants;
 import frc.robot.settings.RobotMap.ROBOT.PivotMap;
 
 public class CoralPivotSubsystem {
-    private static CoralPivotSubsystem instance;
     private final SparkFlex pivotMotor;
     private AbsoluteEncoder pivotEncoder;
-    private ProfiledPIDController PIDController;
+    private ProfiledPIDController pIDController;
     private ArmFeedforward feedforward;
     private boolean enabled;
 
@@ -29,7 +28,7 @@ public class CoralPivotSubsystem {
         SparkMaxConfig pivotConfig = new SparkMaxConfig();
 
         pivotConfig.idleMode(IdleMode.kBrake)
-                .inverted(false)
+                .inverted(CoraPivotConstants.kMotorInverted)
                 .smartCurrentLimit(CoralPivotConstants.kMotorCurrentLimit)
                 .voltageCompensation(CoralPivotConstants.kVoltageCompensation)
                 .openLoopRampRate(CoralPivotConstants.kPivotRampRate);
@@ -56,18 +55,17 @@ public class CoralPivotSubsystem {
             CoralPivotConstants.kPivotkA);
     }
 
-
     public void periodic(){
         if(enabled){
             // TODO: add values
             double feedforwardOutput = 0;
-            double pidOutput = PIDController.calculate(pivotEncoder.getPosition(), 0);
+            double pidOutput = pIDController.calculate(pivotEncoder.getPosition(), 0);
             pivotMotor.setVoltage(feedforwardOutput + pidOutput);
         }
     }
     public void enable(){
         enabled = true;
-        PIDController.reset(0); // TODO: add value
+        pIDController.reset(0); // TODO: add value
     }
 
     public void disable(){
@@ -77,12 +75,5 @@ public class CoralPivotSubsystem {
 
     public double getPivotDegrees(){
         return pivotEncoder.getPosition() * CoralPivotConstants.kScaleFactor - CoralPivotConstants.kOffsetDegrees;
-    }
-    
-    public static CoralPivotSubsystem getInstance() {
-        if (instance == null) {
-            instance = new CoralPivotSubsystem();
-        }
-        return instance;
     }
 }
