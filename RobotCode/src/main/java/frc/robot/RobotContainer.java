@@ -15,115 +15,128 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
+import frc.robot.settings.Constants.ElevatorConstants;
 import frc.robot.settings.Constants.ReefBranch;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Elevator.ElevatorCommandFactory;
 import frc.robot.subsystems.Elevator.ElevatorSubsystem;
 
 public class RobotContainer {
-        // #region Fields
+    // #region Fields
 
-        /* Setting up bindings for necessary control of the swerve drive platform */
-        private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-                        .withDeadband(Constants.DRIVETRAIN.MaxSpeed * Constants.OI.kJoystickDeadband)
-                        .withRotationalDeadband(Constants.DRIVETRAIN.MaxAngularRate * Constants.OI.kJoystickDeadband) // Add a 10% deadband
-                        .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-        private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-        private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-        private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
-                        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    /* Setting up bindings for necessary control of the swerve drive platform */
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            .withDeadband(Constants.DRIVETRAIN.MaxSpeed * Constants.OI.kJoystickDeadband)
+            .withRotationalDeadband(Constants.DRIVETRAIN.MaxAngularRate * Constants.OI.kJoystickDeadband) // Add a 10% deadband
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-        private final Telemetry logger = new Telemetry(Constants.DRIVETRAIN.MaxSpeed);
+    private final Telemetry logger = new Telemetry(Constants.DRIVETRAIN.MaxSpeed);
 
-        private final CommandXboxController driverController = new CommandXboxController(
-                        RobotMap.ROBOT.DRIVE_STATION.DRIVER_USB_XBOX_CONTROLLER);
-        private final CommandXboxController operatorController = new CommandXboxController(
-                        RobotMap.ROBOT.DRIVE_STATION.OPERATOR_USB_XBOX_CONTROLLER);
+    private final CommandXboxController driverController = new CommandXboxController(
+            RobotMap.ROBOT.DRIVE_STATION.DRIVER_USB_XBOX_CONTROLLER);
+    private final CommandXboxController operatorController = new CommandXboxController(
+            RobotMap.ROBOT.DRIVE_STATION.OPERATOR_USB_XBOX_CONTROLLER);
 
-        private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-        private final ElevatorSubsystem elevator = new ElevatorSubsystem();
-        private ElevatorCommandFactory elevatorCommandFactory = new ElevatorCommandFactory(elevator);
+    private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    private final ElevatorSubsystem elevator = new ElevatorSubsystem();
 
-        /* Path follower */
-        private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("None");;
+    /* Path follower */
+    private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("None");;
 
-        // #endregion
+    // #endregion
 
-        public RobotContainer() {
-                configureAutos();
-                configureBindings();
-        }
+    public RobotContainer() {
+        configureAutos();
+        configureBindings();
+    }
 
-        private void configureAutos() {
-                autoChooser.addOption("Left 3P", drivetrain.getLeft3PAuto());
-                autoChooser.addOption("Center 1P", drivetrain.getCenter1PAuto());
-                autoChooser.addOption("Right 3P", drivetrain.getRight3PAuto());
+    private void configureAutos() {
+        autoChooser.addOption("Left 3P", drivetrain.getLeft3PAuto());
+        autoChooser.addOption("Center 1P", drivetrain.getCenter1PAuto());
+        autoChooser.addOption("Right 3P", drivetrain.getRight3PAuto());
 
-                SmartDashboard.putData("Auto Mode", autoChooser);
-        }
+        SmartDashboard.putData("Auto Mode", autoChooser);
+    }
 
-        private void configureBindings() {
-                // Note that X is defined as forward according to WPILib convention,
-                // and Y is defined as to the left according to WPILib convention.
-                drivetrain.setDefaultCommand(
-                                // Drivetrain will execute this command periodically
-                                drivetrain.applyRequest(
-                                                () -> drive
-                                                                .withVelocityX(
-                                                                                -driverController
-                                                                                                .getLeftY()
-                                                                                                * Constants.DRIVETRAIN.MaxSpeed) // Drive forward with negative Y (forward)
-                                                                .withVelocityY(
-                                                                                -driverController
-                                                                                                .getLeftX()
-                                                                                                * Constants.DRIVETRAIN.MaxSpeed) // Drive left with negative X (left)
-                                                                .withRotationalRate(
-                                                                                -driverController
-                                                                                                .getRightX()
-                                                                                                * Constants.DRIVETRAIN.MaxAngularRate) // Drive counterclockwise with negative X (left)
-                                ));
+    private void configureBindings() {
+        // Note that X is defined as forward according to WPILib convention,
+        // and Y is defined as to the left according to WPILib convention.
+        drivetrain.setDefaultCommand(
+                // Drivetrain will execute this command periodically
+                drivetrain.applyRequest(
+                        () -> drive
+                                .withVelocityX(
+                                        -driverController
+                                                .getLeftY()
+                                                * Constants.DRIVETRAIN.MaxSpeed) // Drive forward with negative Y (forward)
+                                .withVelocityY(
+                                        -driverController
+                                                .getLeftX()
+                                                * Constants.DRIVETRAIN.MaxSpeed) // Drive left with negative X (left)
+                                .withRotationalRate(
+                                        -driverController
+                                                .getRightX()
+                                                * Constants.DRIVETRAIN.MaxAngularRate) // Drive counterclockwise with negative X (left)
+                ));
 
-                // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-                // driverController.b().whileTrue(drivetrain.applyRequest(
-                //         () -> point.withModuleDirection(
-                //                 new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
+        // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        // driverController.b().whileTrue(drivetrain.applyRequest(
+        //         () -> point.withModuleDirection(
+        //                 new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
 
-                // driverController.pov(0).whileTrue(
-                //                 drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));
-                // driverController.pov(180)
-                //                 .whileTrue(drivetrain.applyRequest(
-                //                                 () -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
+        // driverController.pov(0).whileTrue(
+        //                 drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));
+        // driverController.pov(180)
+        //                 .whileTrue(drivetrain.applyRequest(
+        //                                 () -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
 
-                // Run SysId routines when holding back/start and X/Y.
-                // Note that each routine should be run exactly once in a single log.
-                driverController.back().and(driverController.y())
-                                .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-                driverController.back().and(driverController.x())
-                                .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-                driverController.start().and(driverController.y())
-                                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-                driverController.start().and(driverController.x())
-                                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // Run SysId routines when holding back/start and X/Y.
+        // Note that each routine should be run exactly once in a single log.
+        driverController.back().and(driverController.y())
+                .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        driverController.back().and(driverController.x())
+                .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        driverController.start().and(driverController.y())
+                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        driverController.start().and(driverController.x())
+                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-                // reset the field-centric heading on start press
-                driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // reset the field-centric heading on start press
+        driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-                driverController.leftTrigger().whileTrue(drivetrain.driveToNearestLeftReefPole());
-                driverController.rightTrigger().whileTrue(drivetrain.driveToNearestRightReefPole());
-                driverController.rightBumper().whileTrue(drivetrain.driveAndAlignToReefBranch(ReefBranch.A));
-                driverController.a().whileTrue(drivetrain.driveToLeftCoralStation());
-                driverController.b().whileTrue(drivetrain.driveToRightCoralStation());
-                driverController.x().whileTrue(drivetrain.driveToBargeClimb());
-                driverController.y().whileTrue(drivetrain.driveToProcessor());
+        driverController.leftTrigger().whileTrue(drivetrain.driveToNearestLeftReefPole());
+        driverController.rightTrigger().whileTrue(drivetrain.driveToNearestRightReefPole());
+        driverController.rightBumper().whileTrue(drivetrain.driveAndAlignToReefBranch(ReefBranch.A));
+        driverController.a().whileTrue(drivetrain.driveToLeftCoralStation());
+        driverController.b().whileTrue(drivetrain.driveToRightCoralStation());
+        driverController.x().whileTrue(drivetrain.driveToBargeClimb());
+        driverController.y().whileTrue(drivetrain.driveToProcessor());
 
-                driverController.povUp().onTrue(elevatorCommandFactory.moveElevatorToHeight(2));
-                driverController.povLeft().onTrue(elevatorCommandFactory.moveElevatorToHeight(1));
-                driverController.povRight().onTrue(elevatorCommandFactory.moveElevatorToHeight(1.5));
-                driverController.povDown().onTrue(elevatorCommandFactory.moveElevatorToHeight(0));
-                drivetrain.registerTelemetry(logger::telemeterize);
-        }
+        driverController.povUp()
+                .onTrue(elevator.moveElevatorToHeight(ElevatorConstants.Heights.L4.getValue()));
+        driverController.povLeft()
+                .onTrue(elevator.moveElevatorToHeight(ElevatorConstants.Heights.L2.getValue()));
+        driverController.povRight()
+                .onTrue(elevator.moveElevatorToHeight(ElevatorConstants.Heights.L3.getValue()));
+        driverController.povDown()
+                .onTrue(elevator.moveElevatorToHeight(ElevatorConstants.Heights.L1.getValue()));
+        drivetrain.registerTelemetry(logger::telemeterize);
+    }
 
-        // public Command getAutonomousCommand() {
-        // }
+    /**
+    * Disables all ProfiledPIDSubsystem and PIDSubsystem instances. This should be
+    * called on robot disable to prevent integral windup.
+    */
+    public void disablePIDSubsystems() {
+        elevator.disable();
+    }
+
+    public Command getAutonomousCommand() {
+        /* Run the path selected from the auto chooser */
+        return autoChooser.getSelected();
+    }
 }

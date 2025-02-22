@@ -98,7 +98,8 @@ public final class Constants {
 	}
 
 	public static final class ElevatorConstants {
-		public static final boolean kMotorInverted = true;		public static final int kMotorCurrentLimit = 60;
+		public static final boolean kLeadMotorInverted = true;
+		public static final int kMotorCurrentLimit = 60;
 		public static final int kVoltageCompensation = 10;
 		// public static final double kMaxPivotErrorDegrees = 1.0; // Degrees
 		// // The soft limits are set in the motor controller to limit
@@ -139,18 +140,17 @@ public final class Constants {
 
 		// distance per pulse = (distance per revolution) / (pulses per revolution)
 		// = (Pi * D) / ppr
-		public static final double kElevatorEncoderDistPerPulse = 2.0 * Math.PI * kElevatorDrumRadius / 4096;
+		//public static final double kElevatorEncoderDistPerPulse = 2.0 * Math.PI * kElevatorDrumRadius / 4096;
 
-		public enum ElevatorHeights {
-
-			ELEVATOR_POS_L1(0.5), 
-			ELEVATOR_POS_L2(1), 
-			ELEVATOR_POS_L3(1.5),
-			ELEVATOR_POS_L4(3);
+		public enum Heights {
+			L1(0.5),
+			L2(1),
+			L3(1.5),
+			L4(2);
 
 			private double value;
 
-			private ElevatorHeights(double value) {
+			private Heights(double value) {
 				this.value = value;
 			}
 
