@@ -1,5 +1,11 @@
 package frc.robot.settings;
 
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.PathConstraints;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.util.Units;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -7,13 +13,6 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
-
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.path.PathConstraints;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.util.Units;
 import frc.robot.generated.TunerConstants;
 
 public final class Constants {
@@ -159,6 +158,48 @@ public final class Constants {
 				return value;
 			}
 		}
+	}
+
+	public static final class PivotConstants {
+		public static final boolean kMotorInverted = false;
+		public static final int kMotorCurrentLimit = 40;
+		public static final int kVoltageCompensation = 10;
+		public static final double kMaxPivotErrorDegrees = 1.0; // Degrees
+
+		public static final double kSoftForwardLimitDegrees = 105;
+		public static final double kSoftReverseLimitDegrees = 20;
+		
+		public static final double kMovementForwardLimitDegrees = 100;
+		public static final double kMovementReverseLimitDegrees = 15;
+		public static final double kOffsetDegrees = 0;
+
+		// This is scaled by the gear ratio of encoder to pivot
+		public static final double kScaleFactor = 1.176;
+		public static final double kPositionTolerance = Inches.of(0.5).in(Meters);
+
+		public static final double kPivotGearing = 25.0;
+		public static final double kPivotArmLength = Units.inchesToMeters(5);
+		public static final double kPivotMass = Units.lbsToKilograms(10); // kg
+
+		public static final double kMinPivotAngle = 0;
+		public static final double kMaxPivotAngle = -180;
+
+		public static final double kPivotKp = 5;
+		public static final double kPivotKi = 1;
+		public static final double kPivotKd = 0;
+
+		public static final double kPivotkS = 0.02; // volts (V)
+		public static final double kPivotkG = 0.9; // volts (V)
+		public static final double kPivotkV = 3.8; // volt per velocity (V/(m/s))
+		public static final double kPivotkA = 0.17; // volt per acceleration (V/(m/s²))
+
+		public static final double kMaxPivotVelocity = 180; // degrees per second
+		public static final double kMaxPivotAcceleration = Meters.of(8).per(Second).per(Second)
+				.in(MetersPerSecondPerSecond); 	// degrees per second squared max acceleration
+
+		public static final double kPivotRampRate = 0.1;
+
+
 	}
 
 	
