@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.Coral;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -15,15 +15,15 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.settings.Constants.PivotConstants;
 import frc.robot.settings.RobotMap.ROBOT.PivotMap;
 
-public class CoralSubsystem {
-    private static CoralSubsystem instance;
+public class CoralPivotSubsystem {
+    private static CoralPivotSubsystem instance;
     private final SparkFlex pivotMotor;
     private AbsoluteEncoder pivotEncoder;
     private ProfiledPIDController PIDController;
     private ArmFeedforward feedforward;
     private boolean enabled;
 
-    public CoralSubsystem() {
+    public CoralPivotSubsystem() {
         pivotMotor = new SparkFlex(PivotMap.pivotMotorCANID, MotorType.kBrushless);
 
         SparkMaxConfig pivotConfig = new SparkMaxConfig();
