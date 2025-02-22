@@ -1,5 +1,9 @@
 package frc.robot.subsystems.Elevator;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -69,7 +73,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         encoder.setPosition(0);
 
         TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(
-                ElevatorConstants.kMaxElevatorVelocity, ElevatorConstants.kMaxElevatorAcceleration);
+                ElevatorConstants.kMaxElevatorVelocity.in(MetersPerSecond),
+                ElevatorConstants.kMaxElevatorAcceleration.in(MetersPerSecondPerSecond));
 
         controller = new ProfiledPIDController(ElevatorConstants.kElevatorKp, ElevatorConstants.kElevatorKi,
                 ElevatorConstants.kElevatorKd, constraints);
@@ -77,7 +82,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorFeedForward = new ElevatorFeedforward(ElevatorConstants.kElevatorkS,
                 ElevatorConstants.kElevatorkG, ElevatorConstants.kElevatorkV, ElevatorConstants.kElevatorkA);
 
-        controller.setTolerance(ElevatorConstants.kPositionTolerance);
+        controller.setTolerance(ElevatorConstants.kPositionTolerance.in(Meters));
         controller.calculate(0);
 
         enabled = false;

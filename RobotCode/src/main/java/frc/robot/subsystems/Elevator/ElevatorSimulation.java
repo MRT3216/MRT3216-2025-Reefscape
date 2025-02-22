@@ -42,7 +42,8 @@ public class ElevatorSimulation {
         this.m_elevatorGearbox = DCMotor.getNeoVortex(2);
         this.m_elevatorSim = new ElevatorSim(m_elevatorGearbox, ElevatorConstants.kElevatorGearing,
                 ElevatorConstants.kCarriageMass, ElevatorConstants.kElevatorDrumRadius,
-                ElevatorConstants.kMinElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters, true, 0);
+                ElevatorConstants.kMinElevatorHeight.in(Meters),
+                ElevatorConstants.kMaxElevatorHeight.in(Meters), true, 0);
 
         this.m_realMotorController = motorController;
         this.m_simMotorController = new SparkFlexSim(motorController, DCMotor.getNeoVortex(2));

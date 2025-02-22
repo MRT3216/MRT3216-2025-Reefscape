@@ -1,5 +1,9 @@
 package frc.robot.subsystems.Coral;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -28,7 +32,7 @@ public class CoralPivotSubsystem {
         SparkMaxConfig pivotConfig = new SparkMaxConfig();
 
         pivotConfig.idleMode(IdleMode.kBrake)
-                .inverted(CoraPivotConstants.kMotorInverted)
+                .inverted(CoralPivotConstants.kMotorInverted)
                 .smartCurrentLimit(CoralPivotConstants.kMotorCurrentLimit)
                 .voltageCompensation(CoralPivotConstants.kVoltageCompensation)
                 .openLoopRampRate(CoralPivotConstants.kPivotRampRate);
@@ -42,38 +46,40 @@ public class CoralPivotSubsystem {
 
         // pivotConfig.softLimit(0, 0);
 
-        PIDController = new ProfiledPIDController(
-            CoralPivotConstants.kPivotKp, 
-            CoralPivotConstants.kPivotKi, 
-            CoralPivotConstants.kPivotKd,
-                new TrapezoidProfile.Constraints(CoralPivotConstants.kMaxPivotVelocity, CoralPivotConstants.kMaxPivotAcceleration));
-        
+        pIDController = new ProfiledPIDController(
+                CoralPivotConstants.kPivotKp,
+                CoralPivotConstants.kPivotKi,
+                CoralPivotConstants.kPivotKd,
+                new TrapezoidProfile.Constraints(CoralPivotConstants.kMaxAngularVelocity.in(RadiansPerSecond),
+                        CoralPivotConstants.kMaxAngularAcceleration.in(RadiansPerSecondPerSecond)));
+
         feedforward = new ArmFeedforward(
-            CoralPivotConstants.kPivotkS, 
-            CoralPivotConstants.kPivotkG, 
-            CoralPivotConstants.kPivotkV,
-            CoralPivotConstants.kPivotkA);
+                CoralPivotConstants.kPivotkS,
+                CoralPivotConstants.kPivotkG,
+                CoralPivotConstants.kPivotkV,
+                CoralPivotConstants.kPivotkA);
     }
 
-    public void periodic(){
-        if(enabled){
+    public void periodic() {
+        if (enabled) {
             // TODO: add values
             double feedforwardOutput = 0;
             double pidOutput = pIDController.calculate(pivotEncoder.getPosition(), 0);
             pivotMotor.setVoltage(feedforwardOutput + pidOutput);
         }
     }
-    public void enable(){
+
+    public void enable() {
         enabled = true;
         pIDController.reset(0); // TODO: add value
     }
 
-    public void disable(){
+    public void disable() {
         enabled = false;
         pivotMotor.set(0);
     }
 
-    public double getPivotDegrees(){
-        return pivotEncoder.getPosition() * CoralPivotConstants.kScaleFactor - CoralPivotConstants.kOffsetDegrees;
+    private double getPivotDegrees() {
+        return pivotEncoder.getPosition() - CoralPivotConstants.kOffset.in(Degrees);
     }
 }

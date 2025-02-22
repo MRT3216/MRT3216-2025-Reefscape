@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.MechanismVisualization;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -34,7 +36,8 @@ public class MechanismVisualizationSubsystem extends SubsystemBase {
 
         MechanismRoot2d secondaryRoot2d = m_mech2d.getRoot("Riser Root", 20, 0);
         secondaryRoot2d.append(new MechanismLigament2d("Elevator Riser",
-                ElevatorConstants.kMaxElevatorHeightMeters * SimulationConstants.kVisualizationPixelMultiplier, 90, 3,
+                ElevatorConstants.kMaxElevatorHeight.in(Meters) * SimulationConstants.kVisualizationPixelMultiplier, 90,
+                3,
                 new Color8Bit(Color.kRed)));
 
         SmartDashboard.putData("Robot Sim", m_mech2d);
