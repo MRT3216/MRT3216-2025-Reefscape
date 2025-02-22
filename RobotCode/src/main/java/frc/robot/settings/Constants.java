@@ -160,7 +160,17 @@ public final class Constants {
 		}
 	}
 
-	public static final class PivotConstants {
+	// create a class for the intake constants
+	public static final class CoralIntakeConstants {
+		public static final boolean kMotorInverted = false;
+		public static final int kMotorCurrentLimit = 40;
+		public static final int kVoltageCompensation = 10;
+		public static final double kMaxErrorDegrees = 1.0; // Degree
+
+		public static final double VOLTAGE_THRESHOLD = 5; //TODO: Add correct value
+	}
+
+	public static final class CoralPivotConstants {
 		public static final boolean kMotorInverted = false;
 		public static final int kMotorCurrentLimit = 40;
 		public static final int kVoltageCompensation = 10;

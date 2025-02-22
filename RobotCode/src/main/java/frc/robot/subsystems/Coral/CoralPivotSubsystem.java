@@ -12,7 +12,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import frc.robot.settings.Constants.PivotConstants;
+import frc.robot.settings.Constants.CoralPivotConstants;
 import frc.robot.settings.RobotMap.ROBOT.PivotMap;
 
 public class CoralPivotSubsystem {
@@ -30,9 +30,9 @@ public class CoralPivotSubsystem {
 
         pivotConfig.idleMode(IdleMode.kBrake)
                 .inverted(false)
-                .smartCurrentLimit(PivotConstants.kMotorCurrentLimit)
-                .voltageCompensation(PivotConstants.kVoltageCompensation)
-                .openLoopRampRate(PivotConstants.kPivotRampRate);
+                .smartCurrentLimit(CoralPivotConstants.kMotorCurrentLimit)
+                .voltageCompensation(CoralPivotConstants.kVoltageCompensation)
+                .openLoopRampRate(CoralPivotConstants.kPivotRampRate);
 
         pivotEncoder = pivotMotor.getAbsoluteEncoder();
         EncoderConfig encoderConfig = new EncoderConfig();
@@ -44,16 +44,16 @@ public class CoralPivotSubsystem {
         // pivotConfig.softLimit(0, 0);
 
         PIDController = new ProfiledPIDController(
-                PivotConstants.kPivotKp, 
-                PivotConstants.kPivotKi, 
-                PivotConstants.kPivotKd,
-                new TrapezoidProfile.Constraints(PivotConstants.kMaxPivotVelocity, PivotConstants.kMaxPivotAcceleration));
+            CoralPivotConstants.kPivotKp, 
+            CoralPivotConstants.kPivotKi, 
+            CoralPivotConstants.kPivotKd,
+                new TrapezoidProfile.Constraints(CoralPivotConstants.kMaxPivotVelocity, CoralPivotConstants.kMaxPivotAcceleration));
         
         feedforward = new ArmFeedforward(
-                PivotConstants.kPivotkS, 
-                PivotConstants.kPivotkG, 
-                PivotConstants.kPivotkV,
-                PivotConstants.kPivotkA);
+            CoralPivotConstants.kPivotkS, 
+            CoralPivotConstants.kPivotkG, 
+            CoralPivotConstants.kPivotkV,
+            CoralPivotConstants.kPivotkA);
     }
 
 
@@ -76,6 +76,13 @@ public class CoralPivotSubsystem {
     }
 
     public double getPivotDegrees(){
-        return pivotEncoder.getPosition() * PivotConstants.kScaleFactor - PivotConstants.kOffsetDegrees;
+        return pivotEncoder.getPosition() * CoralPivotConstants.kScaleFactor - CoralPivotConstants.kOffsetDegrees;
+    }
+    
+    public static CoralPivotSubsystem getInstance() {
+        if (instance == null) {
+            instance = new CoralPivotSubsystem();
+        }
+        return instance;
     }
 }
