@@ -16,6 +16,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -92,10 +93,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
     }
 
-    public Command moveElevatorToHeight(double goal) {
+    public Command moveElevatorToHeight(Distance height) {
         return this.run(() -> {
             this.enable();
-            controller.setGoal(goal);
+            controller.setGoal(height.in(Meters));
         }).until(this.atGoal());
     }
 
@@ -117,7 +118,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void periodic() {
         if (enabled) {
-
             double pidOutput = controller.calculate(encoder.getPosition());
             double feedForward = elevatorFeedForward.calculate(controller.getSetpoint().velocity);
             double motorEffortVoltage = pidOutput + feedForward;
@@ -134,7 +134,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             SmartDashboard.putNumber("Elevator position error", controller.getPositionError());
             SmartDashboard.putNumber("Elevator position setpoint", controller.getSetpoint().position);
             SmartDashboard.putNumber("Elevator position actual", encoder.getPosition());
-            SmartDashboard.putNumber("Motor effort", leadMotorController.get());
+            SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
         }
     }
 }

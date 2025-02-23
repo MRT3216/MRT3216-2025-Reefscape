@@ -1,11 +1,14 @@
 package frc.robot.settings;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
@@ -22,6 +25,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.generated.TunerConstants;
 
 public final class Constants {
@@ -106,6 +111,31 @@ public final class Constants {
 		public static final double kRotationExpo = 0;
 	}
 
+	public enum Positions {
+		ZERO(Meters.of(0), Degrees.of(0)),
+		STOW(Meters.of(0), Degrees.of(0)),
+		L1(Meters.of(0.5), Degrees.of(20)),
+		L2(Meters.of(1), Degrees.of(40)),
+		L3(Meters.of(1.5), Degrees.of(60)),
+		L4(Meters.of(2), Degrees.of(80));
+
+		private Distance height;
+		private Angle angle;
+
+		private Positions(Distance height, Angle angle) {
+			this.height = height;
+			this.angle = angle;
+		}
+
+		public Distance getHeight() {
+			return height;
+		}
+
+		public Angle getAngle() {
+			return angle;
+		}
+	}
+
 	public static final class ElevatorConstants {
 		public static final boolean kLeadMotorInverted = true;
 		public static final int kMotorCurrentLimit = 60;
@@ -127,7 +157,7 @@ public final class Constants {
 
 		public static final double kElevatorGearing = 10.0;
 		public static final double kElevatorDrumRadius = Units.inchesToMeters(2);
-		public static final double kCarriageMass = 4.0; // kg
+		public static final Mass kCarriageMass = Kilograms.of(4.0); // kg
 
 		public static final Distance kMinElevatorHeight = Meters.of(0);
 		public static final Distance kMaxElevatorHeight = Meters.of(2);
@@ -145,23 +175,6 @@ public final class Constants {
 		public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(8).per(Second).per(Second);
 
 		public static final double kElevatorRampRate = 0.1;
-
-		public enum Heights {
-			L1(0.5),
-			L2(1),
-			L3(1.5),
-			L4(2);
-
-			private double value;
-
-			private Heights(double value) {
-				this.value = value;
-			}
-
-			public double getValue() {
-				return value;
-			}
-		}
 	}
 
 	// create a class for the intake constants
@@ -185,25 +198,28 @@ public final class Constants {
 
 		public static final Angle kMovementForwardLimit = Degree.of(100);
 		public static final Angle kMovementReverseLimit = Degree.of(15);
-		public static final Angle kOffset = Degree.of(0);
+		public static final Angle kOffset = Degree.of(90);
 
 		public static final Angle kAngleTolerance = Degree.of(1);
 
 		public static final double kPivotGearing = 25.0;
-		public static final Distance kPivotArmLength = Inches.of(5);
-		public static final double kPivotMass = Units.lbsToKilograms(10); // kg
+		public static final Distance kPivotArmLength = Inches.of(12.9);
+		public static final Mass kPivotMass = Pounds.of(5);
 
 		public static final Angle kMinPivotAngle = Degree.of(0);
-		public static final Angle kMaxPivotAngle = Degree.of(-180);
+		public static final Angle kMaxPivotAngle = Degree.of(90);
 
-		public static final double kPivotKp = 5;
-		public static final double kPivotKi = 1;
+		public static final double kMOI = SingleJointedArmSim.estimateMOI(kPivotArmLength.in(Meters),
+				kPivotMass.in(Kilograms));
+
+		public static final double kPivotKp = 0.2;
+		public static final double kPivotKi = 0;
 		public static final double kPivotKd = 0;
 
-		public static final double kPivotkS = 0.02; // volts (V)
+		public static final double kPivotkS =0;//0.0; // volts (V)
 		public static final double kPivotkG = 0.9; // volts (V)
-		public static final double kPivotkV = 3.8; // volt per velocity (V/(m/s))
-		public static final double kPivotkA = 0.17; // volt per acceleration (V/(m/s²))
+		public static final double kPivotkV = 0;//1.58; // volt per velocity (V/(m/s))
+		public static final double kPivotkA = 0;//0.17; // volt per acceleration (V/(m/s²))
 
 		public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(180); // degrees per second
 		public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(180); // degrees per second squared max acceleration
