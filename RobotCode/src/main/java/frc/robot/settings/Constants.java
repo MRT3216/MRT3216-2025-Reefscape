@@ -114,10 +114,10 @@ public final class Constants {
 	public enum Positions {
 		ZERO(Meters.of(0), Degrees.of(0)),
 		STOW(Meters.of(0), Degrees.of(0)),
-		L1(Meters.of(0.5), Degrees.of(20)),
-		L2(Meters.of(1), Degrees.of(40)),
-		L3(Meters.of(1.5), Degrees.of(60)),
-		L4(Meters.of(2), Degrees.of(80));
+		L1(Meters.of(0.5), Degrees.of(120)),
+		L2(Meters.of(1), Degrees.of(130)),
+		L3(Meters.of(1.5), Degrees.of(140)),
+		L4(Meters.of(2), Degrees.of(150));
 
 		private Distance height;
 		private Angle angle;
@@ -193,21 +193,18 @@ public final class Constants {
 		public static final int kVoltageCompensation = 10;
 		public static final Angle kMaxPivotError = Degree.of(1.0); // Degrees
 
-		public static final Angle kSoftForwardLimit = Degree.of(105);
-		public static final Angle kSoftReverseLimit = Degree.of(20);
+		// public static final Angle kSoftForwardLimit = Degree.of(105);
+		// public static final Angle kSoftReverseLimit = Degree.of(20);
 
-		public static final Angle kMovementForwardLimit = Degree.of(100);
-		public static final Angle kMovementReverseLimit = Degree.of(15);
-		public static final Angle kOffset = Degree.of(90);
-
-		public static final Angle kAngleTolerance = Degree.of(1);
-
+		// public static final Angle kMovementForwardLimit = Degree.of(100);
+		// public static final Angle kMovementReverseLimit = Degree.of(15);
+		// public static final Angle kOffset = Degree.of(90);
 		public static final double kPivotGearing = 25.0;
 		public static final Distance kPivotArmLength = Inches.of(12.9);
 		public static final Mass kPivotMass = Pounds.of(5);
 
 		public static final Angle kMinPivotAngle = Degree.of(0);
-		public static final Angle kMaxPivotAngle = Degree.of(90);
+		public static final Angle kMaxPivotAngle = Degree.of(180);
 
 		public static final double kMOI = SingleJointedArmSim.estimateMOI(kPivotArmLength.in(Meters),
 				kPivotMass.in(Kilograms));
@@ -216,7 +213,7 @@ public final class Constants {
 		public static final double kPivotKi = 0;
 		public static final double kPivotKd = 0;
 
-		public static final double kPivotkS =0;//0.0; // volts (V)
+		public static final double kPivotkS = 0;//0.0; // volts (V)
 		public static final double kPivotkG = 0.9; // volts (V)
 		public static final double kPivotkV = 0;//1.58; // volt per velocity (V/(m/s))
 		public static final double kPivotkA = 0;//0.17; // volt per acceleration (V/(m/s²))
@@ -229,7 +226,7 @@ public final class Constants {
 
 	public static final class SimulationConstants {
 		public static final double kSimulationTimeStep = 0.02; // seconds
-		public static final double kVisualizationPixelMultiplier = 100;
+		public static final double kVisualizationPixelMultiplier = 50;
 	}
 
 	public static final class AUTO {

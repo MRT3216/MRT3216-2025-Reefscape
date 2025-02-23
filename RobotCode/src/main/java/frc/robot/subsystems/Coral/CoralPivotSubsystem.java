@@ -3,7 +3,6 @@ package frc.robot.subsystems.Coral;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.Radians;
 
 import com.revrobotics.AbsoluteEncoder;

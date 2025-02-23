@@ -51,18 +51,12 @@ public class CoralPivotSimulation {
 
         MechanismVisualizationSubsystem.getInstance()
                 .registerCoralPivotAngleSupplier(
-                        () -> realEncoder.getPosition());
+                        () -> realEncoder.getPosition() + Units.degreesToRadians(180));
     }
 
     protected void simulationPeriodic() {
         armPivotSim.setInput(simMotorController.getAppliedOutput() * RobotController.getBatteryVoltage());
         armPivotSim.update(SimulationConstants.kSimulationTimeStep);
-
-        // Finally, we set our simulated encoder's readings and simulated battery voltage
-        // simMotorController.iterate(
-        //         armPivotSim.getVelocityRadPerSec(),
-        //         RoboRioSim.getVInVoltage(),
-        //         0.020);
 
         // Now, we update the Spark Flex
         simMotorController.iterate(

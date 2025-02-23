@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems.MechanismVisualization;
 
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
 import java.util.function.DoubleSupplier;
@@ -36,21 +35,22 @@ public class MechanismVisualizationSubsystem extends SubsystemBase {
 
     private MechanismVisualizationSubsystem() {
         this.m_mech2d = new Mechanism2d(250, 250, new Color8Bit(255, 255, 255));
-        this.m_mech2dRoot = m_mech2d.getRoot("Elevator Root", 50, 0);
+        this.m_mech2dRoot = m_mech2d.getRoot("Elevator Root", 50, 50);
         this.m_elevatorMech2d = m_mech2dRoot
                 .append(new MechanismLigament2d("Elevator", 0.5, 90));
 
-        MechanismRoot2d secondaryRoot2d = m_mech2d.getRoot("Riser Root", 60, 0);
+        MechanismRoot2d secondaryRoot2d = m_mech2d.getRoot("Riser Root", 70, 50);
         secondaryRoot2d.append(new MechanismLigament2d("Elevator Riser",
-                ElevatorConstants.kMaxElevatorHeight.in(Meters) * SimulationConstants.kVisualizationPixelMultiplier, 180,
+                ElevatorConstants.kMaxElevatorHeight.in(Meters) * SimulationConstants.kVisualizationPixelMultiplier,
+                90,
                 3,
                 new Color8Bit(Color.kRed)));
 
         this.m_armMech2d = this.m_elevatorMech2d.append(
                 new MechanismLigament2d("Coral Pivot",
                         CoralPivotConstants.kPivotArmLength.in(Meters)
-                                * SimulationConstants.kVisualizationPixelMultiplier, 90));
-                        //-1 * (90 - 30)));
+                                * SimulationConstants.kVisualizationPixelMultiplier,
+                        0, 10, new Color8Bit(Color.kPurple)));
 
         SmartDashboard.putData("Robot Sim", m_mech2d);
     }
