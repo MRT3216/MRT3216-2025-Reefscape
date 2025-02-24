@@ -28,7 +28,6 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.generated.TunerConstants;
-import frc.robot.settings.Constants.Coral.PivotConstants;
 
 public final class Constants {
 	public static final class DRIVETRAIN {
