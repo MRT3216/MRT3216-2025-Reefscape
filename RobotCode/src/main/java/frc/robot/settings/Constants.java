@@ -221,8 +221,8 @@ public final class Constants {
 
 		// TODO: Need to get these values from recal 
 		public static final double kPivotkS = 0;//0.0; // volts (V)
-		public static final double kPivotkG = 0.7; // volts (V)
-		public static final double kPivotkV = 0;//1.58; // volt per velocity (V/(m/s))
+		public static final double kPivotkG = 0.5; // volts (V)
+		public static final double kPivotkV = 3;//1.58; // volt per velocity (V/(m/s))
 		public static final double kPivotkA = 0;//0.17; // volt per acceleration (V/(m/s²))
 
 		public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(180); // degrees per second
