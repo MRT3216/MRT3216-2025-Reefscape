@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.MechanismVisualization;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 
 import java.util.function.DoubleSupplier;
@@ -50,14 +51,16 @@ public class MechanismVisualizationSubsystem extends SubsystemBase {
                 new MechanismLigament2d("Coral Pivot",
                         CoralPivotConstants.kPivotArmLength.in(Meters)
                                 * SimulationConstants.kVisualizationPixelMultiplier,
-                        0, 10, new Color8Bit(Color.kPurple)));
+                        // -90 to compensate for the elevator's 90 degree rotation
+                        CoralPivotConstants.kMinPivotAngle.in(Degrees),
+                        10,
+                        new Color8Bit(Color.kPurple)));
 
         SmartDashboard.putData("Robot Sim", m_mech2d);
     }
 
     public void registerElevatorHeightSupplier(DoubleSupplier elevatorHeightSupplier) {
         m_elevatorHeightSupplier = elevatorHeightSupplier;
-        m_elevatorMech2d.setLength(m_elevatorHeightSupplier.getAsDouble());
     }
 
     public static MechanismVisualizationSubsystem getInstance() {
@@ -69,7 +72,6 @@ public class MechanismVisualizationSubsystem extends SubsystemBase {
 
     public void registerCoralPivotAngleSupplier(DoubleSupplier armAngleSupplier) {
         m_armAngleSupplier = armAngleSupplier;
-        m_armMech2d.setAngle(armAngleSupplier.getAsDouble());
     }
 
     @Override
@@ -78,6 +80,6 @@ public class MechanismVisualizationSubsystem extends SubsystemBase {
         m_elevatorMech2d
                 .setLength(m_elevatorHeightSupplier.getAsDouble() * SimulationConstants.kVisualizationPixelMultiplier);
 
-        m_armMech2d.setAngle(Units.radiansToDegrees(m_armAngleSupplier.getAsDouble()));
+        m_armMech2d.setAngle(Units.rotationsToDegrees(m_armAngleSupplier.getAsDouble()));
     }
 }

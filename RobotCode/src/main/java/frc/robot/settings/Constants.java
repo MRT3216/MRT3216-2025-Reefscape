@@ -112,7 +112,7 @@ public final class Constants {
 	}
 
 	public enum Positions {
-		ZERO(Meters.of(0), CoralPivotConstants.kMinPivotAngle),
+		STARTING(Meters.of(0), CoralPivotConstants.kStartingAngle),
 		STOW(Meters.of(0), Degrees.of(0)),
 		L1(Meters.of(0.5), Degrees.of(0)),
 		L2(Meters.of(1), Degrees.of(30)),
@@ -202,14 +202,15 @@ public final class Constants {
 		// The soft limits are set in the motor controller to limit
 		// movement past a certain point. Consider this an emergency limit
 		// TODO: Adjust these
-		public static final Angle kSoftReverseLimit = Degree.of(-90);
-		public static final Angle kSoftForwardLimit = Degree.of(90);
+		public static final Angle kSoftReverseLimit = Degree.of(-95);
+		public static final Angle kSoftForwardLimit = Degree.of(95);
 
 		// These limits should be used to set how far we allow
 		// code to move the arm. These should allow less movement than
 		// the soft limits
-		public static final Angle kMinPivotAngle = Degree.of(-95);
-		public static final Angle kMaxPivotAngle = Degree.of(95);
+		public static final Angle kMinPivotAngle = Degree.of(-90);
+		public static final Angle kMaxPivotAngle = Degree.of(90);
+		public static final Angle kStartingAngle = Degree.of(90);
 
 		public static final double kMOI = SingleJointedArmSim.estimateMOI(kPivotArmLength.in(Meters),
 				kPivotMass.in(Kilograms));
@@ -218,6 +219,7 @@ public final class Constants {
 		public static final double kPivotKi = 0;
 		public static final double kPivotKd = 0;
 
+		// TODO: Need to get these values from recal 
 		public static final double kPivotkS = 0;//0.0; // volts (V)
 		public static final double kPivotkG = 0.7; // volts (V)
 		public static final double kPivotkV = 0;//1.58; // volt per velocity (V/(m/s))

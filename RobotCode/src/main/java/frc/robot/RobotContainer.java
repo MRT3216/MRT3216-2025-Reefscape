@@ -131,8 +131,8 @@ public class RobotContainer {
                                 .onTrue(elevator.moveElevatorToHeight(Positions.L1.getHeight())
                                                 .alongWith(coralPivot.movePivotToAngle(Positions.L1.getAngle())));
                 driverController.leftStick()
-                                .onTrue(elevator.moveElevatorToHeight(Positions.ZERO.getHeight())
-                                                .alongWith(coralPivot.movePivotToAngle(Positions.ZERO.getAngle())));
+                                .onTrue(elevator.moveElevatorToHeight(Positions.STARTING.getHeight())
+                                                .alongWith(coralPivot.movePivotToAngle(Positions.STARTING.getAngle())));
 
                 drivetrain.registerTelemetry(logger::telemeterize);
         }

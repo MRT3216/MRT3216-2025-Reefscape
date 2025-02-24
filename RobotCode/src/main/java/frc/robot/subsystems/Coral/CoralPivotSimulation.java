@@ -1,7 +1,9 @@
 package frc.robot.subsystems.Coral;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.sim.SparkAbsoluteEncoderSim;
@@ -41,7 +43,7 @@ public class CoralPivotSimulation {
                 CoralPivotConstants.kMinPivotAngle.in(Radians),
                 CoralPivotConstants.kMaxPivotAngle.in(Radians),
                 true,
-                Units.degreesToRadians(0));
+                CoralPivotConstants.kStartingAngle.in(Degrees));
 
         this.realMotorController = motorController;
         this.simMotorController = new SparkFlexSim(realMotorController, pivotGearbox);
@@ -51,7 +53,9 @@ public class CoralPivotSimulation {
 
         MechanismVisualizationSubsystem.getInstance()
                 .registerCoralPivotAngleSupplier(
-                        () -> realEncoder.getPosition() + Units.degreesToRadians(180));
+                        // The pivot is 90 degrees to the elevator
+                        // -90 (quarter turn) to compensate for the elevator's 90 degree rotation
+                        () -> realEncoder.getPosition() - 0.25);
     }
 
     protected void simulationPeriodic() {
@@ -65,7 +69,7 @@ public class CoralPivotSimulation {
                 RoboRioSim.getVInVoltage(), // Simulated battery voltage, in Volts
                 0.02); // Time interval, in Seconds
 
-        simEncoder.setPosition(armPivotSim.getAngleRads());
+        simEncoder.setPosition(Units.radiansToRotations(armPivotSim.getAngleRads()));
         m_simBattery.addCurrent(armPivotSim.getCurrentDrawAmps());
         SmartDashboard.putNumber("Coral Pivot Sim Current Draw", armPivotSim.getCurrentDrawAmps());
     }
