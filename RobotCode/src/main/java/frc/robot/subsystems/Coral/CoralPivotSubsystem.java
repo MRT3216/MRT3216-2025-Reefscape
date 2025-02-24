@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants.CoralPivotConstants;
-import frc.robot.settings.RobotMap.ROBOT.PivotMap;
+import frc.robot.settings.RobotMap.ROBOT.CoralSystem.PivotMap;
 
 public class CoralPivotSubsystem extends SubsystemBase {
     private final SparkFlex motorController;
@@ -37,7 +37,7 @@ public class CoralPivotSubsystem extends SubsystemBase {
     private CoralPivotSimulation simContainer;
 
     public CoralPivotSubsystem() {
-        motorController = new SparkFlex(PivotMap.pivotMotorCANID, MotorType.kBrushless);
+        motorController = new SparkFlex(PivotMap.motorCANID, MotorType.kBrushless);
 
         SparkMaxConfig pivotConfig = new SparkMaxConfig();
 
