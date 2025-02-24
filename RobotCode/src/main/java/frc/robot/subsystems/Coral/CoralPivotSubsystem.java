@@ -91,8 +91,6 @@ public class CoralPivotSubsystem extends SubsystemBase {
                 CoralPivotConstants.kMinPivotAngle.in(Rotations),
                 CoralPivotConstants.kMaxPivotAngle.in(Rotations));
         pIDController.setGoal(goalAngleInRotations);
-        SmartDashboard.putNumber("Coral Pivot GOAL",
-                goalAngleInRotations);
     }
 
     protected Trigger atGoal() {

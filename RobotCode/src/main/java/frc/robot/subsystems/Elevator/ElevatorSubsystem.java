@@ -13,15 +13,18 @@ import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.settings.Constants.CoralPivotConstants;
 import frc.robot.settings.Constants.ElevatorConstants;
 import frc.robot.settings.RobotMap.ROBOT.ElevatorMap;
 
@@ -31,7 +34,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final SparkFlex leadMotorController;
     private final SparkFlex followerMotorController;
     private RelativeEncoder encoder;
-    private ProfiledPIDController controller;
+    private ProfiledPIDController pIDController;
     private ElevatorSimulation elevatorSimContainer;
     private ElevatorFeedforward elevatorFeedForward;
     private boolean enabled;
@@ -52,6 +55,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 .openLoopRampRate(ElevatorConstants.kElevatorRampRate);
 
         EncoderConfig encoderConfig = new EncoderConfig();
+        // Convert rotations to degrees
         encoderConfig.positionConversionFactor(360);
         leadConfig.apply(encoderConfig);
 
@@ -77,14 +81,14 @@ public class ElevatorSubsystem extends SubsystemBase {
                 ElevatorConstants.kMaxElevatorVelocity.in(MetersPerSecond),
                 ElevatorConstants.kMaxElevatorAcceleration.in(MetersPerSecondPerSecond));
 
-        controller = new ProfiledPIDController(ElevatorConstants.kElevatorKp, ElevatorConstants.kElevatorKi,
+        pIDController = new ProfiledPIDController(ElevatorConstants.kElevatorKp, ElevatorConstants.kElevatorKi,
                 ElevatorConstants.kElevatorKd, constraints);
 
         elevatorFeedForward = new ElevatorFeedforward(ElevatorConstants.kElevatorkS,
                 ElevatorConstants.kElevatorkG, ElevatorConstants.kElevatorkV, ElevatorConstants.kElevatorkA);
 
-        controller.setTolerance(ElevatorConstants.kPositionTolerance.in(Meters));
-        controller.calculate(0);
+        pIDController.setTolerance(ElevatorConstants.kPositionTolerance.in(Meters));
+        pIDController.calculate(0);
 
         enabled = false;
 
@@ -96,12 +100,19 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Command moveElevatorToHeight(Distance height) {
         return this.run(() -> {
             this.enable();
-            controller.setGoal(height.in(Meters));
+            setElevatorHeightGoal(height);
         }).until(this.atGoal());
     }
 
+    private void setElevatorHeightGoal(Distance height) {
+        double goalHeightinMeters = MathUtil.clamp(height.in(Meters),
+                ElevatorConstants.kMinHeight.in(Meters),
+                ElevatorConstants.kMaxHeight.in(Meters));
+        pIDController.setGoal(goalHeightinMeters);
+    }
+
     protected Trigger atGoal() {
-        return new Trigger(() -> controller.atGoal());
+        return new Trigger(() -> pIDController.atGoal());
     }
 
     /** Enables the PID control. Resets the controller. */
@@ -111,15 +122,15 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     /** Disables the PID control. Sets output to zero. */
     public void disable() {
-        controller.setGoal(encoder.getPosition());
+        pIDController.setGoal(encoder.getPosition());
         leadMotorController.set(0);
         enabled = false;
     }
 
     public void periodic() {
         if (enabled) {
-            double pidOutput = controller.calculate(encoder.getPosition());
-            double feedForward = elevatorFeedForward.calculate(controller.getSetpoint().velocity);
+            double pidOutput = pIDController.calculate(encoder.getPosition());
+            double feedForward = elevatorFeedForward.calculate(pIDController.getSetpoint().velocity);
             double motorEffortVoltage = pidOutput + feedForward;
 
             leadMotorController.setVoltage(motorEffortVoltage);
@@ -131,8 +142,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         if (elevatorSimContainer != null) {
             elevatorSimContainer.simulationPeriodic();
             SmartDashboard.putBoolean("Elevator Enabled", enabled);
-            SmartDashboard.putNumber("Elevator position error", controller.getPositionError());
-            SmartDashboard.putNumber("Elevator position setpoint", controller.getSetpoint().position);
+            SmartDashboard.putNumber("Elevator position error", pIDController.getPositionError());
+            SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
             SmartDashboard.putNumber("Elevator position actual", encoder.getPosition());
             SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
         }

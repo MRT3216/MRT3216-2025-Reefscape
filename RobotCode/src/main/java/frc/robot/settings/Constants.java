@@ -146,13 +146,10 @@ public final class Constants {
 		// public static final double kSoftForwardLimitDegrees = 105;
 		// public static final double kSoftReverseLimitDegrees = 20;
 		// // These limits should be used to set how far we allow
-		// // code to move the arm. These should allow less movement than
+		// // code to move the elevator. These should allow less movement than
 		// // the soft limits
-		// public static final double kMovementForwardLimitDegrees = 100;
-		// public static final double kMovementReverseLimitDegrees = 15;
-		// public static final double kOffsetDegrees = 0;
-		// This is scaled by the gear ratio of encoder to pivot
-		// public static final double kScaleFactor = 1.176;
+		public static final Distance kMaxHeight = Meters.of(2);
+		public static final Distance kMinHeight = Meters.of(0);
 		public static final Distance kPositionTolerance = Inches.of(0.5);
 
 		public static final double kElevatorGearing = 10.0;
@@ -195,7 +192,6 @@ public final class Constants {
 		public static final double kPivotGearing = 25.0;
 		public static final Distance kPivotArmLength = Inches.of(12.9);
 		public static final Mass kPivotMass = Pounds.of(5);
-
 		public static final Angle kPivotOffset = Degrees.of(0);
 
 		// The soft limits are set in the motor controller to limit
