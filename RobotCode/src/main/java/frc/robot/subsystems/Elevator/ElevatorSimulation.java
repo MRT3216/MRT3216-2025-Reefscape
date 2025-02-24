@@ -22,8 +22,8 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.settings.Constants.Coral.ElevatorConstants;
-import frc.robot.settings.Constants.SimulationConstants;
+import frc.robot.settings.Constants.CORAL.ELEVATOR;
+import frc.robot.settings.Constants.SIMULATION;
 import frc.robot.subsystems.BatterySim.BatterySimSubsystem;
 import frc.robot.subsystems.MechanismVisualization.MechanismVisualizationSubsystem;
 
@@ -41,10 +41,10 @@ public class ElevatorSimulation {
 
     public ElevatorSimulation(RelativeEncoder encoder, SparkFlex motorController) {
         this.elevatorGearbox = DCMotor.getNeoVortex(2);
-        this.elevatorSim = new ElevatorSim(elevatorGearbox, ElevatorConstants.kElevatorGearing,
-                ElevatorConstants.kCarriageMass.in(Kilograms), ElevatorConstants.kElevatorDrumRadius,
-                ElevatorConstants.kMinElevatorHeight.in(Meters),
-                ElevatorConstants.kMaxElevatorHeight.in(Meters), true, 0);
+        this.elevatorSim = new ElevatorSim(elevatorGearbox, ELEVATOR.kElevatorGearing,
+                ELEVATOR.kCarriageMass.in(Kilograms), ELEVATOR.kElevatorDrumRadius,
+                ELEVATOR.kMinElevatorHeight.in(Meters),
+                ELEVATOR.kMaxElevatorHeight.in(Meters), true, 0);
 
         this.realMotorController = motorController;
         this.simMotorController = new SparkFlexSim(motorController, DCMotor.getNeoVortex(2));
@@ -57,7 +57,7 @@ public class ElevatorSimulation {
 
     protected void simulationPeriodic() {
         elevatorSim.setInput(simMotorController.getAppliedOutput() * RobotController.getBatteryVoltage());
-        elevatorSim.update(SimulationConstants.kSimulationTimeStep);
+        elevatorSim.update(SIMULATION.kSimulationTimeStep);
 
         // Finally, we set our simulated encoder's readings and simulated battery voltage
         simMotorController.iterate(
@@ -81,7 +81,7 @@ public class ElevatorSimulation {
     */
     public static Angle convertDistanceToRotations(Distance distance) {
         return Rotations.of(distance.in(Meters) /
-                (ElevatorConstants.kElevatorDrumRadius * 2 * Math.PI) *
-                ElevatorConstants.kElevatorGearing);
+                (ELEVATOR.kElevatorDrumRadius * 2 * Math.PI) *
+                ELEVATOR.kElevatorGearing);
     }
 }

@@ -111,10 +111,10 @@ public final class Constants {
 		public static final double kRotationExpo = 0;
 	}
 
-	public static final class Coral {
-		public enum Positions {
+	public static final class CORAL {
+		public enum POSITIONS {
 			CORAL_STATION(Meters.of(1), Degrees.of(60)),
-			STARTING(Meters.of(0), PivotConstants.kStartingAngle),
+			STARTING(Meters.of(0), PIVOT.kStartingAngle),
 			STOW(Meters.of(0), Degrees.of(0)),
 			L1(Meters.of(0.5), Degrees.of(0)),
 			L2(Meters.of(1), Degrees.of(30)),
@@ -124,7 +124,7 @@ public final class Constants {
 			private Distance height;
 			private Angle angle;
 
-			private Positions(Distance height, Angle angle) {
+			private POSITIONS(Distance height, Angle angle) {
 				this.height = height;
 				this.angle = angle;
 			}
@@ -138,7 +138,7 @@ public final class Constants {
 			}
 		}
 
-		public static final class ElevatorConstants {
+		public static final class ELEVATOR {
 			public static final boolean kLeadMotorInverted = true;
 			public static final int kMotorCurrentLimit = 60;
 			public static final int kVoltageCompensation = 10;
@@ -175,7 +175,7 @@ public final class Constants {
 			public static final double kElevatorRampRate = 0.1;
 		}
 
-		public static final class EndEffectorConstants {
+		public static final class END_EFFECTOR {
 			public static final boolean kMotorInverted = false;
 			public static final int kMotorCurrentLimit = 40;
 			public static final int kVoltageCompensation = 10;
@@ -184,7 +184,7 @@ public final class Constants {
 			public static final double VOLTAGE_THRESHOLD = 5; // TODO: Add correct value
 		}
 
-		public static final class PivotConstants {
+		public static final class PIVOT {
 			public static final boolean kMotorInverted = false;
 			public static final int kMotorCurrentLimit = 40;
 			public static final int kVoltageCompensation = 10;
@@ -228,8 +228,8 @@ public final class Constants {
 		}
 	}
 
-	public static final class Algae {
-		public static final class Pivot {
+	public static final class ALGAE {
+		public static final class PIVOT {
 			public enum Positions {
 				STARTING(Degrees.of(0)),
 				STOW(Degrees.of(0)),
@@ -288,14 +288,14 @@ public final class Constants {
 			public static final double kPivotRampRate = 0.1;
 		}
 
-		public static final class IntakeOuttake {
+		public static final class INTAKE_OUTTAKE {
 			public static final boolean kMotorInverted = false;
 			public static final int kMotorCurrentLimit = 40;
 			public static final int kVoltageCompensation = 10;
 		}
 	}
 
-	public static final class SimulationConstants {
+	public static final class SIMULATION {
 		public static final double kSimulationTimeStep = 0.02; // seconds
 		public static final double kVisualizationPixelMultiplier = 50;
 	}

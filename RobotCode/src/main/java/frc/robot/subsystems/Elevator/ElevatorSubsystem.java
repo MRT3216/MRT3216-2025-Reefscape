@@ -22,8 +22,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.settings.Constants.Coral.ElevatorConstants;
-import frc.robot.settings.RobotMap.ROBOT.CoralSystem.ElevatorMap;
+import frc.robot.settings.Constants.CORAL.ELEVATOR;
+import frc.robot.settings.RobotMap.ROBOT.CORAL_SYSTEM.ELEVATOR_MAP;
 
 public class ElevatorSubsystem extends SubsystemBase {
     // #region Fields
@@ -39,17 +39,17 @@ public class ElevatorSubsystem extends SubsystemBase {
     // #endregion
 
     public ElevatorSubsystem() {
-        leadMotorController = new SparkFlex(ElevatorMap.leadMotorCANID, MotorType.kBrushless);
-        followerMotorController = new SparkFlex(ElevatorMap.followerMotorCANID, MotorType.kBrushless);
+        leadMotorController = new SparkFlex(ELEVATOR_MAP.leadMotorCANID, MotorType.kBrushless);
+        followerMotorController = new SparkFlex(ELEVATOR_MAP.followerMotorCANID, MotorType.kBrushless);
 
         SparkMaxConfig leadConfig = new SparkMaxConfig();
         SparkMaxConfig followerConfig = new SparkMaxConfig();
 
         leadConfig.idleMode(IdleMode.kBrake)
-                .inverted(!ElevatorConstants.kLeadMotorInverted)
-                .smartCurrentLimit(ElevatorConstants.kMotorCurrentLimit)
-                .voltageCompensation(ElevatorConstants.kVoltageCompensation)
-                .openLoopRampRate(ElevatorConstants.kElevatorRampRate);
+                .inverted(!ELEVATOR.kLeadMotorInverted)
+                .smartCurrentLimit(ELEVATOR.kMotorCurrentLimit)
+                .voltageCompensation(ELEVATOR.kVoltageCompensation)
+                .openLoopRampRate(ELEVATOR.kElevatorRampRate);
 
         // TODO: This
         // EncoderConfig encoderConfig = new EncoderConfig();
@@ -59,10 +59,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         leadMotorController.configure(leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        followerConfig.follow(leadMotorController, ElevatorConstants.kLeadMotorInverted)
+        followerConfig.follow(leadMotorController, ELEVATOR.kLeadMotorInverted)
                 .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(ElevatorConstants.kMotorCurrentLimit)
-                .voltageCompensation(ElevatorConstants.kVoltageCompensation);
+                .smartCurrentLimit(ELEVATOR.kMotorCurrentLimit)
+                .voltageCompensation(ELEVATOR.kVoltageCompensation);
 
         followerMotorController.configure(followerConfig, ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
@@ -76,16 +76,16 @@ public class ElevatorSubsystem extends SubsystemBase {
         encoder.setPosition(0);
 
         TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(
-                ElevatorConstants.kMaxElevatorVelocity.in(MetersPerSecond),
-                ElevatorConstants.kMaxElevatorAcceleration.in(MetersPerSecondPerSecond));
+                ELEVATOR.kMaxElevatorVelocity.in(MetersPerSecond),
+                ELEVATOR.kMaxElevatorAcceleration.in(MetersPerSecondPerSecond));
 
-        pIDController = new ProfiledPIDController(ElevatorConstants.kElevatorKp, ElevatorConstants.kElevatorKi,
-                ElevatorConstants.kElevatorKd, constraints);
+        pIDController = new ProfiledPIDController(ELEVATOR.kElevatorKp, ELEVATOR.kElevatorKi,
+                ELEVATOR.kElevatorKd, constraints);
 
-        elevatorFeedForward = new ElevatorFeedforward(ElevatorConstants.kElevatorkS,
-                ElevatorConstants.kElevatorkG, ElevatorConstants.kElevatorkV, ElevatorConstants.kElevatorkA);
+        elevatorFeedForward = new ElevatorFeedforward(ELEVATOR.kElevatorkS,
+                ELEVATOR.kElevatorkG, ELEVATOR.kElevatorkV, ELEVATOR.kElevatorkA);
 
-        pIDController.setTolerance(ElevatorConstants.kPositionTolerance.in(Meters));
+        pIDController.setTolerance(ELEVATOR.kPositionTolerance.in(Meters));
 
         enabled = false;
 
@@ -103,8 +103,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     private void setElevatorHeightGoal(Distance height) {
         double goalHeightinMeters = MathUtil.clamp(height.in(Meters),
-                ElevatorConstants.kMinHeight.in(Meters),
-                ElevatorConstants.kMaxHeight.in(Meters));
+                ELEVATOR.kMinHeight.in(Meters),
+                ELEVATOR.kMaxHeight.in(Meters));
         pIDController.setGoal(goalHeightinMeters);
     }
 

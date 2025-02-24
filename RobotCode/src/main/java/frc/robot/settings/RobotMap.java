@@ -2,32 +2,32 @@ package frc.robot.settings;
 
 public final class RobotMap {
     public static final class ROBOT {
-        public static final class CoralSystem {
-            public static final class ElevatorMap {
+        public static final class CORAL_SYSTEM {
+            public static final class ELEVATOR_MAP {
                 public static final int leadMotorCANID = 5;
                 public static final int followerMotorCANID = 6;
             }
 
-            public static final class PivotMap {
+            public static final class PIVOT_MAP {
                 public static final int motorCANID = 7;
             }
 
-            public static final class EndEffectorMap {
+            public static final class END_EFFECTOR_MAP {
                 public static final int motorCANID = 8;
             }
         }
 
-        public static final class AlgaeSystem {
-            public static final class PivotMap {
+        public static final class ALGAE_SYSTEM {
+            public static final class PIVOT_MAP {
                 public static final int motorCANID = 9;
             }
 
-            public static final class IntakeOuttakeMap {
+            public static final class INTAKE_OUTTAKE_MAP {
                 public static final int motorCANID = 10;
             }
         }
 
-        public static class ClimberMap {
+        public static class CLIMBER_MAP {
             public static class CAN {
                 public static final int LEFT_MOTOR = 19;
                 public static final int RIGHT_MOTOR = 20;

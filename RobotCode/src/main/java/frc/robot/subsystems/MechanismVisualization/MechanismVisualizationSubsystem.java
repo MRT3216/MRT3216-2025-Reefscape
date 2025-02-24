@@ -17,9 +17,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.settings.Constants.Coral.ElevatorConstants;
-import frc.robot.settings.Constants.Coral.PivotConstants;
-import frc.robot.settings.Constants.SimulationConstants;
+import frc.robot.settings.Constants.CORAL.ELEVATOR;
+import frc.robot.settings.Constants.CORAL.PIVOT;
+import frc.robot.settings.Constants.SIMULATION;
 
 public class MechanismVisualizationSubsystem extends SubsystemBase {
 
@@ -42,17 +42,17 @@ public class MechanismVisualizationSubsystem extends SubsystemBase {
 
         MechanismRoot2d secondaryRoot2d = m_mech2d.getRoot("Riser Root", 70, 50);
         secondaryRoot2d.append(new MechanismLigament2d("Elevator Riser",
-                ElevatorConstants.kMaxElevatorHeight.in(Meters) * SimulationConstants.kVisualizationPixelMultiplier,
+                ELEVATOR.kMaxElevatorHeight.in(Meters) * SIMULATION.kVisualizationPixelMultiplier,
                 90,
                 3,
                 new Color8Bit(Color.kRed)));
 
         this.m_armMech2d = this.m_elevatorMech2d.append(
                 new MechanismLigament2d("Coral Pivot",
-                        PivotConstants.kPivotArmLength.in(Meters)
-                                * SimulationConstants.kVisualizationPixelMultiplier,
+                        PIVOT.kPivotArmLength.in(Meters)
+                                * SIMULATION.kVisualizationPixelMultiplier,
                         // -90 to compensate for the elevator's 90 degree rotation
-                        PivotConstants.kMinPivotAngle.in(Degrees),
+                        PIVOT.kMinPivotAngle.in(Degrees),
                         10,
                         new Color8Bit(Color.kPurple)));
 
@@ -78,7 +78,7 @@ public class MechanismVisualizationSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         // This method will be called once per scheduler run
         m_elevatorMech2d
-                .setLength(m_elevatorHeightSupplier.getAsDouble() * SimulationConstants.kVisualizationPixelMultiplier);
+                .setLength(m_elevatorHeightSupplier.getAsDouble() * SIMULATION.kVisualizationPixelMultiplier);
 
         m_armMech2d.setAngle(Units.rotationsToDegrees(m_armAngleSupplier.getAsDouble()));
     }

@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
-import frc.robot.settings.Constants.Coral.Positions;
+import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.Constants.ReefBranch;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -119,20 +119,20 @@ public class RobotContainer {
         driverController.y().whileTrue(drivetrain.driveToProcessor());
 
         driverController.povUp()
-                .onTrue(elevator.moveElevatorToHeight(Positions.L4.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(Positions.L4.getAngle())));
+                .onTrue(elevator.moveElevatorToHeight(POSITIONS.L4.getHeight())
+                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.L4.getAngle())));
         driverController.povRight()
-                .onTrue(elevator.moveElevatorToHeight(Positions.L3.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(Positions.L3.getAngle())));
+                .onTrue(elevator.moveElevatorToHeight(POSITIONS.L3.getHeight())
+                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.L3.getAngle())));
         driverController.povLeft()
-                .onTrue(elevator.moveElevatorToHeight(Positions.L2.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(Positions.L2.getAngle())));
+                .onTrue(elevator.moveElevatorToHeight(POSITIONS.L2.getHeight())
+                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.L2.getAngle())));
         driverController.povDown()
-                .onTrue(elevator.moveElevatorToHeight(Positions.L1.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(Positions.L1.getAngle())));
+                .onTrue(elevator.moveElevatorToHeight(POSITIONS.L1.getHeight())
+                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.L1.getAngle())));
         driverController.leftStick()
-                .onTrue(elevator.moveElevatorToHeight(Positions.STARTING.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(Positions.STARTING.getAngle())));
+                .onTrue(elevator.moveElevatorToHeight(POSITIONS.STARTING.getHeight())
+                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.STARTING.getAngle())));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

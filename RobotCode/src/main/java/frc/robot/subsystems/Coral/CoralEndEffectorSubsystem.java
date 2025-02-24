@@ -5,14 +5,14 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.settings.Constants.Coral.EndEffectorConstants;
-import frc.robot.settings.RobotMap.ROBOT.CoralSystem.EndEffectorMap;
+import frc.robot.settings.Constants.CORAL.END_EFFECTOR;
+import frc.robot.settings.RobotMap.ROBOT.CORAL_SYSTEM.END_EFFECTOR_MAP;
 
 public class CoralEndEffectorSubsystem extends SubsystemBase {
     private final TalonFX motor;
 
     public CoralEndEffectorSubsystem() {
-        motor = new TalonFX(EndEffectorMap.motorCANID);
+        motor = new TalonFX(END_EFFECTOR_MAP.motorCANID);
 
         TalonFXConfigurator config = motor.getConfigurator();
 
@@ -29,7 +29,7 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
         return this.startEnd(
                 () -> setIntakeSpeed(speed),
                 () -> stopIntake())
-                .until(() -> voltage > EndEffectorConstants.VOLTAGE_THRESHOLD);
+                .until(() -> voltage > END_EFFECTOR.VOLTAGE_THRESHOLD);
     }
 
     public void stopIntake() {
