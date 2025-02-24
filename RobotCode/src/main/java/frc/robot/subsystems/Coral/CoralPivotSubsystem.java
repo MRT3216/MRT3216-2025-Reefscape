@@ -33,7 +33,7 @@ public class CoralPivotSubsystem extends SubsystemBase {
     private AbsoluteEncoder encoder;
     private ProfiledPIDController pIDController;
     private ArmFeedforward feedforward;
-    private boolean enabled;
+    private boolean enabled = false;
     private CoralPivotSimulation simContainer;
 
     public CoralPivotSubsystem() {
