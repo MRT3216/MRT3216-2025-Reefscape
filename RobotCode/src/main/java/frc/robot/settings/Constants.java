@@ -112,12 +112,12 @@ public final class Constants {
 	}
 
 	public enum Positions {
-		ZERO(Meters.of(0), Degrees.of(0)),
+		ZERO(Meters.of(0), CoralPivotConstants.kMinPivotAngle),
 		STOW(Meters.of(0), Degrees.of(0)),
-		L1(Meters.of(0.5), Degrees.of(120)),
-		L2(Meters.of(1), Degrees.of(130)),
-		L3(Meters.of(1.5), Degrees.of(140)),
-		L4(Meters.of(2), Degrees.of(150));
+		L1(Meters.of(0.5), Degrees.of(0)),
+		L2(Meters.of(1), Degrees.of(30)),
+		L3(Meters.of(1.5), Degrees.of(45)),
+		L4(Meters.of(2), Degrees.of(60));
 
 		private Distance height;
 		private Angle angle;
@@ -198,28 +198,28 @@ public final class Constants {
 		public static final Mass kPivotMass = Pounds.of(5);
 
 		public static final Angle kPivotOffset = Degrees.of(0);
-		
+
 		// The soft limits are set in the motor controller to limit
 		// movement past a certain point. Consider this an emergency limit
 		// TODO: Adjust these
-		public static final Angle kSoftReverseLimit = Degree.of(0);
-		public static final Angle kSoftForwardLimit = Degree.of(180);
+		public static final Angle kSoftReverseLimit = Degree.of(-90);
+		public static final Angle kSoftForwardLimit = Degree.of(90);
 
 		// These limits should be used to set how far we allow
 		// code to move the arm. These should allow less movement than
 		// the soft limits
-		public static final Angle kMinPivotAngle = Degree.of(0);
-		public static final Angle kMaxPivotAngle = Degree.of(180);
+		public static final Angle kMinPivotAngle = Degree.of(-95);
+		public static final Angle kMaxPivotAngle = Degree.of(95);
 
 		public static final double kMOI = SingleJointedArmSim.estimateMOI(kPivotArmLength.in(Meters),
 				kPivotMass.in(Kilograms));
 
-		public static final double kPivotKp = 0.2;
+		public static final double kPivotKp = 50;
 		public static final double kPivotKi = 0;
 		public static final double kPivotKd = 0;
 
 		public static final double kPivotkS = 0;//0.0; // volts (V)
-		public static final double kPivotkG = 0.9; // volts (V)
+		public static final double kPivotkG = 0.7; // volts (V)
 		public static final double kPivotkV = 0;//1.58; // volt per velocity (V/(m/s))
 		public static final double kPivotkA = 0;//0.17; // volt per acceleration (V/(m/s²))
 
