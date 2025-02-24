@@ -28,6 +28,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.generated.TunerConstants;
+import frc.robot.settings.Constants.Coral.PivotConstants;
 
 public final class Constants {
 	public static final class DRIVETRAIN {
@@ -111,124 +112,121 @@ public final class Constants {
 		public static final double kRotationExpo = 0;
 	}
 
-	public enum Positions {
-		STARTING(Meters.of(0), CoralPivotConstants.kStartingAngle),
-		STOW(Meters.of(0), Degrees.of(0)),
-		L1(Meters.of(0.5), Degrees.of(0)),
-		L2(Meters.of(1), Degrees.of(30)),
-		L3(Meters.of(1.5), Degrees.of(45)),
-		L4(Meters.of(2), Degrees.of(60));
+	public static final class Coral {
+		public enum Positions {
+			CORAL_STATION(Meters.of(1), Degrees.of(60)),
+			STARTING(Meters.of(0), PivotConstants.kStartingAngle),
+			STOW(Meters.of(0), Degrees.of(0)),
+			L1(Meters.of(0.5), Degrees.of(0)),
+			L2(Meters.of(1), Degrees.of(30)),
+			L3(Meters.of(1.5), Degrees.of(45)),
+			L4(Meters.of(2), Degrees.of(60));
 
-		private Distance height;
-		private Angle angle;
+			private Distance height;
+			private Angle angle;
 
-		private Positions(Distance height, Angle angle) {
-			this.height = height;
-			this.angle = angle;
+			private Positions(Distance height, Angle angle) {
+				this.height = height;
+				this.angle = angle;
+			}
+
+			public Distance getHeight() {
+				return height;
+			}
+
+			public Angle getAngle() {
+				return angle;
+			}
 		}
 
-		public Distance getHeight() {
-			return height;
+		public static final class ElevatorConstants {
+			public static final boolean kLeadMotorInverted = true;
+			public static final int kMotorCurrentLimit = 60;
+			public static final int kVoltageCompensation = 10;
+			// // The soft limits are set in the motor controller to limit
+			// // movement past a certain point. Consider this an emergency limit
+			// public static final double kSoftForwardLimitDegrees = 105;
+			// public static final double kSoftReverseLimitDegrees = 20;
+			// // These limits should be used to set how far we allow
+			// // code to move the elevator. These should allow less movement than
+			// // the soft limits
+			public static final Distance kMaxHeight = Meters.of(2);
+			public static final Distance kMinHeight = Meters.of(0);
+			public static final Distance kPositionTolerance = Inches.of(0.5);
+
+			public static final double kElevatorGearing = 10.0;
+			public static final double kElevatorDrumRadius = Units.inchesToMeters(2);
+			public static final Mass kCarriageMass = Kilograms.of(4.0); // kg
+
+			public static final Distance kMinElevatorHeight = Meters.of(0);
+			public static final Distance kMaxElevatorHeight = Meters.of(2);
+
+			public static final double kElevatorKp = 5;
+			public static final double kElevatorKi = 1;
+			public static final double kElevatorKd = 0;
+
+			public static final double kElevatorkS = 0.02; // volts (V)
+			public static final double kElevatorkG = 0.9; // volts (V)
+			public static final double kElevatorkV = 3.8; // volt per velocity (V/(m/s))
+			public static final double kElevatorkA = 0.17; // volt per acceleration (V/(m/s²))
+
+			public static final LinearVelocity kMaxElevatorVelocity = Meters.of(4).per(Second); // m/s
+			public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(8).per(Second).per(Second);
+
+			public static final double kElevatorRampRate = 0.1;
 		}
 
-		public Angle getAngle() {
-			return angle;
+		public static final class EndEffectorConstants {
+			public static final boolean kMotorInverted = false;
+			public static final int kMotorCurrentLimit = 40;
+			public static final int kVoltageCompensation = 10;
+			public static final Angle kMaxError = Degree.of(1.0);
+
+			public static final double VOLTAGE_THRESHOLD = 5; // TODO: Add correct value
 		}
-	}
 
-	public static final class ElevatorConstants {
-		public static final boolean kLeadMotorInverted = true;
-		public static final int kMotorCurrentLimit = 60;
-		public static final int kVoltageCompensation = 10;
-		// public static final double kMaxPivotErrorDegrees = 1.0; // Degrees
-		// // The soft limits are set in the motor controller to limit
-		// // movement past a certain point. Consider this an emergency limit
-		// public static final double kSoftForwardLimitDegrees = 105;
-		// public static final double kSoftReverseLimitDegrees = 20;
-		// // These limits should be used to set how far we allow
-		// // code to move the arm. These should allow less movement than
-		// // the soft limits
-		// public static final double kMovementForwardLimitDegrees = 100;
-		// public static final double kMovementReverseLimitDegrees = 15;
-		// public static final double kOffsetDegrees = 0;
-		// This is scaled by the gear ratio of encoder to pivot
-		// public static final double kScaleFactor = 1.176;
-		public static final Distance kPositionTolerance = Inches.of(0.5);
+		public static final class PivotConstants {
+			public static final boolean kMotorInverted = false;
+			public static final int kMotorCurrentLimit = 40;
+			public static final int kVoltageCompensation = 10;
+			public static final Angle kMaxPivotError = Degree.of(1.0); // Degrees
 
-		public static final double kElevatorGearing = 10.0;
-		public static final double kElevatorDrumRadius = Units.inchesToMeters(2);
-		public static final Mass kCarriageMass = Kilograms.of(4.0); // kg
+			public static final double kPivotGearing = 25.0;
+			public static final Distance kPivotArmLength = Inches.of(12.9);
+			public static final Mass kPivotMass = Pounds.of(5);
+			public static final Angle kPivotOffset = Degrees.of(0);
 
-		public static final Distance kMinElevatorHeight = Meters.of(0);
-		public static final Distance kMaxElevatorHeight = Meters.of(2);
+			// The soft limits are set in the motor controller to limit
+			// movement past a certain point. Consider this an emergency limit
+			// TODO: Adjust these
+			public static final Angle kSoftReverseLimit = Degree.of(-95);
+			public static final Angle kSoftForwardLimit = Degree.of(95);
 
-		public static final double kElevatorKp = 5;
-		public static final double kElevatorKi = 1;
-		public static final double kElevatorKd = 0;
+			// These limits should be used to set how far we allow
+			// code to move the arm. These should allow less movement than
+			// the soft limits
+			public static final Angle kMinPivotAngle = Degree.of(-90);
+			public static final Angle kMaxPivotAngle = Degree.of(90);
+			public static final Angle kStartingAngle = Degree.of(90);
 
-		public static final double kElevatorkS = 0.02; // volts (V)
-		public static final double kElevatorkG = 0.9; // volts (V)
-		public static final double kElevatorkV = 3.8; // volt per velocity (V/(m/s))
-		public static final double kElevatorkA = 0.17; // volt per acceleration (V/(m/s²))
+			public static final double kMOI = SingleJointedArmSim.estimateMOI(kPivotArmLength.in(Meters),
+					kPivotMass.in(Kilograms));
 
-		public static final LinearVelocity kMaxElevatorVelocity = Meters.of(4).per(Second); // m/s
-		public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(8).per(Second).per(Second);
+			public static final double kPivotKp = 50;
+			public static final double kPivotKi = 0;
+			public static final double kPivotKd = 0;
 
-		public static final double kElevatorRampRate = 0.1;
-	}
+			// TODO: Need to get these values from recal 
+			public static final double kPivotkS = 0;//0.0; // volts (V)
+			public static final double kPivotkG = 0.5; // volts (V)
+			public static final double kPivotkV = 3;//1.58; // volt per velocity (V/(m/s))
+			public static final double kPivotkA = 0;//0.17; // volt per acceleration (V/(m/s²))
 
-	// create a class for the intake constants
-	public static final class CoralIntakeConstants {
-		public static final boolean kMotorInverted = false;
-		public static final int kMotorCurrentLimit = 40;
-		public static final int kVoltageCompensation = 10;
-		public static final Angle kMaxError = Degree.of(1.0);
+			public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(180); // degrees per second
+			public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(180); // degrees per second squared max acceleration
 
-		public static final double VOLTAGE_THRESHOLD = 5; //TODO: Add correct value
-	}
-
-	public static final class CoralPivotConstants {
-		public static final boolean kMotorInverted = false;
-		public static final int kMotorCurrentLimit = 40;
-		public static final int kVoltageCompensation = 10;
-		public static final Angle kMaxPivotError = Degree.of(1.0); // Degrees
-
-		public static final double kPivotGearing = 25.0;
-		public static final Distance kPivotArmLength = Inches.of(12.9);
-		public static final Mass kPivotMass = Pounds.of(5);
-
-		public static final Angle kPivotOffset = Degrees.of(0);
-
-		// The soft limits are set in the motor controller to limit
-		// movement past a certain point. Consider this an emergency limit
-		// TODO: Adjust these
-		public static final Angle kSoftReverseLimit = Degree.of(-95);
-		public static final Angle kSoftForwardLimit = Degree.of(95);
-
-		// These limits should be used to set how far we allow
-		// code to move the arm. These should allow less movement than
-		// the soft limits
-		public static final Angle kMinPivotAngle = Degree.of(-90);
-		public static final Angle kMaxPivotAngle = Degree.of(90);
-		public static final Angle kStartingAngle = Degree.of(90);
-
-		public static final double kMOI = SingleJointedArmSim.estimateMOI(kPivotArmLength.in(Meters),
-				kPivotMass.in(Kilograms));
-
-		public static final double kPivotKp = 50;
-		public static final double kPivotKi = 0;
-		public static final double kPivotKd = 0;
-
-		// TODO: Need to get these values from recal 
-		public static final double kPivotkS = 0;//0.0; // volts (V)
-		public static final double kPivotkG = 0.5; // volts (V)
-		public static final double kPivotkV = 3;//1.58; // volt per velocity (V/(m/s))
-		public static final double kPivotkA = 0;//0.17; // volt per acceleration (V/(m/s²))
-
-		public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(180); // degrees per second
-		public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(180); // degrees per second squared max acceleration
-
-		public static final double kPivotRampRate = 0.1;
+			public static final double kPivotRampRate = 0.1;
+		}
 	}
 
 	public static final class SimulationConstants {
