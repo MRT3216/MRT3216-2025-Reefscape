@@ -112,6 +112,7 @@ public final class Constants {
 	}
 
 	public enum Positions {
+		CORAL_STATION(Meters.of(1), Degrees.of(60)),
 		STARTING(Meters.of(0), CoralPivotConstants.kStartingAngle),
 		STOW(Meters.of(0), Degrees.of(0)),
 		L1(Meters.of(0.5), Degrees.of(0)),
@@ -140,7 +141,6 @@ public final class Constants {
 		public static final boolean kLeadMotorInverted = true;
 		public static final int kMotorCurrentLimit = 60;
 		public static final int kVoltageCompensation = 10;
-		// public static final double kMaxPivotErrorDegrees = 1.0; // Degrees
 		// // The soft limits are set in the motor controller to limit
 		// // movement past a certain point. Consider this an emergency limit
 		// public static final double kSoftForwardLimitDegrees = 105;
@@ -177,14 +177,13 @@ public final class Constants {
 		public static final double kElevatorRampRate = 0.1;
 	}
 
-	// create a class for the intake constants
 	public static final class CoralIntakeConstants {
 		public static final boolean kMotorInverted = false;
 		public static final int kMotorCurrentLimit = 40;
 		public static final int kVoltageCompensation = 10;
 		public static final Angle kMaxError = Degree.of(1.0);
 
-		public static final double VOLTAGE_THRESHOLD = 5; //TODO: Add correct value
+		public static final double VOLTAGE_THRESHOLD = 5; // TODO: Add correct value
 	}
 
 	public static final class CoralPivotConstants {
