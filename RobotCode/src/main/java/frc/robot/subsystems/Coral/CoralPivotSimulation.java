@@ -3,7 +3,6 @@ package frc.robot.subsystems.Coral;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.sim.SparkAbsoluteEncoderSim;
@@ -16,7 +15,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.settings.Constants.CoralPivotConstants;
+import frc.robot.settings.Constants.Coral.PivotConstants;
 import frc.robot.settings.Constants.SimulationConstants;
 import frc.robot.subsystems.BatterySim.BatterySimSubsystem;
 import frc.robot.subsystems.MechanismVisualization.MechanismVisualizationSubsystem;
@@ -37,13 +36,13 @@ public class CoralPivotSimulation {
         this.pivotGearbox = DCMotor.getNeoVortex(1);
         this.armPivotSim = new SingleJointedArmSim(
                 pivotGearbox,
-                CoralPivotConstants.kPivotGearing,
-                CoralPivotConstants.kMOI,
-                CoralPivotConstants.kPivotArmLength.in(Meters),
-                CoralPivotConstants.kMinPivotAngle.in(Radians),
-                CoralPivotConstants.kMaxPivotAngle.in(Radians),
+                PivotConstants.kPivotGearing,
+                PivotConstants.kMOI,
+                PivotConstants.kPivotArmLength.in(Meters),
+                PivotConstants.kMinPivotAngle.in(Radians),
+                PivotConstants.kMaxPivotAngle.in(Radians),
                 true,
-                CoralPivotConstants.kStartingAngle.in(Degrees));
+                PivotConstants.kStartingAngle.in(Degrees));
 
         this.realMotorController = motorController;
         this.simMotorController = new SparkFlexSim(realMotorController, pivotGearbox);

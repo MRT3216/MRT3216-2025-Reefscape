@@ -1,26 +1,26 @@
 package frc.robot.subsystems.Coral;
 
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.settings.Constants.CoralIntakeConstants;
+import frc.robot.settings.Constants.Coral.EndEffectorConstants;
 import frc.robot.settings.RobotMap.ROBOT.CoralSystem.EndEffectorMap;
 
 public class CoralEndEffectorSubsystem extends SubsystemBase {
-    private final TalonFX intakeMotor;
+    private final TalonFX motor;
 
     public CoralEndEffectorSubsystem() {
-        intakeMotor = new TalonFX(EndEffectorMap.motorCANID);
+        motor = new TalonFX(EndEffectorMap.motorCANID);
 
-        // TalonFXConfiguration config = new TalonFXConfiguration();
-        // TalonFXConfigurator configurer = new TalonFXConfigurator(intakeMotor);
-        // TODO: Add configuration settings (Configuration vs. Configurator?)
+        TalonFXConfigurator config = motor.getConfigurator();
+
 
     }
 
     public void setIntakeSpeed(double speed) {
-        intakeMotor.set(speed);
+        motor.set(speed);
     }
 
     //TODO: check this again
@@ -29,10 +29,10 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
         return this.startEnd(
                 () -> setIntakeSpeed(speed),
                 () -> stopIntake())
-                .until(() -> voltage > CoralIntakeConstants.VOLTAGE_THRESHOLD);
+                .until(() -> voltage > EndEffectorConstants.VOLTAGE_THRESHOLD);
     }
 
     public void stopIntake() {
-        intakeMotor.set(0);
+        motor.set(0);
     }
 }

@@ -17,8 +17,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.settings.Constants.CoralPivotConstants;
-import frc.robot.settings.Constants.ElevatorConstants;
+import frc.robot.settings.Constants.Coral.ElevatorConstants;
+import frc.robot.settings.Constants.Coral.PivotConstants;
 import frc.robot.settings.Constants.SimulationConstants;
 
 public class MechanismVisualizationSubsystem extends SubsystemBase {
@@ -49,10 +49,10 @@ public class MechanismVisualizationSubsystem extends SubsystemBase {
 
         this.m_armMech2d = this.m_elevatorMech2d.append(
                 new MechanismLigament2d("Coral Pivot",
-                        CoralPivotConstants.kPivotArmLength.in(Meters)
+                        PivotConstants.kPivotArmLength.in(Meters)
                                 * SimulationConstants.kVisualizationPixelMultiplier,
                         // -90 to compensate for the elevator's 90 degree rotation
-                        CoralPivotConstants.kMinPivotAngle.in(Degrees),
+                        PivotConstants.kMinPivotAngle.in(Degrees),
                         10,
                         new Color8Bit(Color.kPurple)));
 

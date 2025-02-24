@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.settings.Constants.CoralPivotConstants;
+import frc.robot.settings.Constants.Coral.PivotConstants;
 import frc.robot.settings.RobotMap.ROBOT.CoralSystem.PivotMap;
 
 public class CoralPivotSubsystem extends SubsystemBase {
@@ -42,10 +42,10 @@ public class CoralPivotSubsystem extends SubsystemBase {
         SparkMaxConfig pivotConfig = new SparkMaxConfig();
 
         pivotConfig.idleMode(IdleMode.kBrake)
-                .inverted(CoralPivotConstants.kMotorInverted)
-                .smartCurrentLimit(CoralPivotConstants.kMotorCurrentLimit)
-                .voltageCompensation(CoralPivotConstants.kVoltageCompensation)
-                .openLoopRampRate(CoralPivotConstants.kPivotRampRate);
+                .inverted(PivotConstants.kMotorInverted)
+                .smartCurrentLimit(PivotConstants.kMotorCurrentLimit)
+                .voltageCompensation(PivotConstants.kVoltageCompensation)
+                .openLoopRampRate(PivotConstants.kPivotRampRate);
 
         encoder = motorController.getAbsoluteEncoder();
         EncoderConfig encoderConfig = new EncoderConfig();
@@ -54,25 +54,25 @@ public class CoralPivotSubsystem extends SubsystemBase {
         motorController.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         pIDController = new ProfiledPIDController(
-                CoralPivotConstants.kPivotKp,
-                CoralPivotConstants.kPivotKi,
-                CoralPivotConstants.kPivotKd,
+                PivotConstants.kPivotKp,
+                PivotConstants.kPivotKi,
+                PivotConstants.kPivotKd,
                 new TrapezoidProfile.Constraints(
                         Units.radiansPerSecondToRotationsPerMinute(
-                                CoralPivotConstants.kMaxAngularVelocity.in(RotationsPerSecond)),
+                                PivotConstants.kMaxAngularVelocity.in(RotationsPerSecond)),
                         Units.radiansPerSecondToRotationsPerMinute(
-                                CoralPivotConstants.kMaxAngularAcceleration.in(RotationsPerSecondPerSecond))));
+                                PivotConstants.kMaxAngularAcceleration.in(RotationsPerSecondPerSecond))));
 
         feedforward = new ArmFeedforward(
-                CoralPivotConstants.kPivotkS,
-                CoralPivotConstants.kPivotkG,
-                CoralPivotConstants.kPivotkV,
-                CoralPivotConstants.kPivotkA);
+                PivotConstants.kPivotkS,
+                PivotConstants.kPivotkG,
+                PivotConstants.kPivotkV,
+                PivotConstants.kPivotkA);
 
-        pIDController.setTolerance(CoralPivotConstants.kMaxPivotError.in(Rotations));
+        pIDController.setTolerance(PivotConstants.kMaxPivotError.in(Rotations));
         // Set the inital position so that when enabled the controler
         // matches the initial position
-        pIDController.reset(CoralPivotConstants.kStartingAngle.in(Rotations));
+        pIDController.reset(PivotConstants.kStartingAngle.in(Rotations));
 
         if (RobotBase.isSimulation()) {
             this.simContainer = new CoralPivotSimulation(encoder, motorController);
@@ -88,8 +88,8 @@ public class CoralPivotSubsystem extends SubsystemBase {
 
     private void setPivotGoal(Angle angle) {
         double goalAngleInRotations = MathUtil.clamp(angle.in(Rotations),
-                CoralPivotConstants.kMinPivotAngle.in(Rotations),
-                CoralPivotConstants.kMaxPivotAngle.in(Rotations));
+                PivotConstants.kMinPivotAngle.in(Rotations),
+                PivotConstants.kMaxPivotAngle.in(Rotations));
         pIDController.setGoal(goalAngleInRotations);
     }
 
