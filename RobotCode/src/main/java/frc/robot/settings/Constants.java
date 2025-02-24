@@ -229,6 +229,73 @@ public final class Constants {
 		}
 	}
 
+	public static final class Algae {
+		public static final class Pivot {
+			public enum Positions {
+				STARTING(Degrees.of(0)),
+				STOW(Degrees.of(0)),
+				INTAKING(Degrees.of(0)),
+				SCORING(Degrees.of(0));
+
+				private Angle angle;
+
+				private Positions(Angle angle) {
+					this.angle = angle;
+				}
+
+				public Angle getAngle() {
+					return angle;
+				}
+			}
+
+			public static final boolean kMotorInverted = false;
+			public static final int kMotorCurrentLimit = 40;
+			public static final int kVoltageCompensation = 10;
+			public static final Angle kMaxPivotError = Degree.of(1.0); // Degrees
+
+			public static final double kPivotGearing = 25.0;
+			public static final Distance kPivotArmLength = Inches.of(12.9);
+			public static final Mass kPivotMass = Pounds.of(3);
+
+			// The soft limits are set in the motor controller to limit
+			// movement past a certain point. Consider this an emergency limit
+			// TODO: Adjust these
+			public static final Angle kSoftReverseLimit = Degree.of(-95);
+			public static final Angle kSoftForwardLimit = Degree.of(95);
+
+			// These limits should be used to set how far we allow
+			// code to move the arm. These should allow less movement than
+			// the soft limits
+			public static final Angle kMinPivotAngle = Degree.of(-90);
+			public static final Angle kMaxPivotAngle = Degree.of(90);
+			public static final Angle kStartingAngle = Degree.of(90);
+
+			// public static final double kMOI = SingleJointedArmSim.estimateMOI(kPivotArmLength.in(Meters),
+			// 		kPivotMass.in(Kilograms));
+
+			public static final double kPivotKp = 0;
+			public static final double kPivotKi = 0;
+			public static final double kPivotKd = 0;
+
+			// TODO: Need to get these values from recal 
+			public static final double kPivotkS = 0;//0.0; // volts (V)
+			public static final double kPivotkG = 0; // volts (V)
+			public static final double kPivotkV = 0;//1.58; // volt per velocity (V/(m/s))
+			public static final double kPivotkA = 0;//0.17; // volt per acceleration (V/(m/s²))
+
+			public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(180); // degrees per second
+			public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(180); // degrees per second squared max acceleration
+
+			public static final double kPivotRampRate = 0.1;
+		}
+
+		public static final class IntakeOuttake {
+			public static final boolean kMotorInverted = false;
+			public static final int kMotorCurrentLimit = 40;
+			public static final int kVoltageCompensation = 10;
+		}
+	}
+
 	public static final class SimulationConstants {
 		public static final double kSimulationTimeStep = 0.02; // seconds
 		public static final double kVisualizationPixelMultiplier = 50;

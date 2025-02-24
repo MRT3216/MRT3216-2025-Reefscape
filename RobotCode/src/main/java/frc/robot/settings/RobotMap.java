@@ -6,7 +6,6 @@ public final class RobotMap {
             public static final class ElevatorMap {
                 public static final int leadMotorCANID = 5;
                 public static final int followerMotorCANID = 6;
-
             }
 
             public static final class PivotMap {
@@ -14,7 +13,17 @@ public final class RobotMap {
             }
 
             public static final class EndEffectorMap {
-                public static final int motorCANID = 7;
+                public static final int motorCANID = 8;
+            }
+        }
+
+        public static final class AlgaeSystem {
+            public static final class PivotMap {
+                public static final int motorCANID = 9;
+            }
+
+            public static final class IntakeOuttakeMap {
+                public static final int motorCANID = 10;
             }
         }
 
