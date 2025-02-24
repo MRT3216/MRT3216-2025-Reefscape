@@ -9,7 +9,6 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -17,14 +16,12 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.settings.Constants.CoralPivotConstants;
 import frc.robot.settings.Constants.ElevatorConstants;
 import frc.robot.settings.RobotMap.ROBOT.ElevatorMap;
 
@@ -54,10 +51,11 @@ public class ElevatorSubsystem extends SubsystemBase {
                 .voltageCompensation(ElevatorConstants.kVoltageCompensation)
                 .openLoopRampRate(ElevatorConstants.kElevatorRampRate);
 
-        EncoderConfig encoderConfig = new EncoderConfig();
-        // Convert rotations to degrees
-        encoderConfig.positionConversionFactor(360);
-        leadConfig.apply(encoderConfig);
+        // TODO: This
+        // EncoderConfig encoderConfig = new EncoderConfig();
+        // // Convert rotations to degrees
+        // //encoderConfig.positionConversionFactor(360);
+        // leadConfig.apply(encoderConfig);
 
         leadMotorController.configure(leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -88,7 +86,6 @@ public class ElevatorSubsystem extends SubsystemBase {
                 ElevatorConstants.kElevatorkG, ElevatorConstants.kElevatorkV, ElevatorConstants.kElevatorkA);
 
         pIDController.setTolerance(ElevatorConstants.kPositionTolerance.in(Meters));
-        pIDController.calculate(0);
 
         enabled = false;
 
