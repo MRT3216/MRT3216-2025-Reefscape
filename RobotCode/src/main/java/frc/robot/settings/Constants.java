@@ -193,16 +193,21 @@ public final class Constants {
 		public static final int kVoltageCompensation = 10;
 		public static final Angle kMaxPivotError = Degree.of(1.0); // Degrees
 
-		// public static final Angle kSoftForwardLimit = Degree.of(105);
-		// public static final Angle kSoftReverseLimit = Degree.of(20);
-
-		// public static final Angle kMovementForwardLimit = Degree.of(100);
-		// public static final Angle kMovementReverseLimit = Degree.of(15);
-		// public static final Angle kOffset = Degree.of(90);
 		public static final double kPivotGearing = 25.0;
 		public static final Distance kPivotArmLength = Inches.of(12.9);
 		public static final Mass kPivotMass = Pounds.of(5);
 
+		public static final Angle kPivotOffset = Degrees.of(0);
+		
+		// The soft limits are set in the motor controller to limit
+		// movement past a certain point. Consider this an emergency limit
+		// TODO: Adjust these
+		public static final Angle kSoftReverseLimit = Degree.of(0);
+		public static final Angle kSoftForwardLimit = Degree.of(180);
+
+		// These limits should be used to set how far we allow
+		// code to move the arm. These should allow less movement than
+		// the soft limits
 		public static final Angle kMinPivotAngle = Degree.of(0);
 		public static final Angle kMaxPivotAngle = Degree.of(180);
 
