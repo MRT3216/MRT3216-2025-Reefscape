@@ -1,5 +1,9 @@
 package frc.robot.subsystems.Elevator;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -12,6 +16,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -69,7 +74,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         encoder.setPosition(0);
 
         TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(
-                ElevatorConstants.kMaxElevatorVelocity, ElevatorConstants.kMaxElevatorAcceleration);
+                ElevatorConstants.kMaxElevatorVelocity.in(MetersPerSecond),
+                ElevatorConstants.kMaxElevatorAcceleration.in(MetersPerSecondPerSecond));
 
         controller = new ProfiledPIDController(ElevatorConstants.kElevatorKp, ElevatorConstants.kElevatorKi,
                 ElevatorConstants.kElevatorKd, constraints);
@@ -77,7 +83,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorFeedForward = new ElevatorFeedforward(ElevatorConstants.kElevatorkS,
                 ElevatorConstants.kElevatorkG, ElevatorConstants.kElevatorkV, ElevatorConstants.kElevatorkA);
 
-        controller.setTolerance(ElevatorConstants.kPositionTolerance);
+        controller.setTolerance(ElevatorConstants.kPositionTolerance.in(Meters));
         controller.calculate(0);
 
         enabled = false;
@@ -87,10 +93,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
     }
 
-    public Command moveElevatorToHeight(double goal) {
+    public Command moveElevatorToHeight(Distance height) {
         return this.run(() -> {
             this.enable();
-            controller.setGoal(goal);
+            controller.setGoal(height.in(Meters));
         }).until(this.atGoal());
     }
 
@@ -112,7 +118,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void periodic() {
         if (enabled) {
-
             double pidOutput = controller.calculate(encoder.getPosition());
             double feedForward = elevatorFeedForward.calculate(controller.getSetpoint().velocity);
             double motorEffortVoltage = pidOutput + feedForward;
@@ -129,7 +134,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             SmartDashboard.putNumber("Elevator position error", controller.getPositionError());
             SmartDashboard.putNumber("Elevator position setpoint", controller.getSetpoint().position);
             SmartDashboard.putNumber("Elevator position actual", encoder.getPosition());
-            SmartDashboard.putNumber("Motor effort", leadMotorController.get());
+            SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
         }
     }
 }

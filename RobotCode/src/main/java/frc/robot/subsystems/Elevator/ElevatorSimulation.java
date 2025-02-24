@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.Elevator;
 
+import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
@@ -27,49 +28,49 @@ import frc.robot.subsystems.BatterySim.BatterySimSubsystem;
 import frc.robot.subsystems.MechanismVisualization.MechanismVisualizationSubsystem;
 
 public class ElevatorSimulation {
-    private BatterySimSubsystem m_simBattery;
+    private BatterySimSubsystem simBattery;
 
-    private DCMotor m_elevatorGearbox;
-    private ElevatorSim m_elevatorSim;
+    private DCMotor elevatorGearbox;
+    private ElevatorSim elevatorSim;
 
-    private RelativeEncoder m_realEncoder;
-    private SparkRelativeEncoderSim m_simEncoder;
+    private RelativeEncoder realEncoder;
+    private SparkRelativeEncoderSim simEncoder;
 
-    private SparkFlex m_realMotorController;
-    private SparkFlexSim m_simMotorController;
+    private SparkFlex realMotorController;
+    private SparkFlexSim simMotorController;
 
     public ElevatorSimulation(RelativeEncoder encoder, SparkFlex motorController) {
-        this.m_elevatorGearbox = DCMotor.getNeoVortex(2);
-        this.m_elevatorSim = new ElevatorSim(m_elevatorGearbox, ElevatorConstants.kElevatorGearing,
-                ElevatorConstants.kCarriageMass, ElevatorConstants.kElevatorDrumRadius,
-                ElevatorConstants.kMinElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters, true, 0);
+        this.elevatorGearbox = DCMotor.getNeoVortex(2);
+        this.elevatorSim = new ElevatorSim(elevatorGearbox, ElevatorConstants.kElevatorGearing,
+                ElevatorConstants.kCarriageMass.in(Kilograms), ElevatorConstants.kElevatorDrumRadius,
+                ElevatorConstants.kMinElevatorHeight.in(Meters),
+                ElevatorConstants.kMaxElevatorHeight.in(Meters), true, 0);
 
-        this.m_realMotorController = motorController;
-        this.m_simMotorController = new SparkFlexSim(motorController, DCMotor.getNeoVortex(2));
-        this.m_realEncoder = encoder;
-        this.m_simEncoder = new SparkRelativeEncoderSim(m_realMotorController);
-        this.m_simBattery = BatterySimSubsystem.getInstance();
+        this.realMotorController = motorController;
+        this.simMotorController = new SparkFlexSim(motorController, DCMotor.getNeoVortex(2));
+        this.realEncoder = encoder;
+        this.simEncoder = new SparkRelativeEncoderSim(realMotorController);
+        this.simBattery = BatterySimSubsystem.getInstance();
 
-        MechanismVisualizationSubsystem.getInstance().registerElevatorHeightSupplier(m_realEncoder::getPosition);
+        MechanismVisualizationSubsystem.getInstance().registerElevatorHeightSupplier(realEncoder::getPosition);
     }
 
     protected void simulationPeriodic() {
-        m_elevatorSim.setInput(m_simMotorController.getAppliedOutput() * RobotController.getBatteryVoltage());
-
-        m_elevatorSim.update(SimulationConstants.kSimulationTimeStep);
+        elevatorSim.setInput(simMotorController.getAppliedOutput() * RobotController.getBatteryVoltage());
+        elevatorSim.update(SimulationConstants.kSimulationTimeStep);
 
         // Finally, we set our simulated encoder's readings and simulated battery voltage
-        m_simMotorController.iterate(
-                ElevatorSimulation.convertDistanceToRotations(Meters.of(m_elevatorSim.getVelocityMetersPerSecond()))
+        simMotorController.iterate(
+                ElevatorSimulation.convertDistanceToRotations(Meters.of(elevatorSim.getVelocityMetersPerSecond()))
                         .per(Second)
                         .in(RPM),
                 RoboRioSim.getVInVoltage(),
                 0.020);
 
-        m_simEncoder.setPosition(m_elevatorSim.getPositionMeters());
-        m_simBattery.addCurrent(m_elevatorSim.getCurrentDrawAmps());
+        simEncoder.setPosition(elevatorSim.getPositionMeters());
+        simBattery.addCurrent(elevatorSim.getCurrentDrawAmps());
 
-        SmartDashboard.putNumber("ElevatorSimCurrentDraw", m_elevatorSim.getCurrentDrawAmps());
+        SmartDashboard.putNumber("Elevator Sim Current Draw", elevatorSim.getCurrentDrawAmps());
     }
 
     /**

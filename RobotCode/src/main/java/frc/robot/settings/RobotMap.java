@@ -8,6 +8,10 @@ public final class RobotMap {
     
         }
 
+        public static final class PivotMap {
+            public static final int pivotMotorCANID = 7;
+        }
+
         public static class ClimberMap {
             public static class CAN {
                 public static final int LEFT_MOTOR = 19;
