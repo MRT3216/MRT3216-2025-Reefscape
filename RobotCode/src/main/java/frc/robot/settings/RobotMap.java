@@ -22,7 +22,7 @@ public final class RobotMap {
                 public static final int motorCANID = 9;
             }
 
-            public static final class INTAKE_OUTTAKE_MAP {
+            public static final class ROLLERS_MAP {
                 public static final int motorCANID = 10;
             }
         }

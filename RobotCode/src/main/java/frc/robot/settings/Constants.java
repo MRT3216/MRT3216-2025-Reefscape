@@ -288,7 +288,7 @@ public final class Constants {
 			public static final double kPivotRampRate = 0.1;
 		}
 
-		public static final class INTAKE_OUTTAKE {
+		public static final class ROLLERS {
 			public static final boolean kMotorInverted = false;
 			public static final int kMotorCurrentLimit = 40;
 			public static final int kVoltageCompensation = 10;
