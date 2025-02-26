@@ -16,9 +16,11 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
+import frc.robot.settings.Constants.ALGAE;
 import frc.robot.settings.Constants.ReefBranch;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Algae.AlgaePivotSubsystem;
 import frc.robot.subsystems.Coral.CoralPivotSubsystem;
 import frc.robot.subsystems.Elevator.ElevatorSubsystem;
 
@@ -45,6 +47,7 @@ public class RobotContainer {
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final ElevatorSubsystem elevator = new ElevatorSubsystem();
     private final CoralPivotSubsystem coralPivot = new CoralPivotSubsystem();
+    private final AlgaePivotSubsystem algaePivot = new AlgaePivotSubsystem();
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("None");;
@@ -112,7 +115,6 @@ public class RobotContainer {
 
         driverController.leftTrigger().whileTrue(drivetrain.driveToNearestLeftReefPole());
         driverController.rightTrigger().whileTrue(drivetrain.driveToNearestRightReefPole());
-        driverController.rightBumper().whileTrue(drivetrain.driveAndAlignToReefBranch(ReefBranch.A));
         driverController.a().whileTrue(drivetrain.driveToLeftCoralStation());
         driverController.b().whileTrue(drivetrain.driveToRightCoralStation());
         driverController.x().whileTrue(drivetrain.driveToBargeClimb());
@@ -133,6 +135,12 @@ public class RobotContainer {
         driverController.leftStick()
                 .onTrue(elevator.moveElevatorToHeight(POSITIONS.STARTING.getHeight())
                         .alongWith(coralPivot.movePivotToAngle(POSITIONS.STARTING.getAngle())));
+
+        driverController.leftBumper()
+                .onTrue(algaePivot.movePivotToAngle(ALGAE.PIVOT.Positions.INTAKING.getAngle()));
+
+        driverController.rightBumper()
+                .onFalse(algaePivot.movePivotToAngle(ALGAE.PIVOT.Positions.SCORING.getAngle()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

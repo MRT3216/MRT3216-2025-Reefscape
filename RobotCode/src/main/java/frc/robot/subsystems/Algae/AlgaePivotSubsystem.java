@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants.ALGAE.PIVOT;
 import frc.robot.settings.RobotMap.ROBOT.ALGAE_SYSTEM.PIVOT_MAP;
-import frc.robot.subsystems.Coral.CoralPivotSimulation;
 
 public class AlgaePivotSubsystem extends SubsystemBase {
     private final SparkFlex motorController;
@@ -35,7 +34,7 @@ public class AlgaePivotSubsystem extends SubsystemBase {
     private ProfiledPIDController pIDController;
     private ArmFeedforward feedforward;
     private boolean enabled = false;
-    private CoralPivotSimulation simContainer;
+    private AlgaePivotSimulation simContainer;
 
     public AlgaePivotSubsystem() {
         motorController = new SparkFlex(PIVOT_MAP.motorCANID, MotorType.kBrushless);
@@ -76,7 +75,7 @@ public class AlgaePivotSubsystem extends SubsystemBase {
         pIDController.reset(PIVOT.kStartingAngle.in(Rotations));
 
         if (RobotBase.isSimulation()) {
-            this.simContainer = new CoralPivotSimulation(encoder, motorController);
+            this.simContainer = new AlgaePivotSimulation(encoder, motorController);
         }
     }
 
@@ -129,15 +128,15 @@ public class AlgaePivotSubsystem extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        // if (simContainer != null) {
-        //     simContainer.simulationPeriodic();
-        //     SmartDashboard.putBoolean("Coral Pivot Enabled", enabled);
-        //     SmartDashboard.putNumber("Coral Pivot position error",
-        //             Units.rotationsToDegrees(pIDController.getPositionError()));
-        //     SmartDashboard.putNumber("Coral Pivot position setpoint",
-        //             Units.rotationsToDegrees(pIDController.getSetpoint().position));
-        //     SmartDashboard.putNumber("Coral Pivot position actual", getPivotAngle().in(Degrees));
-        //     SmartDashboard.putNumber("Coral Pivot Motor effort", motorController.getAppliedOutput());
-        // }
+        if (simContainer != null) {
+            simContainer.simulationPeriodic();
+            SmartDashboard.putBoolean("Algae Pivot Enabled", enabled);
+            SmartDashboard.putNumber("Algae Pivot position error",
+                    Units.rotationsToDegrees(pIDController.getPositionError()));
+            SmartDashboard.putNumber("Algae Pivot position setpoint",
+                    Units.rotationsToDegrees(pIDController.getSetpoint().position));
+            SmartDashboard.putNumber("Algae Pivot position actual", getPivotAngle().in(Degrees));
+            SmartDashboard.putNumber("Algae Pivot Motor effort", motorController.getAppliedOutput());
+        }
     }
 }
