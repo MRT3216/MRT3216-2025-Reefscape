@@ -295,6 +295,12 @@ public final class Constants {
 		}
 	}
 
+	public static final class CLIMBER {
+			public static final boolean kMotorInverted = false;
+			public static final int kMotorCurrentLimit = 80;
+			public static final int kVoltageCompensation = 10;
+	}
+
 	public static final class SIMULATION {
 		public static final double kSimulationTimeStep = 0.02; // seconds
 		public static final double kVisualizationPixelMultiplier = 50;
