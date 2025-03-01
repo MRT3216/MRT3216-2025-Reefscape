@@ -14,25 +14,26 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
     public CoralEndEffectorSubsystem() {
         motor = new TalonFX(END_EFFECTOR_MAP.motorCANID);
 
+        // TODO: Need to finish this configuration
         TalonFXConfigurator config = motor.getConfigurator();
-
 
     }
 
-    public void setIntakeSpeed(double speed) {
+    private void setIntakeSpeed(double speed) {
         motor.set(speed);
     }
 
-    //TODO: check this again
-    public Command runIntakeCommand(double speed) {
-        double voltage = 0; // intakeMotor.getSupllyVoltage();
+    private void stopIntake() {
+        motor.set(0);
+    }
+
+    // TODO: check this again
+    public Command runEndEffectorCommand(double speed) {
+        double voltage = 0;
         return this.startEnd(
                 () -> setIntakeSpeed(speed),
                 () -> stopIntake())
+                // TODO: I think this neds more logic (check last years bot)
                 .until(() -> voltage > END_EFFECTOR.VOLTAGE_THRESHOLD);
-    }
-
-    public void stopIntake() {
-        motor.set(0);
     }
 }
