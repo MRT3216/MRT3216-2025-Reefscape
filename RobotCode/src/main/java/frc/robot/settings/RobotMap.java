@@ -4,34 +4,31 @@ public final class RobotMap {
     public static final class ROBOT {
         public static final class CORAL_SYSTEM {
             public static final class ELEVATOR_MAP {
-                public static final int leadMotorCANID = 5;
-                public static final int followerMotorCANID = 6;
+                public static final int leadMotorCANID = 1;
+                public static final int followerMotorCANID = 2;
             }
 
             public static final class PIVOT_MAP {
-                public static final int motorCANID = 7;
+                public static final int motorCANID = 6;
             }
 
             public static final class END_EFFECTOR_MAP {
-                public static final int motorCANID = 8;
+                public static final int motorCANID = 7;
             }
         }
 
         public static final class ALGAE_SYSTEM {
             public static final class PIVOT_MAP {
-                public static final int motorCANID = 9;
+                public static final int motorCANID = 4;
             }
 
             public static final class ROLLERS_MAP {
-                public static final int motorCANID = 10;
+                public static final int motorCANID = 5;
             }
         }
 
         public static class CLIMBER_MAP {
-            public static class CAN {
-                public static final int LEFT_MOTOR = 19;
-                public static final int RIGHT_MOTOR = 20;
-            }
+            public static final int motorCANID = 3;
         }
 
         public static final class DRIVE_STATION {
