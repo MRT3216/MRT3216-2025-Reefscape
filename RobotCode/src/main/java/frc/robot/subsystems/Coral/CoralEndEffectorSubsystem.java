@@ -1,5 +1,6 @@
 package frc.robot.subsystems.Coral;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -15,8 +16,9 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
         motor = new TalonFX(END_EFFECTOR_MAP.motorCANID);
 
         // TODO: Need to finish this configuration
-        TalonFXConfigurator config = motor.getConfigurator();
-
+        TalonFXConfigurator motorConfigurator = motor.getConfigurator();
+        TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
+        motorConfigurator.apply(motorConfiguration);
     }
 
     private void setIntakeSpeed(double speed) {
