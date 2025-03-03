@@ -154,7 +154,7 @@ public final class Constants {
 			public static final Distance kPositionTolerance = Inches.of(0.5);
 
 			public static final double kElevatorGearing = 60 / 7;
-			public static final double kElevatorDrumRadius = Units.inchesToMeters(2.256/2);
+			public static final double kElevatorDrumRadius = Units.inchesToMeters(2.256 / 2);
 			public static final Mass kCarriageMass = Kilograms.of(4.0); // kg
 
 			public static final double kElevatorKp = 50;
