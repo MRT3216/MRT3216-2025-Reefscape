@@ -106,6 +106,13 @@ public class AlgaePivotSubsystem extends SubsystemBase {
 
             motorController.setVoltage(armPidVoltage + ffVoltage);
         }
+
+        SmartDashboard.putBoolean("Algae Pivot Enabled", enabled);
+        SmartDashboard.putNumber("Algae Pivot position error",
+                Units.rotationsToDegrees(pIDController.getPositionError()));
+        SmartDashboard.putNumber("Algae Pivot position setpoint",
+                Units.rotationsToDegrees(pIDController.getSetpoint().position));
+        SmartDashboard.putNumber("Algae Pivot position actual", getPivotAngle().in(Degrees));
     }
 
     /** Enables the PID control. Resets the controller. */
@@ -120,6 +127,12 @@ public class AlgaePivotSubsystem extends SubsystemBase {
         enabled = false;
         pIDController.setGoal(getPivotAngle().in(Rotations));
         motorController.set(0);
+    }
+
+    public Command movePivot(double speed) {
+        return this.startEnd(
+                () -> motorController.set(speed),
+                () -> motorController.set(0.0));
     }
 
     private Angle getPivotAngle() {

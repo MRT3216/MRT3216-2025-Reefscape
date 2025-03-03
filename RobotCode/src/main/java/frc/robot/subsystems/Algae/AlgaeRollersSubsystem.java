@@ -40,8 +40,8 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
         double voltage = 0;
         return this.startEnd(
                 () -> setIntakeSpeed(speed),
-                () -> stopIntake())
-                // TODO: I think this neds more logic (check last years bot)
-                .until(() -> voltage > END_EFFECTOR.VOLTAGE_THRESHOLD);
+                () -> stopIntake());
+                // // TODO: I think this neds more logic (check last years bot)
+                // .until(() -> voltage > END_EFFECTOR.VOLTAGE_THRESHOLD);
     }
 }

@@ -117,9 +117,9 @@ public final class Constants {
 			STARTING(Meters.of(0), PIVOT.kStartingAngle),
 			STOW(Meters.of(0), Degrees.of(0)),
 			L1(Meters.of(0.5), Degrees.of(0)),
-			L2(Meters.of(1), Degrees.of(30)),
-			L3(Meters.of(1.5), Degrees.of(45)),
-			L4(Meters.of(2), Degrees.of(60));
+			L2(Meters.of(1.5), Degrees.of(30)),
+			L3(Meters.of(2.3), Degrees.of(45)),
+			L4(Meters.of(3.4), Degrees.of(60));
 
 			private Distance height;
 			private Angle angle;
@@ -149,25 +149,25 @@ public final class Constants {
 			// // These limits should be used to set how far we allow
 			// // code to move the elevator. These should allow less movement than
 			// // the soft limits
-			public static final Distance kMaxHeight = Meters.of(2);
+			public static final Distance kMaxHeight = Meters.of(3.45);
 			public static final Distance kMinHeight = Meters.of(0);
 			public static final Distance kPositionTolerance = Inches.of(0.5);
 
-			public static final double kElevatorGearing = 10.0;
-			public static final double kElevatorDrumRadius = Units.inchesToMeters(2);
+			public static final double kElevatorGearing = 60 / 7;
+			public static final double kElevatorDrumRadius = Units.inchesToMeters(2.2557);
 			public static final Mass kCarriageMass = Kilograms.of(4.0); // kg
 
 			public static final Distance kMinElevatorHeight = Meters.of(0);
 			public static final Distance kMaxElevatorHeight = Meters.of(2);
 
-			public static final double kElevatorKp = 5;
-			public static final double kElevatorKi = 1;
+			public static final double kElevatorKp = 50;
+			public static final double kElevatorKi = 0;
 			public static final double kElevatorKd = 0;
 
-			public static final double kElevatorkS = 0.02; // volts (V)
-			public static final double kElevatorkG = 0.9; // volts (V)
-			public static final double kElevatorkV = 3.8; // volt per velocity (V/(m/s))
-			public static final double kElevatorkA = 0.17; // volt per acceleration (V/(m/s²))
+			public static final double kElevatorkS = 0;// 0.02; // volts (V)
+			public static final double kElevatorkG = 0.5; // volts (V)
+			public static final double kElevatorkV = 0;//3.8; // volt per velocity (V/(m/s))
+			public static final double kElevatorkA = 0;//0.17; // volt per acceleration (V/(m/s²))
 
 			public static final LinearVelocity kMaxElevatorVelocity = Meters.of(4).per(Second); // m/s
 			public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(8).per(Second).per(Second);
@@ -185,7 +185,7 @@ public final class Constants {
 		}
 
 		public static final class PIVOT {
-			public static final boolean kMotorInverted = false;
+			public static final boolean kMotorInverted = true;
 			public static final int kMotorCurrentLimit = 40;
 			public static final int kVoltageCompensation = 10;
 			public static final Angle kMaxPivotError = Degree.of(1.0); // Degrees
@@ -296,9 +296,9 @@ public final class Constants {
 	}
 
 	public static final class CLIMBER {
-			public static final boolean kMotorInverted = false;
-			public static final int kMotorCurrentLimit = 80;
-			public static final int kVoltageCompensation = 10;
+		public static final boolean kMotorInverted = false;
+		public static final int kMotorCurrentLimit = 80;
+		public static final int kVoltageCompensation = 10;
 	}
 
 	public static final class SIMULATION {

@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
@@ -17,6 +18,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -46,34 +48,29 @@ public class ElevatorSubsystem extends SubsystemBase {
         SparkMaxConfig followerConfig = new SparkMaxConfig();
 
         leadConfig.idleMode(IdleMode.kBrake)
-                .inverted(!ELEVATOR.kLeadMotorInverted)
+                .inverted(ELEVATOR.kLeadMotorInverted)
                 .smartCurrentLimit(ELEVATOR.kMotorCurrentLimit)
                 .voltageCompensation(ELEVATOR.kVoltageCompensation)
                 .openLoopRampRate(ELEVATOR.kElevatorRampRate);
 
-        // TODO: This
-        // EncoderConfig encoderConfig = new EncoderConfig();
-        // // Convert rotations to degrees
-        // //encoderConfig.positionConversionFactor(360);
-        // leadConfig.apply(encoderConfig);
+        //TODO: Check this
+        encoder = leadMotorController.getEncoder();
+        EncoderConfig encoderConfig = new EncoderConfig();
+        encoderConfig.positionConversionFactor(1);
+        leadConfig.apply(encoderConfig);
+        encoder.setPosition(0);
 
         leadMotorController.configure(leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        followerConfig.follow(leadMotorController, ELEVATOR.kLeadMotorInverted)
+        // The follower motor should rotate opposite the lead motor
+        // for this gearbox
+        followerConfig.follow(leadMotorController, true)
                 .idleMode(IdleMode.kBrake)
                 .smartCurrentLimit(ELEVATOR.kMotorCurrentLimit)
                 .voltageCompensation(ELEVATOR.kVoltageCompensation);
 
         followerMotorController.configure(followerConfig, ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
-
-        //TODO: replace relative encoder with absolute encoder
-        // NOOOO! Use the absolute encoder to set the zero position of the elvator
-        // encoder = leadMotor.getAbsoluteEncoder();
-        // AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
-        // encoderConfig.positionConversionFactor(360);
-        encoder = leadMotorController.getEncoder();
-        encoder.setPosition(0);
 
         TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(
                 ELEVATOR.kMaxElevatorVelocity.in(MetersPerSecond),
@@ -101,11 +98,29 @@ public class ElevatorSubsystem extends SubsystemBase {
         }).until(this.atGoal());
     }
 
+    public Command moveElevator(double speed) {
+        return this.startEnd(
+                () -> leadMotorController.set(speed),
+                () -> leadMotorController.set(0.0));
+    }
+
     private void setElevatorHeightGoal(Distance height) {
         double goalHeightinMeters = MathUtil.clamp(height.in(Meters),
                 ELEVATOR.kMinHeight.in(Meters),
                 ELEVATOR.kMaxHeight.in(Meters));
         pIDController.setGoal(goalHeightinMeters);
+    }
+
+    public Distance getPosition() {
+        return Meters.of(encoder.getPosition() * (2 * Math.PI * ELEVATOR.kElevatorDrumRadius)
+                / ELEVATOR.kElevatorGearing);
+        //return Meters.of(encoder.getPosition());
+    }
+
+    public LinearVelocity getVelocity() {
+        return MetersPerSecond.of(
+                (encoder.getVelocity() / 60) * (2 * Math.PI * ELEVATOR.kElevatorDrumRadius)
+                        / ELEVATOR.kElevatorGearing);
     }
 
     protected Trigger atGoal() {
@@ -126,12 +141,19 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void periodic() {
         if (enabled) {
-            double pidOutput = pIDController.calculate(encoder.getPosition());
-            double feedForward = elevatorFeedForward.calculate(pIDController.getSetpoint().velocity);
+            double pidOutput = pIDController.calculate(getPosition().in(Meters));
+            double feedForward = elevatorFeedForward.calculateWithVelocities(
+                    getVelocity().in(MetersPerSecond), pIDController.getSetpoint().velocity);
             double motorEffortVoltage = pidOutput + feedForward;
 
             leadMotorController.setVoltage(motorEffortVoltage);
         }
+
+        SmartDashboard.putBoolean("Elevator Enabled", enabled);
+        SmartDashboard.putNumber("Elevator position error", pIDController.getPositionError());
+        SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
+        SmartDashboard.putNumber("Elevator position actual", getPosition().in(Meters));
+        SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
     }
 
     @Override
