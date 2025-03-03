@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.settings.Constants.ALGAE;
 import frc.robot.settings.Constants.CORAL;
 import frc.robot.settings.Constants.CORAL.ELEVATOR;
-import frc.robot.settings.Constants.CORAL.PIVOT;
 import frc.robot.settings.Constants.SIMULATION;
 
 public class MechanismVisualizationSubsystem extends SubsystemBase {
@@ -51,7 +50,7 @@ public class MechanismVisualizationSubsystem extends SubsystemBase {
 
         MechanismRoot2d secondaryRoot2d = m_mech2d.getRoot("Riser Root", 120, 50);
         secondaryRoot2d.append(new MechanismLigament2d("Elevator Riser",
-                ELEVATOR.kMaxElevatorHeight.in(Meters) * SIMULATION.kVisualizationPixelMultiplier,
+                ELEVATOR.kMaxHeight.in(Meters) * SIMULATION.kVisualizationPixelMultiplier,
                 90,
                 3,
                 new Color8Bit(Color.kRed)));
@@ -100,7 +99,8 @@ public class MechanismVisualizationSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         // This method will be called once per scheduler run
         m_elevatorMech2d
-                .setLength(m_elevatorHeightSupplier.getAsDouble() * SIMULATION.kVisualizationPixelMultiplier);
+                .setLength(m_elevatorHeightSupplier.getAsDouble()
+                        * SIMULATION.kVisualizationPixelMultiplier);
 
         coralPivotMech2d
                 .setAngle(Units.rotationsToDegrees(coralPivotAngleSupplier.getAsDouble()));

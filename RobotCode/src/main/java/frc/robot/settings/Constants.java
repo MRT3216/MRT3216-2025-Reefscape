@@ -116,10 +116,10 @@ public final class Constants {
 			CORAL_STATION(Meters.of(1), Degrees.of(60)),
 			STARTING(Meters.of(0), PIVOT.kStartingAngle),
 			STOW(Meters.of(0), Degrees.of(0)),
-			L1(Meters.of(0.5), Degrees.of(0)),
-			L2(Meters.of(1.5), Degrees.of(30)),
-			L3(Meters.of(2.3), Degrees.of(45)),
-			L4(Meters.of(3.4), Degrees.of(60));
+			L1(Meters.of(0.4), Degrees.of(0)),
+			L2(Meters.of(0.8), Degrees.of(30)),
+			L3(Meters.of(1.2), Degrees.of(45)),
+			L4(Meters.of(1.6), Degrees.of(60));
 
 			private Distance height;
 			private Angle angle;
@@ -149,16 +149,13 @@ public final class Constants {
 			// // These limits should be used to set how far we allow
 			// // code to move the elevator. These should allow less movement than
 			// // the soft limits
-			public static final Distance kMaxHeight = Meters.of(3.45);
+			public static final Distance kMaxHeight = Meters.of(1.7);
 			public static final Distance kMinHeight = Meters.of(0);
 			public static final Distance kPositionTolerance = Inches.of(0.5);
 
 			public static final double kElevatorGearing = 60 / 7;
-			public static final double kElevatorDrumRadius = Units.inchesToMeters(2.2557);
+			public static final double kElevatorDrumRadius = Units.inchesToMeters(2.256/2);
 			public static final Mass kCarriageMass = Kilograms.of(4.0); // kg
-
-			public static final Distance kMinElevatorHeight = Meters.of(0);
-			public static final Distance kMaxElevatorHeight = Meters.of(2);
 
 			public static final double kElevatorKp = 50;
 			public static final double kElevatorKi = 0;

@@ -10,6 +10,8 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
@@ -32,27 +34,19 @@ public class ElevatorSimulation {
 
     private DCMotor elevatorGearbox;
     private ElevatorSim elevatorSim;
-
-    private RelativeEncoder realEncoder;
-    private SparkRelativeEncoderSim simEncoder;
-
-    private SparkFlex realMotorController;
     private SparkFlexSim simMotorController;
 
-    public ElevatorSimulation(RelativeEncoder encoder, SparkFlex motorController) {
+    public ElevatorSimulation(SparkFlex motorController, DoubleSupplier elevatorPositionMeters) {
         this.elevatorGearbox = DCMotor.getNeoVortex(2);
         this.elevatorSim = new ElevatorSim(elevatorGearbox, ELEVATOR.kElevatorGearing,
                 ELEVATOR.kCarriageMass.in(Kilograms), ELEVATOR.kElevatorDrumRadius,
-                ELEVATOR.kMinElevatorHeight.in(Meters),
-                ELEVATOR.kMaxElevatorHeight.in(Meters), true, 0);
+                ELEVATOR.kMinHeight.in(Meters),
+                ELEVATOR.kMaxHeight.in(Meters), true, 0);
 
-        this.realMotorController = motorController;
         this.simMotorController = new SparkFlexSim(motorController, DCMotor.getNeoVortex(2));
-        this.realEncoder = encoder;
-        this.simEncoder = new SparkRelativeEncoderSim(realMotorController);
         this.simBattery = BatterySimSubsystem.getInstance();
 
-        MechanismVisualizationSubsystem.getInstance().registerElevatorHeightSupplier(realEncoder::getPosition);
+        MechanismVisualizationSubsystem.getInstance().registerElevatorHeightSupplier(elevatorPositionMeters);
     }
 
     protected void simulationPeriodic() {
@@ -67,7 +61,6 @@ public class ElevatorSimulation {
                 RoboRioSim.getVInVoltage(),
                 0.020);
 
-        simEncoder.setPosition(elevatorSim.getPositionMeters());
         simBattery.addCurrent(elevatorSim.getCurrentDrawAmps());
 
         SmartDashboard.putNumber("Elevator Sim Current Draw", elevatorSim.getCurrentDrawAmps());

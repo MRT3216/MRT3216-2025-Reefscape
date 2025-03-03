@@ -87,7 +87,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         enabled = false;
 
         if (RobotBase.isSimulation()) {
-            this.elevatorSimContainer = new ElevatorSimulation(encoder, leadMotorController);
+            this.elevatorSimContainer = new ElevatorSimulation(leadMotorController,
+                    () -> getPosition().in(Meters));
         }
     }
 
@@ -114,7 +115,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Distance getPosition() {
         return Meters.of(encoder.getPosition() * (2 * Math.PI * ELEVATOR.kElevatorDrumRadius)
                 / ELEVATOR.kElevatorGearing);
-        //return Meters.of(encoder.getPosition());
     }
 
     public LinearVelocity getVelocity() {
@@ -152,7 +152,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Elevator Enabled", enabled);
         SmartDashboard.putNumber("Elevator position error", pIDController.getPositionError());
         SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
-        SmartDashboard.putNumber("Elevator position actual", getPosition().in(Meters));
+        SmartDashboard.putNumber("Elevator position goal", pIDController.getGoal().position);
+        SmartDashboard.putNumber("Elevator encoder", encoder.getPosition());
         SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
     }
 
@@ -160,11 +161,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         if (elevatorSimContainer != null) {
             elevatorSimContainer.simulationPeriodic();
-            SmartDashboard.putBoolean("Elevator Enabled", enabled);
-            SmartDashboard.putNumber("Elevator position error", pIDController.getPositionError());
-            SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
-            SmartDashboard.putNumber("Elevator position actual", encoder.getPosition());
-            SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
+            // SmartDashboard.putBoolean("Elevator Enabled", enabled);
+            // SmartDashboard.putNumber("Elevator position error", pIDController.getPositionError());
+            // SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
+            // SmartDashboard.putNumber("Elevator position actual", encoder.getPosition());
+            // SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
         }
     }
 }

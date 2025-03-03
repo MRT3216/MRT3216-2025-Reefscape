@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
+import frc.robot.settings.Constants.ALGAE;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -77,15 +78,15 @@ public class RobotContainer {
                         () -> drive
                                 .withVelocityX(
                                         -driverController
-                                                .getLeftY() * 0.3
+                                                .getLeftY()
                                                 * Constants.DRIVETRAIN.MaxSpeed) // Drive forward with negative Y (forward)
                                 .withVelocityY(
                                         -driverController
-                                                .getLeftX() * 0.3
+                                                .getLeftX()
                                                 * Constants.DRIVETRAIN.MaxSpeed) // Drive left with negative X (left)
                                 .withRotationalRate(
                                         -driverController
-                                                .getRightX() * 0.7
+                                                .getRightX()
                                                 * Constants.DRIVETRAIN.MaxAngularRate) // Drive counterclockwise with negative X (left)
                 ));
 
@@ -114,12 +115,12 @@ public class RobotContainer {
         // reset the field-centric heading on start press
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        // driverController.leftTrigger().whileTrue(drivetrain.driveToNearestLeftReefPole());
-        // driverController.rightTrigger().whileTrue(drivetrain.driveToNearestRightReefPole());
-        // driverController.a().whileTrue(drivetrain.driveToLeftCoralStation());
-        // driverController.b().whileTrue(drivetrain.driveToRightCoralStation());
-        // driverController.x().whileTrue(drivetrain.driveToBargeClimb());
-        // driverController.y().whileTrue(drivetrain.driveToProcessor());
+        driverController.leftTrigger().whileTrue(drivetrain.driveToNearestLeftReefPole());
+        driverController.rightTrigger().whileTrue(drivetrain.driveToNearestRightReefPole());
+        driverController.a().whileTrue(drivetrain.driveToLeftCoralStation());
+        driverController.b().whileTrue(drivetrain.driveToRightCoralStation());
+        driverController.x().whileTrue(drivetrain.driveToBargeClimb());
+        driverController.y().whileTrue(drivetrain.driveToProcessor());
 
         driverController.povUp()
                 .onTrue(elevator.moveElevatorToHeight(POSITIONS.L4.getHeight())
@@ -137,20 +138,17 @@ public class RobotContainer {
                 .onTrue(elevator.moveElevatorToHeight(POSITIONS.STARTING.getHeight())
                         .alongWith(coralPivot.movePivotToAngle(POSITIONS.STARTING.getAngle())));
 
-        // driverController.leftBumper()
-        //         .onTrue(algaePivot.movePivotToAngle(ALGAE.PIVOT.Positions.INTAKING.getAngle()));
+        driverController.leftBumper()
+                .onTrue(algaePivot.movePivotToAngle(ALGAE.PIVOT.Positions.INTAKING.getAngle()));
 
-        // driverController.rightBumper()
-        //         .onFalse(algaePivot.movePivotToAngle(ALGAE.PIVOT.Positions.SCORING.getAngle()));
+        driverController.rightBumper()
+                .onFalse(algaePivot.movePivotToAngle(ALGAE.PIVOT.Positions.SCORING.getAngle()));
 
-        driverController.leftTrigger().whileTrue(algaePivot.movePivot(-0.20));
-        driverController.rightTrigger().whileTrue(algaePivot.movePivot(0.20));
+        // driverController.leftBumper().whileTrue(algaePivot.movePivot(-0.20));
+        // driverController.rightBumper().whileTrue(algaePivot.movePivot(0.20));
 
-        // driverController.leftBumper()
-        //         .onTrue(algaePivot.movePivotToAngle(ALGAE.PIVOT.Positions.INTAKING.getAngle()));
-
-        driverController.leftBumper().whileTrue(climber.runClimber(-0.5));
-        driverController.rightBumper().whileTrue(climber.runClimber(0.5));
+        // driverController.leftBumper().whileTrue(climber.runClimber(-0.5));
+        // driverController.rightBumper().whileTrue(climber.runClimber(0.5));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
