@@ -12,13 +12,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
-import frc.robot.settings.Constants.Coral.Positions;
-import frc.robot.settings.Constants.ReefBranch;
+import frc.robot.settings.Constants.ALGAE;
+import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Algae.AlgaePivotSubsystem;
+import frc.robot.subsystems.Algae.AlgaeRollersSubsystem;
+import frc.robot.subsystems.Climber.ClimberSubsystem;
 import frc.robot.subsystems.Coral.CoralPivotSubsystem;
 import frc.robot.subsystems.Elevator.ElevatorSubsystem;
 
@@ -45,6 +47,9 @@ public class RobotContainer {
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final ElevatorSubsystem elevator = new ElevatorSubsystem();
     private final CoralPivotSubsystem coralPivot = new CoralPivotSubsystem();
+    private final AlgaePivotSubsystem algaePivot = new AlgaePivotSubsystem();
+    private final AlgaeRollersSubsystem algaeRollers = new AlgaeRollersSubsystem();
+    private final ClimberSubsystem climber = new ClimberSubsystem();
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("None");;
@@ -98,41 +103,52 @@ public class RobotContainer {
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
-        driverController.back().and(driverController.y())
-                .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        driverController.back().and(driverController.x())
-                .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        driverController.start().and(driverController.y())
-                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        driverController.start().and(driverController.x())
-                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // driverController.back().and(driverController.y())
+        //         .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        // driverController.back().and(driverController.x())
+        //         .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        // driverController.start().and(driverController.y())
+        //         .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        // driverController.start().and(driverController.x())
+        //         .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on start press
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         driverController.leftTrigger().whileTrue(drivetrain.driveToNearestLeftReefPole());
         driverController.rightTrigger().whileTrue(drivetrain.driveToNearestRightReefPole());
-        driverController.rightBumper().whileTrue(drivetrain.driveAndAlignToReefBranch(ReefBranch.A));
         driverController.a().whileTrue(drivetrain.driveToLeftCoralStation());
         driverController.b().whileTrue(drivetrain.driveToRightCoralStation());
         driverController.x().whileTrue(drivetrain.driveToBargeClimb());
         driverController.y().whileTrue(drivetrain.driveToProcessor());
 
         driverController.povUp()
-                .onTrue(elevator.moveElevatorToHeight(Positions.L4.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(Positions.L4.getAngle())));
+                .onTrue(elevator.moveElevatorToHeight(POSITIONS.L4.getHeight())
+                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.L4.getAngle())));
         driverController.povRight()
-                .onTrue(elevator.moveElevatorToHeight(Positions.L3.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(Positions.L3.getAngle())));
+                .onTrue(elevator.moveElevatorToHeight(POSITIONS.L3.getHeight())
+                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.L3.getAngle())));
         driverController.povLeft()
-                .onTrue(elevator.moveElevatorToHeight(Positions.L2.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(Positions.L2.getAngle())));
+                .onTrue(elevator.moveElevatorToHeight(POSITIONS.L2.getHeight())
+                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.L2.getAngle())));
         driverController.povDown()
-                .onTrue(elevator.moveElevatorToHeight(Positions.L1.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(Positions.L1.getAngle())));
-        driverController.leftStick()
-                .onTrue(elevator.moveElevatorToHeight(Positions.STARTING.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(Positions.STARTING.getAngle())));
+                .onTrue(elevator.moveElevatorToHeight(POSITIONS.L1.getHeight())
+                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.L1.getAngle())));
+        driverController.back()
+                .onTrue(elevator.moveElevatorToHeight(POSITIONS.STARTING.getHeight())
+                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.STARTING.getAngle())));
+
+        // driverController.leftBumper()
+        //         .onTrue(algaePivot.movePivotToAngle(ALGAE.PIVOT.Positions.INTAKING.getAngle()));
+
+        // driverController.rightBumper()
+        //         .onFalse(algaePivot.movePivotToAngle(ALGAE.PIVOT.Posi9/tions.SCORING.getAngle()));
+
+        // driverController.leftBumper().whileTrue(algaePivot.movePivot(-0.20));
+        // driverController.rightBumper().whileTrue(algaePivot.movePivot(0.20));
+
+        driverController.leftBumper().whileTrue(climber.runClimber(-0.5));
+        driverController.rightBumper().whileTrue(climber.runClimber(0.5));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

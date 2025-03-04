@@ -10,6 +10,8 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
@@ -22,8 +24,8 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.settings.Constants.Coral.ElevatorConstants;
-import frc.robot.settings.Constants.SimulationConstants;
+import frc.robot.settings.Constants.CORAL.ELEVATOR;
+import frc.robot.settings.Constants.SIMULATION;
 import frc.robot.subsystems.BatterySim.BatterySimSubsystem;
 import frc.robot.subsystems.MechanismVisualization.MechanismVisualizationSubsystem;
 
@@ -32,32 +34,24 @@ public class ElevatorSimulation {
 
     private DCMotor elevatorGearbox;
     private ElevatorSim elevatorSim;
-
-    private RelativeEncoder realEncoder;
-    private SparkRelativeEncoderSim simEncoder;
-
-    private SparkFlex realMotorController;
     private SparkFlexSim simMotorController;
 
-    public ElevatorSimulation(RelativeEncoder encoder, SparkFlex motorController) {
+    public ElevatorSimulation(SparkFlex motorController, DoubleSupplier elevatorPositionMeters) {
         this.elevatorGearbox = DCMotor.getNeoVortex(2);
-        this.elevatorSim = new ElevatorSim(elevatorGearbox, ElevatorConstants.kElevatorGearing,
-                ElevatorConstants.kCarriageMass.in(Kilograms), ElevatorConstants.kElevatorDrumRadius,
-                ElevatorConstants.kMinElevatorHeight.in(Meters),
-                ElevatorConstants.kMaxElevatorHeight.in(Meters), true, 0);
+        this.elevatorSim = new ElevatorSim(elevatorGearbox, ELEVATOR.kElevatorGearing,
+                ELEVATOR.kCarriageMass.in(Kilograms), ELEVATOR.kElevatorDrumRadius,
+                ELEVATOR.kMinHeight.in(Meters),
+                ELEVATOR.kMaxHeight.in(Meters), true, 0);
 
-        this.realMotorController = motorController;
         this.simMotorController = new SparkFlexSim(motorController, DCMotor.getNeoVortex(2));
-        this.realEncoder = encoder;
-        this.simEncoder = new SparkRelativeEncoderSim(realMotorController);
         this.simBattery = BatterySimSubsystem.getInstance();
 
-        MechanismVisualizationSubsystem.getInstance().registerElevatorHeightSupplier(realEncoder::getPosition);
+        MechanismVisualizationSubsystem.getInstance().registerElevatorHeightSupplier(elevatorPositionMeters);
     }
 
     protected void simulationPeriodic() {
         elevatorSim.setInput(simMotorController.getAppliedOutput() * RobotController.getBatteryVoltage());
-        elevatorSim.update(SimulationConstants.kSimulationTimeStep);
+        elevatorSim.update(SIMULATION.kSimulationTimeStep);
 
         // Finally, we set our simulated encoder's readings and simulated battery voltage
         simMotorController.iterate(
@@ -67,7 +61,6 @@ public class ElevatorSimulation {
                 RoboRioSim.getVInVoltage(),
                 0.020);
 
-        simEncoder.setPosition(elevatorSim.getPositionMeters());
         simBattery.addCurrent(elevatorSim.getCurrentDrawAmps());
 
         SmartDashboard.putNumber("Elevator Sim Current Draw", elevatorSim.getCurrentDrawAmps());
@@ -81,7 +74,7 @@ public class ElevatorSimulation {
     */
     public static Angle convertDistanceToRotations(Distance distance) {
         return Rotations.of(distance.in(Meters) /
-                (ElevatorConstants.kElevatorDrumRadius * 2 * Math.PI) *
-                ElevatorConstants.kElevatorGearing);
+                (ELEVATOR.kElevatorDrumRadius * 2 * Math.PI) *
+                ELEVATOR.kElevatorGearing);
     }
 }

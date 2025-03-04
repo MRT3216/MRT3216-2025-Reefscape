@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Coral;
+package frc.robot.subsystems.Algae;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
@@ -25,18 +25,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.settings.Constants.CORAL.PIVOT;
-import frc.robot.settings.RobotMap.ROBOT.CORAL_SYSTEM.PIVOT_MAP;
+import frc.robot.settings.Constants.ALGAE.PIVOT;
+import frc.robot.settings.RobotMap.ROBOT.ALGAE_SYSTEM.PIVOT_MAP;
 
-public class CoralPivotSubsystem extends SubsystemBase {
+public class AlgaePivotSubsystem extends SubsystemBase {
     private final SparkFlex motorController;
     private AbsoluteEncoder encoder;
     private ProfiledPIDController pIDController;
     private ArmFeedforward feedforward;
     private boolean enabled = false;
-    private CoralPivotSimulation simContainer;
+    private AlgaePivotSimulation simContainer;
 
-    public CoralPivotSubsystem() {
+    public AlgaePivotSubsystem() {
         motorController = new SparkFlex(PIVOT_MAP.motorCANID, MotorType.kBrushless);
 
         SparkMaxConfig pivotConfig = new SparkMaxConfig();
@@ -75,7 +75,7 @@ public class CoralPivotSubsystem extends SubsystemBase {
         pIDController.reset(PIVOT.kStartingAngle.in(Rotations));
 
         if (RobotBase.isSimulation()) {
-            this.simContainer = new CoralPivotSimulation(encoder, motorController);
+            this.simContainer = new AlgaePivotSimulation(encoder, motorController);
         }
     }
 
@@ -106,6 +106,13 @@ public class CoralPivotSubsystem extends SubsystemBase {
 
             motorController.setVoltage(armPidVoltage + ffVoltage);
         }
+
+        SmartDashboard.putBoolean("Algae Pivot Enabled", enabled);
+        SmartDashboard.putNumber("Algae Pivot position error",
+                Units.rotationsToDegrees(pIDController.getPositionError()));
+        SmartDashboard.putNumber("Algae Pivot position setpoint",
+                Units.rotationsToDegrees(pIDController.getSetpoint().position));
+        SmartDashboard.putNumber("Algae Pivot position actual", getPivotAngle().in(Degrees));
     }
 
     /** Enables the PID control. Resets the controller. */
@@ -122,6 +129,12 @@ public class CoralPivotSubsystem extends SubsystemBase {
         motorController.set(0);
     }
 
+    public Command movePivot(double speed) {
+        return this.startEnd(
+                () -> motorController.set(speed),
+                () -> motorController.set(0.0));
+    }
+
     private Angle getPivotAngle() {
         return Rotations.of(encoder.getPosition());
     }
@@ -130,13 +143,13 @@ public class CoralPivotSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         if (simContainer != null) {
             simContainer.simulationPeriodic();
-            SmartDashboard.putBoolean("Coral Pivot Enabled", enabled);
-            SmartDashboard.putNumber("Coral Pivot position error",
+            SmartDashboard.putBoolean("Algae Pivot Enabled", enabled);
+            SmartDashboard.putNumber("Algae Pivot position error",
                     Units.rotationsToDegrees(pIDController.getPositionError()));
-            SmartDashboard.putNumber("Coral Pivot position setpoint",
+            SmartDashboard.putNumber("Algae Pivot position setpoint",
                     Units.rotationsToDegrees(pIDController.getSetpoint().position));
-            SmartDashboard.putNumber("Coral Pivot position actual", getPivotAngle().in(Degrees));
-            SmartDashboard.putNumber("Coral Pivot Motor effort", motorController.getAppliedOutput());
+            SmartDashboard.putNumber("Algae Pivot position actual", getPivotAngle().in(Degrees));
+            SmartDashboard.putNumber("Algae Pivot Motor effort", motorController.getAppliedOutput());
         }
     }
 }

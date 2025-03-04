@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
@@ -17,13 +18,14 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.settings.Constants.Coral.ElevatorConstants;
-import frc.robot.settings.RobotMap.ROBOT.CoralSystem.ElevatorMap;
+import frc.robot.settings.Constants.CORAL.ELEVATOR;
+import frc.robot.settings.RobotMap.ROBOT.CORAL_SYSTEM.ELEVATOR_MAP;
 
 public class ElevatorSubsystem extends SubsystemBase {
     // #region Fields
@@ -39,58 +41,54 @@ public class ElevatorSubsystem extends SubsystemBase {
     // #endregion
 
     public ElevatorSubsystem() {
-        leadMotorController = new SparkFlex(ElevatorMap.leadMotorCANID, MotorType.kBrushless);
-        followerMotorController = new SparkFlex(ElevatorMap.followerMotorCANID, MotorType.kBrushless);
+        leadMotorController = new SparkFlex(ELEVATOR_MAP.leadMotorCANID, MotorType.kBrushless);
+        followerMotorController = new SparkFlex(ELEVATOR_MAP.followerMotorCANID, MotorType.kBrushless);
 
         SparkMaxConfig leadConfig = new SparkMaxConfig();
         SparkMaxConfig followerConfig = new SparkMaxConfig();
 
         leadConfig.idleMode(IdleMode.kBrake)
-                .inverted(!ElevatorConstants.kLeadMotorInverted)
-                .smartCurrentLimit(ElevatorConstants.kMotorCurrentLimit)
-                .voltageCompensation(ElevatorConstants.kVoltageCompensation)
-                .openLoopRampRate(ElevatorConstants.kElevatorRampRate);
+                .inverted(ELEVATOR.kLeadMotorInverted)
+                .smartCurrentLimit(ELEVATOR.kMotorCurrentLimit)
+                .voltageCompensation(ELEVATOR.kVoltageCompensation)
+                .openLoopRampRate(ELEVATOR.kElevatorRampRate);
 
-        // TODO: This
-        // EncoderConfig encoderConfig = new EncoderConfig();
-        // // Convert rotations to degrees
-        // //encoderConfig.positionConversionFactor(360);
-        // leadConfig.apply(encoderConfig);
+        //TODO: Check this
+        encoder = leadMotorController.getEncoder();
+        EncoderConfig encoderConfig = new EncoderConfig();
+        encoderConfig.positionConversionFactor(1);
+        leadConfig.apply(encoderConfig);
+        encoder.setPosition(0);
 
         leadMotorController.configure(leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        followerConfig.follow(leadMotorController, ElevatorConstants.kLeadMotorInverted)
+        // The follower motor should rotate opposite the lead motor
+        // for this gearbox
+        followerConfig.follow(leadMotorController, true)
                 .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(ElevatorConstants.kMotorCurrentLimit)
-                .voltageCompensation(ElevatorConstants.kVoltageCompensation);
+                .smartCurrentLimit(ELEVATOR.kMotorCurrentLimit)
+                .voltageCompensation(ELEVATOR.kVoltageCompensation);
 
         followerMotorController.configure(followerConfig, ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
 
-        //TODO: replace relative encoder with absolute encoder
-        // NOOOO! Use the absolute encoder to set the zero position of the elvator
-        // encoder = leadMotor.getAbsoluteEncoder();
-        // AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
-        // encoderConfig.positionConversionFactor(360);
-        encoder = leadMotorController.getEncoder();
-        encoder.setPosition(0);
-
         TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(
-                ElevatorConstants.kMaxElevatorVelocity.in(MetersPerSecond),
-                ElevatorConstants.kMaxElevatorAcceleration.in(MetersPerSecondPerSecond));
+                ELEVATOR.kMaxElevatorVelocity.in(MetersPerSecond),
+                ELEVATOR.kMaxElevatorAcceleration.in(MetersPerSecondPerSecond));
 
-        pIDController = new ProfiledPIDController(ElevatorConstants.kElevatorKp, ElevatorConstants.kElevatorKi,
-                ElevatorConstants.kElevatorKd, constraints);
+        pIDController = new ProfiledPIDController(ELEVATOR.kElevatorKp, ELEVATOR.kElevatorKi,
+                ELEVATOR.kElevatorKd, constraints);
 
-        elevatorFeedForward = new ElevatorFeedforward(ElevatorConstants.kElevatorkS,
-                ElevatorConstants.kElevatorkG, ElevatorConstants.kElevatorkV, ElevatorConstants.kElevatorkA);
+        elevatorFeedForward = new ElevatorFeedforward(ELEVATOR.kElevatorkS,
+                ELEVATOR.kElevatorkG, ELEVATOR.kElevatorkV, ELEVATOR.kElevatorkA);
 
-        pIDController.setTolerance(ElevatorConstants.kPositionTolerance.in(Meters));
+        pIDController.setTolerance(ELEVATOR.kPositionTolerance.in(Meters));
 
         enabled = false;
 
         if (RobotBase.isSimulation()) {
-            this.elevatorSimContainer = new ElevatorSimulation(encoder, leadMotorController);
+            this.elevatorSimContainer = new ElevatorSimulation(leadMotorController,
+                    () -> getPosition().in(Meters));
         }
     }
 
@@ -101,11 +99,28 @@ public class ElevatorSubsystem extends SubsystemBase {
         }).until(this.atGoal());
     }
 
+    public Command moveElevator(double speed) {
+        return this.startEnd(
+                () -> leadMotorController.set(speed),
+                () -> leadMotorController.set(0.0));
+    }
+
     private void setElevatorHeightGoal(Distance height) {
         double goalHeightinMeters = MathUtil.clamp(height.in(Meters),
-                ElevatorConstants.kMinHeight.in(Meters),
-                ElevatorConstants.kMaxHeight.in(Meters));
+                ELEVATOR.kMinHeight.in(Meters),
+                ELEVATOR.kMaxHeight.in(Meters));
         pIDController.setGoal(goalHeightinMeters);
+    }
+
+    public Distance getPosition() {
+        return Meters.of(encoder.getPosition() * (2 * Math.PI * ELEVATOR.kElevatorDrumRadius)
+                / ELEVATOR.kElevatorGearing);
+    }
+
+    public LinearVelocity getVelocity() {
+        return MetersPerSecond.of(
+                (encoder.getVelocity() / 60) * (2 * Math.PI * ELEVATOR.kElevatorDrumRadius)
+                        / ELEVATOR.kElevatorGearing);
     }
 
     protected Trigger atGoal() {
@@ -126,23 +141,31 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void periodic() {
         if (enabled) {
-            double pidOutput = pIDController.calculate(encoder.getPosition());
-            double feedForward = elevatorFeedForward.calculate(pIDController.getSetpoint().velocity);
+            double pidOutput = pIDController.calculate(getPosition().in(Meters));
+            double feedForward = elevatorFeedForward.calculateWithVelocities(
+                    getVelocity().in(MetersPerSecond), pIDController.getSetpoint().velocity);
             double motorEffortVoltage = pidOutput + feedForward;
 
             leadMotorController.setVoltage(motorEffortVoltage);
         }
+
+        SmartDashboard.putBoolean("Elevator Enabled", enabled);
+        SmartDashboard.putNumber("Elevator position error", pIDController.getPositionError());
+        SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
+        SmartDashboard.putNumber("Elevator position goal", pIDController.getGoal().position);
+        SmartDashboard.putNumber("Elevator encoder", encoder.getPosition());
+        SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
     }
 
     @Override
     public void simulationPeriodic() {
         if (elevatorSimContainer != null) {
             elevatorSimContainer.simulationPeriodic();
-            SmartDashboard.putBoolean("Elevator Enabled", enabled);
-            SmartDashboard.putNumber("Elevator position error", pIDController.getPositionError());
-            SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
-            SmartDashboard.putNumber("Elevator position actual", encoder.getPosition());
-            SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
+            // SmartDashboard.putBoolean("Elevator Enabled", enabled);
+            // SmartDashboard.putNumber("Elevator position error", pIDController.getPositionError());
+            // SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
+            // SmartDashboard.putNumber("Elevator position actual", encoder.getPosition());
+            // SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
         }
     }
 }
