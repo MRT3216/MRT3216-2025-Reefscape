@@ -138,17 +138,17 @@ public class RobotContainer {
                 .onTrue(elevator.moveElevatorToHeight(POSITIONS.STARTING.getHeight())
                         .alongWith(coralPivot.movePivotToAngle(POSITIONS.STARTING.getAngle())));
 
-        driverController.leftBumper()
-                .onTrue(algaePivot.movePivotToAngle(ALGAE.PIVOT.Positions.INTAKING.getAngle()));
+        // driverController.leftBumper()
+        //         .onTrue(algaePivot.movePivotToAngle(ALGAE.PIVOT.Positions.INTAKING.getAngle()));
 
-        driverController.rightBumper()
-                .onFalse(algaePivot.movePivotToAngle(ALGAE.PIVOT.Positions.SCORING.getAngle()));
+        // driverController.rightBumper()
+        //         .onFalse(algaePivot.movePivotToAngle(ALGAE.PIVOT.Posi9/tions.SCORING.getAngle()));
 
         // driverController.leftBumper().whileTrue(algaePivot.movePivot(-0.20));
         // driverController.rightBumper().whileTrue(algaePivot.movePivot(0.20));
 
-        // driverController.leftBumper().whileTrue(climber.runClimber(-0.5));
-        // driverController.rightBumper().whileTrue(climber.runClimber(0.5));
+        driverController.leftBumper().whileTrue(climber.runClimber(-0.5));
+        driverController.rightBumper().whileTrue(climber.runClimber(0.5));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
