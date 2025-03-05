@@ -191,9 +191,6 @@ public final class Constants {
 			public static final double kPivotGearing = 25.0;
 			public static final Distance kPivotArmLength = Inches.of(12.9);
 			public static final Mass kPivotMass = Pounds.of(5);
-			// The pivot is zeroed at 60 degrees below horizontal
-			// This offset adjusts to 0 degrees being the horizontal plan
-			public static final Angle kPivotOffset = Degrees.of(60);
 
 			// The soft limits are set in the motor controller to limit
 			// movement past a certain point. Consider this an emergency limit
