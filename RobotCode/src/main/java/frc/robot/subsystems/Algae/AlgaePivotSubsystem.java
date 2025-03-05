@@ -35,6 +35,7 @@ public class AlgaePivotSubsystem extends SubsystemBase {
     private ArmFeedforward feedforward;
     private boolean enabled = false;
     private AlgaePivotSimulation simContainer;
+    private PIVOT.Positions currentPosition = PIVOT.Positions.STOW_SCORING;
 
     public AlgaePivotSubsystem() {
         motorController = new SparkFlex(PIVOT_MAP.motorCANID, MotorType.kBrushless);
@@ -86,6 +87,17 @@ public class AlgaePivotSubsystem extends SubsystemBase {
         }).until(this.atGoal());
     }
 
+    public Command togglePivotPosition() {
+        // TODO: Don't like this.
+        return this.runOnce(() -> {
+            currentPosition = currentPosition == PIVOT.Positions.INTAKING ? PIVOT.Positions.STOW_SCORING
+                    : PIVOT.Positions.INTAKING;
+
+            setPivotGoal(currentPosition.getAngle());
+            this.enable();
+        });
+    }
+
     private void setPivotGoal(Angle angle) {
         double goalAngleInRotations = MathUtil.clamp(angle.in(Rotations),
                 PIVOT.kMinPivotAngle.in(Rotations),
@@ -112,6 +124,8 @@ public class AlgaePivotSubsystem extends SubsystemBase {
                 Units.rotationsToDegrees(pIDController.getPositionError()));
         SmartDashboard.putNumber("Algae Pivot position setpoint",
                 Units.rotationsToDegrees(pIDController.getSetpoint().position));
+        SmartDashboard.putNumber("Algae Pivot position goal",
+                Units.rotationsToDegrees(pIDController.getGoal().position));
         SmartDashboard.putNumber("Algae Pivot position actual", getPivotAngle().in(Degrees));
     }
 
