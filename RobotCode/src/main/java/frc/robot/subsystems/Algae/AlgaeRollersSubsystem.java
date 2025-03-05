@@ -5,14 +5,17 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.settings.Constants.ALGAE.PIVOT;
-import frc.robot.settings.Constants.CORAL.END_EFFECTOR;
+import frc.robot.settings.Constants.ALGAE.ROLLERS;
 import frc.robot.settings.RobotMap.ROBOT.ALGAE_SYSTEM.ROLLERS_MAP;
 
 public class AlgaeRollersSubsystem extends SubsystemBase {
     private final SparkMax motorController;
+    private boolean isLastDirectionIntake = false;
 
     public AlgaeRollersSubsystem() {
         motorController = new SparkMax(ROLLERS_MAP.motorCANID, MotorType.kBrushless);
@@ -36,12 +39,25 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
     }
 
     // TODO: check this again
-    public Command runRollerCommand(double speed) {
-        double voltage = 0;
-        return this.startEnd(
-                () -> setIntakeSpeed(speed),
-                () -> stopIntake());
-                // // TODO: I think this neds more logic (check last years bot)
-                // .until(() -> voltage > END_EFFECTOR.VOLTAGE_THRESHOLD);
+    public Command runRollerCommand() {
+        if (isLastDirectionIntake) {
+            isLastDirectionIntake = false;
+            return this.startEnd(
+                    () -> setIntakeSpeed(ROLLERS.outtakeSpeed),
+                    () -> stopIntake());
+        } else {
+            isLastDirectionIntake = true;
+            return this.startEnd(
+                    () -> setIntakeSpeed(ROLLERS.intakeSpeed),
+                    () -> stopIntake());
+        }
+
+        // // TODO: I think this neds more logic (check last years bot)
+        // .until(() -> voltage > END_EFFECTOR.VOLTAGE_THRESHOLD);
+    }
+
+    public void periodic() {
+        SmartDashboard.putNumber("Algae Roller Speed",
+                motorController.getAppliedOutput());
     }
 }
