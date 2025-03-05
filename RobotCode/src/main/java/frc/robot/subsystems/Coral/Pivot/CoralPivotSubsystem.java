@@ -6,11 +6,11 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -49,7 +49,8 @@ public class CoralPivotSubsystem extends SubsystemBase {
                 .openLoopRampRate(PIVOT.kPivotRampRate);
 
         encoder = motorController.getAbsoluteEncoder();
-        EncoderConfig encoderConfig = new EncoderConfig();
+        AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
+        encoderConfig.zeroCentered(true);
         pivotConfig.apply(encoderConfig);
 
         motorController.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -89,6 +90,7 @@ public class CoralPivotSubsystem extends SubsystemBase {
         double goalAngleInRotations = MathUtil.clamp(angle.in(Rotations),
                 PIVOT.kMinPivotAngle.in(Rotations),
                 PIVOT.kMaxPivotAngle.in(Rotations));
+
         pIDController.setGoal(goalAngleInRotations);
     }
 
@@ -143,6 +145,7 @@ public class CoralPivotSubsystem extends SubsystemBase {
             SmartDashboard.putNumber("Coral Pivot position setpoint",
                     Units.rotationsToDegrees(pIDController.getSetpoint().position));
             SmartDashboard.putNumber("Coral Pivot position actual", getPivotAngle().in(Degrees));
+            SmartDashboard.putNumber("Coral Pivot encoder", encoder.getPosition());
             SmartDashboard.putNumber("Coral Pivot Motor effort", motorController.getAppliedOutput());
         }
     }
