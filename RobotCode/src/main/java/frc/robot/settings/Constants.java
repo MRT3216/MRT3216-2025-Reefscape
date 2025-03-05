@@ -113,9 +113,10 @@ public final class Constants {
 
 	public static final class CORAL {
 		public enum POSITIONS {
-			CORAL_STATION(Meters.of(1), Degrees.of(60)),
+			// TODO: decide if we need starting and stow and set angles
 			STARTING(Meters.of(0), PIVOT.kStartingAngle),
 			STOW(Meters.of(0), Degrees.of(0)),
+			CORAL_STATION(Meters.of(1), Degrees.of(60)),
 			L1(Meters.of(0.4), Degrees.of(0)),
 			L2(Meters.of(0.8), Degrees.of(30)),
 			L3(Meters.of(1.2), Degrees.of(45)),
@@ -183,7 +184,7 @@ public final class Constants {
 
 		public static final class PIVOT {
 			public static final boolean kMotorInverted = true;
-			public static final int kMotorCurrentLimit = 40;
+			public static final int kMotorCurrentLimit = 80;
 			public static final int kVoltageCompensation = 10;
 			public static final Angle kMaxPivotError = Degree.of(1.0); // Degrees
 
@@ -228,10 +229,8 @@ public final class Constants {
 	public static final class ALGAE {
 		public static final class PIVOT {
 			public enum Positions {
-				STARTING(Degrees.of(90)),
-				STOW(Degrees.of(90)),
 				INTAKING(Degrees.of(15)),
-				SCORING(Degrees.of(75));
+				STOW_SCORING(Degrees.of(75));
 
 				private Angle angle;
 
@@ -289,6 +288,8 @@ public final class Constants {
 			public static final boolean kMotorInverted = false;
 			public static final int kMotorCurrentLimit = 40;
 			public static final int kVoltageCompensation = 10;
+			public static final double intakeSpeed = 0.3;
+			public static final double outtakeSpeed = -intakeSpeed;
 		}
 	}
 
