@@ -191,19 +191,22 @@ public final class Constants {
 			public static final double kPivotGearing = 25.0;
 			public static final Distance kPivotArmLength = Inches.of(12.9);
 			public static final Mass kPivotMass = Pounds.of(5);
-			public static final Angle kPivotOffset = Degrees.of(0);
+			// The pivot is zeroed at 60 degrees below horizontal
+			// This offset adjusts to 0 degrees being the horizontal plan
+			public static final Angle kPivotOffset = Degrees.of(60);
 
 			// The soft limits are set in the motor controller to limit
 			// movement past a certain point. Consider this an emergency limit
+			// These are set to be with 0 as horiziontal
 			// TODO: Adjust these
-			public static final Angle kSoftReverseLimit = Degree.of(-5);
-			public static final Angle kSoftForwardLimit = Degree.of(95);
+			public static final Angle kSoftReverseLimit = Degree.of(-45);
+			public static final Angle kSoftForwardLimit = Degree.of(70);
 
 			// These limits should be used to set how far we allow
 			// code to move the arm. These should allow less movement than
-			// the soft limits
-			public static final Angle kMinPivotAngle = Degree.of(0);
-			public static final Angle kMaxPivotAngle = Degree.of(90);
+			// the soft limits. Set to be with 0 as horiziontal
+			public static final Angle kMinPivotAngle = Degree.of(-50);
+			public static final Angle kMaxPivotAngle = Degree.of(75);
 			public static final Angle kStartingAngle = Degree.of(90);
 
 			public static final double kMOI = SingleJointedArmSim.estimateMOI(kPivotArmLength.in(Meters),
