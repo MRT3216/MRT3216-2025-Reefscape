@@ -12,9 +12,7 @@ import static edu.wpi.first.units.Units.Second;
 
 import java.util.function.DoubleSupplier;
 
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkFlexSim;
-import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.system.plant.DCMotor;
