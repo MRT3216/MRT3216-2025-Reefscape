@@ -21,53 +21,53 @@ import frc.robot.subsystems.BatterySim.BatterySimSubsystem;
 import frc.robot.subsystems.MechanismVisualization.MechanismVisualizationSubsystem;
 
 public class AlgaePivotSimulation {
-        private BatterySimSubsystem m_simBattery;
+    private BatterySimSubsystem m_simBattery;
 
-        private DCMotor pivotGearbox;
-        private SingleJointedArmSim armPivotSim;
+    private DCMotor pivotGearbox;
+    private SingleJointedArmSim armPivotSim;
 
-        private AbsoluteEncoder realEncoder;
-        private SparkAbsoluteEncoderSim simEncoder;
+    private AbsoluteEncoder realEncoder;
+    private SparkAbsoluteEncoderSim simEncoder;
 
-        private SparkFlex realMotorController;
-        private SparkFlexSim simMotorController;
+    private SparkFlex realMotorController;
+    private SparkFlexSim simMotorController;
 
-        public AlgaePivotSimulation(AbsoluteEncoder encoder, SparkFlex motorController) {
-                this.pivotGearbox = DCMotor.getNeoVortex(1);
-                this.armPivotSim = new SingleJointedArmSim(
-                                pivotGearbox,
-                                PIVOT.kPivotGearing,
-                                PIVOT.kMOI,
-                                PIVOT.kPivotArmLength.in(Meters),
-                                PIVOT.kMinPivotAngle.in(Radians),
-                                PIVOT.kMaxPivotAngle.in(Radians),
-                                true,
-                                PIVOT.kStartingAngle.in(Degrees));
+    public AlgaePivotSimulation(AbsoluteEncoder encoder, SparkFlex motorController) {
+        this.pivotGearbox = DCMotor.getNeoVortex(1);
+        this.armPivotSim = new SingleJointedArmSim(
+                pivotGearbox,
+                PIVOT.kPivotGearing,
+                PIVOT.kMOI,
+                PIVOT.kPivotArmLength.in(Meters),
+                PIVOT.kMinPivotAngle.in(Radians),
+                PIVOT.kMaxPivotAngle.in(Radians),
+                true,
+                PIVOT.Positions.STARTING.getAngle().in(Radians));
 
-                this.realMotorController = motorController;
-                this.simMotorController = new SparkFlexSim(realMotorController, pivotGearbox);
-                this.realEncoder = encoder;
-                this.simEncoder = new SparkAbsoluteEncoderSim(realMotorController);
-                this.m_simBattery = BatterySimSubsystem.getInstance();
+        this.realMotorController = motorController;
+        this.simMotorController = new SparkFlexSim(realMotorController, pivotGearbox);
+        this.realEncoder = encoder;
+        this.simEncoder = new SparkAbsoluteEncoderSim(realMotorController);
+        this.m_simBattery = BatterySimSubsystem.getInstance();
 
-                MechanismVisualizationSubsystem.getInstance()
-                                .registerAlgaePivotAngleSupplier(
-                                                () -> realEncoder.getPosition());
-        }
+        MechanismVisualizationSubsystem.getInstance()
+                .registerAlgaePivotAngleSupplier(
+                        () -> realEncoder.getPosition());
+    }
 
-        protected void simulationPeriodic() {
-                armPivotSim.setInput(simMotorController.getAppliedOutput() * RobotController.getBatteryVoltage());
-                armPivotSim.update(SIMULATION.kSimulationTimeStep);
+    protected void simulationPeriodic() {
+        armPivotSim.setInput(simMotorController.getAppliedOutput() * RobotController.getBatteryVoltage());
+        armPivotSim.update(SIMULATION.kSimulationTimeStep);
 
-                // Now, we update the Spark Flex
-                simMotorController.iterate(
-                                Units.radiansPerSecondToRotationsPerMinute( // motor velocity, in RPM
-                                                armPivotSim.getVelocityRadPerSec()),
-                                RoboRioSim.getVInVoltage(), // Simulated battery voltage, in Volts
-                                0.02); // Time interval, in Seconds
+        // Now, we update the Spark Flex
+        simMotorController.iterate(
+                Units.radiansPerSecondToRotationsPerMinute( // motor velocity, in RPM
+                        armPivotSim.getVelocityRadPerSec()),
+                RoboRioSim.getVInVoltage(), // Simulated battery voltage, in Volts
+                0.02); // Time interval, in Seconds
 
-                simEncoder.setPosition(Units.radiansToRotations(armPivotSim.getAngleRads()));
-                m_simBattery.addCurrent(armPivotSim.getCurrentDrawAmps());
-                SmartDashboard.putNumber("Algae Pivot Sim Current Draw", armPivotSim.getCurrentDrawAmps());
-        }
+        simEncoder.setPosition(Units.radiansToRotations(armPivotSim.getAngleRads()));
+        m_simBattery.addCurrent(armPivotSim.getCurrentDrawAmps());
+        SmartDashboard.putNumber("Algae Pivot Sim Current Draw", armPivotSim.getCurrentDrawAmps());
+    }
 }
