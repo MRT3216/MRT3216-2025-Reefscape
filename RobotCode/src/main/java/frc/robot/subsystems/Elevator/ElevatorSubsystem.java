@@ -9,8 +9,8 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.EncoderConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.settings.Constants.CORAL;
 import frc.robot.settings.Constants.CORAL.ELEVATOR;
 import frc.robot.settings.RobotMap.ROBOT.CORAL_SYSTEM.ELEVATOR_MAP;
 
@@ -83,7 +84,9 @@ public class ElevatorSubsystem extends SubsystemBase {
                 ELEVATOR.kElevatorkG, ELEVATOR.kElevatorkV, ELEVATOR.kElevatorkA);
 
         pIDController.setTolerance(ELEVATOR.kPositionTolerance.in(Meters));
-
+        // Set the inital position so that when enabled the controler
+        // matches the initial position
+        pIDController.reset(CORAL.POSITIONS.STARTING.getHeight().in(Meters));
         enabled = false;
 
         if (RobotBase.isSimulation()) {
