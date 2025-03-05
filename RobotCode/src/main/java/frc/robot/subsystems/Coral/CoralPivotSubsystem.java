@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
@@ -58,10 +59,8 @@ public class CoralPivotSubsystem extends SubsystemBase {
                 PIVOT.kPivotKi,
                 PIVOT.kPivotKd,
                 new TrapezoidProfile.Constraints(
-                        Units.radiansPerSecondToRotationsPerMinute(
-                                PIVOT.kMaxAngularVelocity.in(RotationsPerSecond)),
-                        Units.radiansPerSecondToRotationsPerMinute(
-                                PIVOT.kMaxAngularAcceleration.in(RotationsPerSecondPerSecond))));
+                        PIVOT.kMaxAngularVelocity.in(RotationsPerSecond),
+                        PIVOT.kMaxAngularAcceleration.in(RotationsPerSecondPerSecond)));
 
         feedforward = new ArmFeedforward(
                 PIVOT.kPivotkS,
@@ -97,7 +96,15 @@ public class CoralPivotSubsystem extends SubsystemBase {
         return new Trigger(() -> pIDController.atGoal());
     }
 
+    public Command movePivot(double speed) {
+        return this.startEnd(
+                () -> motorController.set(speed),
+                () -> motorController.set(0.0));
+    }
+
     public void periodic() {
+        SmartDashboard.putNumber("Coral Pivot position", getPivotAngle().in(Degrees));
+
         if (enabled) {
             double armPidVoltage = pIDController.calculate(getPivotAngle().in(Rotations));
             double ffVoltage = feedforward.calculate(

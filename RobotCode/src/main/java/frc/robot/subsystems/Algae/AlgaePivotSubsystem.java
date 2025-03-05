@@ -59,10 +59,8 @@ public class AlgaePivotSubsystem extends SubsystemBase {
                 PIVOT.kPivotKi,
                 PIVOT.kPivotKd,
                 new TrapezoidProfile.Constraints(
-                        Units.radiansPerSecondToRotationsPerMinute(
-                                PIVOT.kMaxAngularVelocity.in(RotationsPerSecond)),
-                        Units.radiansPerSecondToRotationsPerMinute(
-                                PIVOT.kMaxAngularAcceleration.in(RotationsPerSecondPerSecond))));
+                        PIVOT.kMaxAngularVelocity.in(RotationsPerSecond),
+                        PIVOT.kMaxAngularAcceleration.in(RotationsPerSecondPerSecond)));
 
         feedforward = new ArmFeedforward(
                 PIVOT.kPivotkS,
@@ -73,7 +71,7 @@ public class AlgaePivotSubsystem extends SubsystemBase {
         pIDController.setTolerance(PIVOT.kMaxPivotError.in(Rotations));
         // Set the inital position so that when enabled the controler
         // matches the initial position
-        pIDController.reset(PIVOT.kStartingAngle.in(Rotations));
+        pIDController.reset(PIVOT.Positions.STARTING.getAngle().in(Rotations));
 
         if (RobotBase.isSimulation()) {
             this.simContainer = new AlgaePivotSimulation(encoder, motorController);
