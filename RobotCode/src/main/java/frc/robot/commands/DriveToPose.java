@@ -15,7 +15,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.settings.Constants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 
 public class DriveToPose extends Command {
     private final CommandSwerveDrivetrain m_drivetrain;

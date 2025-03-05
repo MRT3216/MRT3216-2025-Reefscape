@@ -1,11 +1,10 @@
-package frc.robot.subsystems.Coral;
+package frc.robot.subsystems.Algae.Pivot;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkAbsoluteEncoderSim;
 import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.spark.SparkFlex;
@@ -16,12 +15,12 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.settings.Constants.CORAL.PIVOT;
+import frc.robot.settings.Constants.ALGAE.PIVOT;
 import frc.robot.settings.Constants.SIMULATION;
-import frc.robot.subsystems.BatterySim.BatterySimSubsystem;
-import frc.robot.subsystems.MechanismVisualization.MechanismVisualizationSubsystem;
+import frc.robot.subsystems.Sim.BatterySim.BatterySimSubsystem;
+import frc.robot.subsystems.Sim.MechanismVisualization.MechanismVisualizationSubsystem;
 
-public class CoralPivotSimulation {
+public class AlgaePivotSimulation {
     private BatterySimSubsystem m_simBattery;
 
     private DCMotor pivotGearbox;
@@ -33,7 +32,7 @@ public class CoralPivotSimulation {
     private SparkFlex realMotorController;
     private SparkFlexSim simMotorController;
 
-    public CoralPivotSimulation(AbsoluteEncoder encoder, SparkFlex motorController) {
+    public AlgaePivotSimulation(AbsoluteEncoder encoder, SparkFlex motorController) {
         this.pivotGearbox = DCMotor.getNeoVortex(1);
         this.armPivotSim = new SingleJointedArmSim(
                 pivotGearbox,
@@ -43,7 +42,7 @@ public class CoralPivotSimulation {
                 PIVOT.kMinPivotAngle.in(Radians),
                 PIVOT.kMaxPivotAngle.in(Radians),
                 true,
-                PIVOT.kStartingAngle.in(Degrees));
+                PIVOT.Positions.STARTING.getAngle().in(Radians));
 
         this.realMotorController = motorController;
         this.simMotorController = new SparkFlexSim(realMotorController, pivotGearbox);
@@ -52,10 +51,8 @@ public class CoralPivotSimulation {
         this.m_simBattery = BatterySimSubsystem.getInstance();
 
         MechanismVisualizationSubsystem.getInstance()
-                .registerCoralPivotAngleSupplier(
-                        // The pivot is 90 degrees to the elevator
-                        // -90 (quarter turn) to compensate for the elevator's 90 degree rotation
-                        () -> realEncoder.getPosition() - 0.25);
+                .registerAlgaePivotAngleSupplier(
+                        () -> realEncoder.getPosition());
     }
 
     protected void simulationPeriodic() {
@@ -71,6 +68,6 @@ public class CoralPivotSimulation {
 
         simEncoder.setPosition(Units.radiansToRotations(armPivotSim.getAngleRads()));
         m_simBattery.addCurrent(armPivotSim.getCurrentDrawAmps());
-        SmartDashboard.putNumber("Coral Pivot Sim Current Draw", armPivotSim.getCurrentDrawAmps());
+        SmartDashboard.putNumber("Algae Pivot Sim Current Draw", armPivotSim.getCurrentDrawAmps());
     }
 }

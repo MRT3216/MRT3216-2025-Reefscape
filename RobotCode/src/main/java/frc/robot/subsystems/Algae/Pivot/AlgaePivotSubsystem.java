@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Algae;
+package frc.robot.subsystems.Algae.Pivot;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;

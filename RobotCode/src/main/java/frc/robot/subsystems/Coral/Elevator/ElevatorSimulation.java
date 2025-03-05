@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.Elevator;
+package frc.robot.subsystems.Coral.Elevator;
 
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
@@ -26,8 +26,8 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.settings.Constants.CORAL.ELEVATOR;
 import frc.robot.settings.Constants.SIMULATION;
-import frc.robot.subsystems.BatterySim.BatterySimSubsystem;
-import frc.robot.subsystems.MechanismVisualization.MechanismVisualizationSubsystem;
+import frc.robot.subsystems.Sim.BatterySim.BatterySimSubsystem;
+import frc.robot.subsystems.Sim.MechanismVisualization.MechanismVisualizationSubsystem;
 
 public class ElevatorSimulation {
     private BatterySimSubsystem simBattery;

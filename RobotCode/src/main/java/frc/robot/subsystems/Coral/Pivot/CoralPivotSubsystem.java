@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Coral;
+package frc.robot.subsystems.Coral.Pivot;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
