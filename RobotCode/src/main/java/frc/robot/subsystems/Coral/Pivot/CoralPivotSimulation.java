@@ -3,7 +3,6 @@ package frc.robot.subsystems.Coral.Pivot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.sim.SparkAbsoluteEncoderSim;
@@ -16,8 +15,8 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.settings.Constants.CORAL.PIVOT;
 import frc.robot.settings.Constants.CORAL;
+import frc.robot.settings.Constants.CORAL.PIVOT;
 import frc.robot.settings.Constants.SIMULATION;
 import frc.robot.subsystems.Sim.BatterySim.BatterySimSubsystem;
 import frc.robot.subsystems.Sim.MechanismVisualization.MechanismVisualizationSubsystem;
@@ -41,8 +40,8 @@ public class CoralPivotSimulation {
                 PIVOT.kPivotGearing,
                 PIVOT.kMOI,
                 PIVOT.kPivotArmLength.in(Meters),
-                PIVOT.kMinPivotAngle.in(Radians),
-                PIVOT.kMaxPivotAngle.in(Radians),
+                PIVOT.kSoftForwardLimit.in(Radians),
+                PIVOT.kSoftReverseLimit.in(Radians),
                 true,
                 CORAL.POSITIONS.STARTING.getAngle().in(Degrees));
 

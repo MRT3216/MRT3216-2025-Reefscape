@@ -5,14 +5,12 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
-import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
-import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -23,13 +21,11 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.settings.Constants.CORAL;
 import frc.robot.settings.Constants.CORAL.PIVOT;
 import frc.robot.settings.RobotMap.ROBOT.CORAL_SYSTEM.PIVOT_MAP;
 
@@ -55,6 +51,8 @@ public class CoralPivotSubsystem extends SubsystemBase {
         encoder = motorController.getAbsoluteEncoder();
         AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
         encoderConfig.zeroCentered(true);
+        motorControllerConfig.apply(encoderConfig);
+
         SoftLimitConfig softLimitConfig = new SoftLimitConfig();
         softLimitConfig
                 // Soft limits use the internal motor encoder rather than the attached
@@ -64,7 +62,6 @@ public class CoralPivotSubsystem extends SubsystemBase {
                 .reverseSoftLimit(PIVOT.kSoftReverseLimit.in(Rotations) * PIVOT.kPivotGearing)
                 .reverseSoftLimitEnabled(true);
         motorControllerConfig.apply(softLimitConfig);
-        motorControllerConfig.apply(encoderConfig);
 
         motorController.configure(motorControllerConfig, ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
