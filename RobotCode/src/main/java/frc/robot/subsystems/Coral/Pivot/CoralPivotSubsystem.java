@@ -119,20 +119,6 @@ public class CoralPivotSubsystem extends SubsystemBase {
     }
 
     public void periodic() {
-        SmartDashboard.putNumber("Coral Pivot position", getPivotAngle().in(Degrees));
-        SmartDashboard.putNumber("Coral Pivot encoder",
-                motorController.getEncoder().getPosition());
-
-        SmartDashboard.putBoolean("Coral Pivot Enabled", enabled);
-        SmartDashboard.putNumber("Coral Pivot position error",
-                Units.rotationsToDegrees(pIDController.getPositionError()));
-        SmartDashboard.putNumber("Coral Pivot position setpoint",
-                Units.rotationsToDegrees(pIDController.getSetpoint().position));
-        SmartDashboard.putNumber("Coral Pivot position actual", getPivotAngle().in(Degrees));
-        SmartDashboard.putNumber("Coral Pivot encoder", encoder.getPosition());
-        SmartDashboard.putNumber("Coral Pivot Motor effort", motorController.getAppliedOutput());
-        //SmartDashboard.putBoolean("", )
-
         if (enabled) {
             double armPidVoltage = pIDController.calculate(getPivotAngle().in(Rotations));
             double ffVoltage = feedforward.calculate(
@@ -141,6 +127,16 @@ public class CoralPivotSubsystem extends SubsystemBase {
 
             motorController.setVoltage(armPidVoltage + ffVoltage);
         }
+
+        SmartDashboard.putBoolean("Coral Pivot Enabled", enabled);
+        SmartDashboard.putNumber("Coral Pivot position", getPivotAngle().in(Degrees));
+        SmartDashboard.putNumber("Coral Pivot position error",
+                Units.rotationsToDegrees(pIDController.getPositionError()));
+        SmartDashboard.putNumber("Coral Pivot position setpoint",
+                Units.rotationsToDegrees(pIDController.getSetpoint().position));
+        SmartDashboard.putNumber("Coral Pivot encoder absolute", encoder.getPosition());
+        SmartDashboard.putNumber("Coral Pivot encoder motor", motorController.getEncoder().getPosition());
+        SmartDashboard.putNumber("Coral Pivot Motor effort", motorController.getAppliedOutput());
     }
 
     /** Enables the PID control. Resets the controller. */

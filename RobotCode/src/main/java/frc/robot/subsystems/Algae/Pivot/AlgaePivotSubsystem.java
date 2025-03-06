@@ -59,7 +59,7 @@ public class AlgaePivotSubsystem extends SubsystemBase {
         softLimitConfig
                 // Soft limits use the internal motor encoder rather than the attached
                 // absolute encoder so adjust by the gearing
-                .forwardSoftLimit(PIVOT.kSoftForwardLimit.in(Rotations)* PIVOT.kPivotGearing)
+                .forwardSoftLimit(PIVOT.kSoftForwardLimit.in(Rotations) * PIVOT.kPivotGearing)
                 .forwardSoftLimitEnabled(true);
         // .reverseSoftLimit(PIVOT.kSoftReverseLimit.in(Rotations) )
         // .reverseSoftLimitEnabled(true);
@@ -135,15 +135,14 @@ public class AlgaePivotSubsystem extends SubsystemBase {
         }
 
         SmartDashboard.putBoolean("Algae Pivot Enabled", enabled);
+        SmartDashboard.putNumber("Algae Pivot position", getPivotAngle().in(Degrees));
         SmartDashboard.putNumber("Algae Pivot position error",
                 Units.rotationsToDegrees(pIDController.getPositionError()));
         SmartDashboard.putNumber("Algae Pivot position setpoint",
                 Units.rotationsToDegrees(pIDController.getSetpoint().position));
-        SmartDashboard.putNumber("Algae Pivot position goal",
-                Units.rotationsToDegrees(pIDController.getGoal().position));
-        SmartDashboard.putNumber("Algae Pivot encoder", encoder.getPosition());
-        SmartDashboard.putNumber("Algae Pivot motor encoder", motorController.getEncoder().getPosition());
-        SmartDashboard.putNumber("Algae Pivot position actual", getPivotAngle().in(Degrees));
+        SmartDashboard.putNumber("Algae Pivot encoder absolute", encoder.getPosition());
+        SmartDashboard.putNumber("Algae Pivot encoder motor", motorController.getEncoder().getPosition());
+        SmartDashboard.putNumber("Coral Pivot Motor effort", motorController.getAppliedOutput());
     }
 
     /** Enables the PID control. Resets the controller. */
