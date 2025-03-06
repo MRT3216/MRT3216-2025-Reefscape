@@ -60,9 +60,9 @@ public class AlgaePivotSubsystem extends SubsystemBase {
                 // Soft limits use the internal motor encoder rather than the attached
                 // absolute encoder so adjust by the gearing
                 .forwardSoftLimit(PIVOT.kSoftForwardLimit.in(Rotations) * PIVOT.kPivotGearing)
-                .forwardSoftLimitEnabled(true);
-        // .reverseSoftLimit(PIVOT.kSoftReverseLimit.in(Rotations) )
-        // .reverseSoftLimitEnabled(true);
+                .forwardSoftLimitEnabled(true)
+                .reverseSoftLimit(PIVOT.kSoftReverseLimit.in(Rotations))
+                .reverseSoftLimitEnabled(true);
         motorControllerConfig.apply(softLimitConfig);
 
         motorController.configure(motorControllerConfig, ResetMode.kResetSafeParameters,

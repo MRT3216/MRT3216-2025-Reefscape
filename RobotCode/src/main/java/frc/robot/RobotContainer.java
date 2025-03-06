@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -12,17 +14,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.CoralCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
-import frc.robot.settings.Constants.ALGAE;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.RobotMap;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Algae.AlgaePivotSubsystem;
-import frc.robot.subsystems.Algae.AlgaeRollersSubsystem;
+import frc.robot.subsystems.Algae.Pivot.AlgaePivotSubsystem;
+import frc.robot.subsystems.Algae.Rollers.AlgaeRollersSubsystem;
 import frc.robot.subsystems.Climber.ClimberSubsystem;
-import frc.robot.subsystems.Coral.CoralPivotSubsystem;
-import frc.robot.subsystems.Elevator.ElevatorSubsystem;
+import frc.robot.subsystems.Coral.Elevator.ElevatorSubsystem;
+import frc.robot.subsystems.Coral.Pivot.CoralPivotSubsystem;
+import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 
 public class RobotContainer {
     // #region Fields
@@ -32,11 +34,7 @@ public class RobotContainer {
             .withDeadband(Constants.DRIVETRAIN.MaxSpeed * Constants.OI.kJoystickDeadband)
             .withRotationalDeadband(Constants.DRIVETRAIN.MaxAngularRate * Constants.OI.kJoystickDeadband) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-    private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-
     private final Telemetry logger = new Telemetry(Constants.DRIVETRAIN.MaxSpeed);
 
     private final CommandXboxController driverController = new CommandXboxController(
@@ -90,16 +88,10 @@ public class RobotContainer {
                                                 * Constants.DRIVETRAIN.MaxAngularRate) // Drive counterclockwise with negative X (left)
                 ));
 
-        // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        // TODO: Use this method to aim wheels for climb
         // driverController.b().whileTrue(drivetrain.applyRequest(
         //         () -> point.withModuleDirection(
         //                 new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
-
-        // driverController.pov(0).whileTrue(
-        //                 drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));
-        // driverController.pov(180)
-        //                 .whileTrue(drivetrain.applyRequest(
-        //                                 () -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -112,7 +104,7 @@ public class RobotContainer {
         // driverController.start().and(driverController.x())
         //         .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-        // reset the field-centric heading on start press
+        // Reset the field-centric heading on start press
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         driverController.leftTrigger().whileTrue(drivetrain.driveToNearestLeftReefPole());
@@ -123,32 +115,33 @@ public class RobotContainer {
         driverController.y().whileTrue(drivetrain.driveToProcessor());
 
         driverController.povUp()
-                .onTrue(elevator.moveElevatorToHeight(POSITIONS.L4.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.L4.getAngle())));
+                .onTrue(CoralCommands.moveElevatorAndPivotToHeight(elevator, coralPivot, POSITIONS.L4));
         driverController.povRight()
-                .onTrue(elevator.moveElevatorToHeight(POSITIONS.L3.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.L3.getAngle())));
+                .onTrue(CoralCommands.moveElevatorAndPivotToHeight(elevator, coralPivot, POSITIONS.L3));
         driverController.povLeft()
-                .onTrue(elevator.moveElevatorToHeight(POSITIONS.L2.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.L2.getAngle())));
+                .onTrue(CoralCommands.moveElevatorAndPivotToHeight(elevator, coralPivot, POSITIONS.L2));
         driverController.povDown()
-                .onTrue(elevator.moveElevatorToHeight(POSITIONS.L1.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.L1.getAngle())));
+                .onTrue(CoralCommands.moveElevatorAndPivotToHeight(elevator, coralPivot, POSITIONS.L1));
         driverController.back()
-                .onTrue(elevator.moveElevatorToHeight(POSITIONS.STARTING.getHeight())
-                        .alongWith(coralPivot.movePivotToAngle(POSITIONS.STARTING.getAngle())));
+                .onTrue(CoralCommands.moveElevatorAndPivotToHeight(elevator, coralPivot, POSITIONS.STARTING));
+
+        // driverController.leftBumper().whileTrue(algaePivot.movePivot(-0.2));
+        // driverController.rightBumper().whileTrue(algaePivot.movePivot(0.2));
+        driverController.leftBumper().onTrue(algaePivot.togglePivotPosition());
+
+        //driverController.rightBumper().onTrue(algaeRollers.runRollerCommand());
 
         // driverController.leftBumper()
-        //         .onTrue(algaePivot.movePivotToAngle(ALGAE.PIVOT.Positions.INTAKING.getAngle()));
+        //         .whileTrue(coralPivot.movePivot(0.15));
 
         // driverController.rightBumper()
-        //         .onFalse(algaePivot.movePivotToAngle(ALGAE.PIVOT.Posi9/tions.SCORING.getAngle()));
+        //         .whileTrue(coralPivot.movePivotToAngle(Degrees.of(0)));
 
-        // driverController.leftBumper().whileTrue(algaePivot.movePivot(-0.20));
-        // driverController.rightBumper().whileTrue(algaePivot.movePivot(0.20));
+        // driverController.leftBumper().onTrue(coralPivot.movePivotToAngle(POSITIONS.L1.getAngle()));
+        // driverController.rightBumper().onTrue(coralPivot.movePivotToAngle(POSITIONS.L2.getAngle()));
 
-        driverController.leftBumper().whileTrue(climber.runClimber(-0.5));
-        driverController.rightBumper().whileTrue(climber.runClimber(0.5));
+        //driverController.leftBumper().whileTrue(climber.runClimber(-0.5));
+        // driverController.rightBumper().whileTrue(climber.runClimber(0.5));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
