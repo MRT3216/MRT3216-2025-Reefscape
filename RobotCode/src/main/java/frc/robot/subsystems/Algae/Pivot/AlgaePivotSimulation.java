@@ -1,6 +1,5 @@
 package frc.robot.subsystems.Algae.Pivot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
@@ -39,8 +38,8 @@ public class AlgaePivotSimulation {
                 PIVOT.kPivotGearing,
                 PIVOT.kMOI,
                 PIVOT.kPivotArmLength.in(Meters),
-                PIVOT.kMinPivotAngle.in(Radians),
-                PIVOT.kMaxPivotAngle.in(Radians),
+                PIVOT.kSoftReverseLimit.in(Radians),
+                PIVOT.kSoftForwardLimit.in(Radians),
                 true,
                 PIVOT.Positions.STARTING.getAngle().in(Radians));
 

@@ -10,7 +10,9 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.EncoderConfig;
+import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -40,19 +42,34 @@ public class AlgaePivotSubsystem extends SubsystemBase {
     public AlgaePivotSubsystem() {
         motorController = new SparkFlex(PIVOT_MAP.motorCANID, MotorType.kBrushless);
 
-        SparkMaxConfig pivotConfig = new SparkMaxConfig();
+        SparkMaxConfig motorControllerConfig = new SparkMaxConfig();
 
-        pivotConfig.idleMode(IdleMode.kBrake)
+        motorControllerConfig.idleMode(IdleMode.kBrake)
                 .inverted(PIVOT.kMotorInverted)
                 .smartCurrentLimit(PIVOT.kMotorCurrentLimit)
                 .voltageCompensation(PIVOT.kVoltageCompensation)
                 .openLoopRampRate(PIVOT.kPivotRampRate);
 
         encoder = motorController.getAbsoluteEncoder();
-        EncoderConfig encoderConfig = new EncoderConfig();
-        pivotConfig.apply(encoderConfig);
+        AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
+        encoderConfig.zeroCentered(true);
+        motorControllerConfig.apply(encoderConfig);
 
-        motorController.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        SoftLimitConfig softLimitConfig = new SoftLimitConfig();
+        softLimitConfig
+                // Soft limits use the internal motor encoder rather than the attached
+                // absolute encoder so adjust by the gearing
+                .forwardSoftLimit(PIVOT.kSoftForwardLimit.in(Rotations)* PIVOT.kPivotGearing)
+                .forwardSoftLimitEnabled(true);
+        // .reverseSoftLimit(PIVOT.kSoftReverseLimit.in(Rotations) )
+        // .reverseSoftLimitEnabled(true);
+        motorControllerConfig.apply(softLimitConfig);
+
+        motorController.configure(motorControllerConfig, ResetMode.kResetSafeParameters,
+                PersistMode.kPersistParameters);
+
+        // Set the motor's internal encoder to the absolute position
+        motorController.getEncoder().setPosition(encoder.getPosition() * PIVOT.kPivotGearing);
 
         pIDController = new ProfiledPIDController(
                 PIVOT.kPivotKp,
@@ -71,7 +88,7 @@ public class AlgaePivotSubsystem extends SubsystemBase {
         pIDController.setTolerance(PIVOT.kMaxPivotError.in(Rotations));
         // Set the inital position so that when enabled the controler
         // matches the initial position
-        pIDController.reset(PIVOT.Positions.STARTING.getAngle().in(Rotations));
+        pIDController.reset(getPivotAngle().in(Rotations));
 
         if (RobotBase.isSimulation()) {
             this.simContainer = new AlgaePivotSimulation(encoder, motorController);
@@ -124,6 +141,8 @@ public class AlgaePivotSubsystem extends SubsystemBase {
                 Units.rotationsToDegrees(pIDController.getSetpoint().position));
         SmartDashboard.putNumber("Algae Pivot position goal",
                 Units.rotationsToDegrees(pIDController.getGoal().position));
+        SmartDashboard.putNumber("Algae Pivot encoder", encoder.getPosition());
+        SmartDashboard.putNumber("Algae Pivot motor encoder", motorController.getEncoder().getPosition());
         SmartDashboard.putNumber("Algae Pivot position actual", getPivotAngle().in(Degrees));
     }
 
@@ -155,13 +174,13 @@ public class AlgaePivotSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         if (simContainer != null) {
             simContainer.simulationPeriodic();
-            SmartDashboard.putBoolean("Algae Pivot Enabled", enabled);
-            SmartDashboard.putNumber("Algae Pivot position error",
-                    Units.rotationsToDegrees(pIDController.getPositionError()));
-            SmartDashboard.putNumber("Algae Pivot position setpoint",
-                    Units.rotationsToDegrees(pIDController.getSetpoint().position));
-            SmartDashboard.putNumber("Algae Pivot position actual", getPivotAngle().in(Degrees));
-            SmartDashboard.putNumber("Algae Pivot Motor effort", motorController.getAppliedOutput());
+            // SmartDashboard.putBoolean("Algae Pivot Enabled", enabled);
+            // SmartDashboard.putNumber("Algae Pivot position error",
+            //         Units.rotationsToDegrees(pIDController.getPositionError()));
+            // SmartDashboard.putNumber("Algae Pivot position setpoint",
+            //         Units.rotationsToDegrees(pIDController.getSetpoint().position));
+            // SmartDashboard.putNumber("Algae Pivot position actual", getPivotAngle().in(Rotations));
+            // SmartDashboard.putNumber("Algae Pivot Motor effort", motorController.getAppliedOutput());
         }
     }
 }
