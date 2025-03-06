@@ -145,13 +145,13 @@ public final class Constants {
             public static final int kVoltageCompensation = 10;
             // // The soft limits are set in the motor controller to limit
             // // movement past a certain point. Consider this an emergency limit
-            // public static final double kSoftForwardLimitDegrees = 105;
-            // public static final double kSoftReverseLimitDegrees = 20;
+            public static final Distance kSoftMaxHeight = Meters.of(1.72);;
+            public static final Distance kSoftMinHeight = Meters.of(0);;
             // // These limits should be used to set how far we allow
             // // code to move the elevator. These should allow less movement than
             // // the soft limits
             public static final Distance kMaxHeight = Meters.of(1.7);
-            public static final Distance kMinHeight = Meters.of(0);
+            public static final Distance kMinHeight = Inches.of(0.5);
             public static final Distance kPositionTolerance = Inches.of(0.5);
 
             public static final double kElevatorGearing = 60 / 7;
@@ -215,8 +215,8 @@ public final class Constants {
 
             // TODO: Need to get these values from recalc 
             public static final double kPivotkS = 0; // volts (V)
-            public static final double kPivotkG = 0;//0.5; // volts (V)
-            public static final double kPivotkV = 0;//3; // volts * seconds / radians
+            public static final double kPivotkG = 0.57; // volts (V)
+            public static final double kPivotkV = 3;//3; // volts * seconds / radians
             public static final double kPivotkA = 0; // volts * seconds^2 / radians
 
             public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(180); // degrees per second
