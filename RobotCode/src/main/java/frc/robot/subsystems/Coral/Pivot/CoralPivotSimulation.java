@@ -40,10 +40,10 @@ public class CoralPivotSimulation {
                 PIVOT.kPivotGearing,
                 PIVOT.kMOI,
                 PIVOT.kPivotArmLength.in(Meters),
-                PIVOT.kSoftForwardLimit.in(Radians),
                 PIVOT.kSoftReverseLimit.in(Radians),
+                PIVOT.kSoftForwardLimit.in(Radians),
                 true,
-                CORAL.POSITIONS.STARTING.getAngle().in(Degrees));
+                CORAL.POSITIONS.STARTING.getAngle().in(Radians));
 
         this.realMotorController = motorController;
         this.simMotorController = new SparkFlexSim(realMotorController, pivotGearbox);
