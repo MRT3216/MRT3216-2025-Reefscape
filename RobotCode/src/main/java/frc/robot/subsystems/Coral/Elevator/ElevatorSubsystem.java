@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.EncoderConfig;
+import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -60,6 +61,16 @@ public class ElevatorSubsystem extends SubsystemBase {
         encoderConfig.positionConversionFactor(1);
         leadConfig.apply(encoderConfig);
         encoder.setPosition(0);
+
+        // SoftLimitConfig softLimitConfig = new SoftLimitConfig();
+        // softLimitConfig
+        //         // Soft limits use the internal motor encoder rather than the attached
+        //         // absolute encoder so adjust by the gearing
+        //         .forwardSoftLimit(ELEVATOR.kSoftMaxHeight.in(Meters))
+        //         .forwardSoftLimitEnabled(true)
+        //         .reverseSoftLimit(ELEVATOR.kSoftMinHeight.in(Meters))
+        //         .reverseSoftLimitEnabled(true);
+        // leadConfig.apply(softLimitConfig);
 
         leadMotorController.configure(leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
