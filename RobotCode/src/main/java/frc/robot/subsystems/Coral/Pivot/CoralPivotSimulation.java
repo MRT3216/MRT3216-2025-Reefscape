@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.settings.Constants.CORAL.PIVOT;
+import frc.robot.settings.Constants.CORAL;
 import frc.robot.settings.Constants.SIMULATION;
 import frc.robot.subsystems.Sim.BatterySim.BatterySimSubsystem;
 import frc.robot.subsystems.Sim.MechanismVisualization.MechanismVisualizationSubsystem;
@@ -43,7 +44,7 @@ public class CoralPivotSimulation {
                 PIVOT.kMinPivotAngle.in(Radians),
                 PIVOT.kMaxPivotAngle.in(Radians),
                 true,
-                PIVOT.kStartingAngle.in(Degrees));
+                CORAL.POSITIONS.STARTING.getAngle().in(Degrees));
 
         this.realMotorController = motorController;
         this.simMotorController = new SparkFlexSim(realMotorController, pivotGearbox);

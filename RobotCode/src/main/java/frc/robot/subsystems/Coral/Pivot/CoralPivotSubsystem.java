@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
+import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -12,6 +13,7 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.EncoderConfig;
+import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -21,11 +23,13 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.settings.Constants.CORAL;
 import frc.robot.settings.Constants.CORAL.PIVOT;
 import frc.robot.settings.RobotMap.ROBOT.CORAL_SYSTEM.PIVOT_MAP;
 
@@ -40,9 +44,9 @@ public class CoralPivotSubsystem extends SubsystemBase {
     public CoralPivotSubsystem() {
         motorController = new SparkFlex(PIVOT_MAP.motorCANID, MotorType.kBrushless);
 
-        SparkMaxConfig pivotConfig = new SparkMaxConfig();
+        SparkMaxConfig motorControllerConfig = new SparkMaxConfig();
 
-        pivotConfig.idleMode(IdleMode.kBrake)
+        motorControllerConfig.idleMode(IdleMode.kBrake)
                 .inverted(PIVOT.kMotorInverted)
                 .smartCurrentLimit(PIVOT.kMotorCurrentLimit)
                 .voltageCompensation(PIVOT.kVoltageCompensation)
@@ -51,9 +55,22 @@ public class CoralPivotSubsystem extends SubsystemBase {
         encoder = motorController.getAbsoluteEncoder();
         AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
         encoderConfig.zeroCentered(true);
-        pivotConfig.apply(encoderConfig);
+        SoftLimitConfig softLimitConfig = new SoftLimitConfig();
+        softLimitConfig
+                // Soft limits use the internal motor encoder rather than the attached
+                // absolute encoder so adjust by the gearing
+                .forwardSoftLimit(PIVOT.kSoftForwardLimit.in(Rotations) * PIVOT.kPivotGearing)
+                .forwardSoftLimitEnabled(true)
+                .reverseSoftLimit(PIVOT.kSoftReverseLimit.in(Rotations) * PIVOT.kPivotGearing)
+                .reverseSoftLimitEnabled(true);
+        motorControllerConfig.apply(softLimitConfig);
+        motorControllerConfig.apply(encoderConfig);
 
-        motorController.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        motorController.configure(motorControllerConfig, ResetMode.kResetSafeParameters,
+                PersistMode.kPersistParameters);
+
+        // Set the motor's internal encoder to the absolute position
+        motorController.getEncoder().setPosition(encoder.getPosition() * PIVOT.kPivotGearing);
 
         pIDController = new ProfiledPIDController(
                 PIVOT.kPivotKp,
@@ -72,8 +89,8 @@ public class CoralPivotSubsystem extends SubsystemBase {
         pIDController.setTolerance(PIVOT.kMaxPivotError.in(Rotations));
         // Set the inital position so that when enabled the controler
         // matches the initial position
-        pIDController.reset(PIVOT.kStartingAngle.in(Rotations));
-
+        //pIDController.reset(CORAL.POSITIONS.STARTING.getAngle().in(Rotations));
+        pIDController.reset(getPivotAngle().in(Rotations));
         if (RobotBase.isSimulation()) {
             this.simContainer = new CoralPivotSimulation(encoder, motorController);
         }
@@ -106,6 +123,18 @@ public class CoralPivotSubsystem extends SubsystemBase {
 
     public void periodic() {
         SmartDashboard.putNumber("Coral Pivot position", getPivotAngle().in(Degrees));
+        SmartDashboard.putNumber("Coral Pivot encoder",
+                motorController.getEncoder().getPosition());
+
+        SmartDashboard.putBoolean("Coral Pivot Enabled", enabled);
+        SmartDashboard.putNumber("Coral Pivot position error",
+                Units.rotationsToDegrees(pIDController.getPositionError()));
+        SmartDashboard.putNumber("Coral Pivot position setpoint",
+                Units.rotationsToDegrees(pIDController.getSetpoint().position));
+        SmartDashboard.putNumber("Coral Pivot position actual", getPivotAngle().in(Degrees));
+        SmartDashboard.putNumber("Coral Pivot encoder", encoder.getPosition());
+        SmartDashboard.putNumber("Coral Pivot Motor effort", motorController.getAppliedOutput());
+        //SmartDashboard.putBoolean("", )
 
         if (enabled) {
             double armPidVoltage = pIDController.calculate(getPivotAngle().in(Rotations));
