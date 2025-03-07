@@ -24,6 +24,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants.CORAL.PIVOT;
@@ -93,31 +94,6 @@ public class CoralPivotSubsystem extends SubsystemBase {
         }
     }
 
-    public Command movePivotToAngle(Angle angle) {
-        return this.run(() -> {
-            setPivotGoal(angle);
-            this.enable();
-        }).until(this.atGoal());
-    }
-
-    private void setPivotGoal(Angle angle) {
-        double goalAngleInRotations = MathUtil.clamp(angle.in(Rotations),
-                PIVOT.kMinPivotAngle.in(Rotations),
-                PIVOT.kMaxPivotAngle.in(Rotations));
-
-        pIDController.setGoal(goalAngleInRotations);
-    }
-
-    protected Trigger atGoal() {
-        return new Trigger(() -> pIDController.atGoal());
-    }
-
-    public Command movePivot(double speed) {
-        return this.startEnd(
-                () -> motorController.set(speed),
-                () -> motorController.set(0.0));
-    }
-
     public void periodic() {
         if (enabled) {
             double armPidVoltage = pIDController.calculate(getPivotAngle().in(Rotations));
@@ -134,11 +110,19 @@ public class CoralPivotSubsystem extends SubsystemBase {
                 Units.rotationsToDegrees(pIDController.getPositionError()));
         SmartDashboard.putNumber("Coral Pivot position setpoint",
                 Units.rotationsToDegrees(pIDController.getSetpoint().position));
-                SmartDashboard.putNumber("Coral Pivot position goal",
+        SmartDashboard.putNumber("Coral Pivot position goal",
                 Units.rotationsToDegrees(pIDController.getGoal().position));
         SmartDashboard.putNumber("Coral Pivot encoder absolute", encoder.getPosition());
         SmartDashboard.putNumber("Coral Pivot encoder motor", motorController.getEncoder().getPosition());
         SmartDashboard.putNumber("Coral Pivot Motor effort", motorController.getAppliedOutput());
+    }
+
+    private void setPivotGoal(Angle angle) {
+        double goalAngleInRotations = MathUtil.clamp(angle.in(Rotations),
+                PIVOT.kMinPivotAngle.in(Rotations),
+                PIVOT.kMaxPivotAngle.in(Rotations));
+
+        pIDController.setGoal(goalAngleInRotations);
     }
 
     /** Enables the PID control. Resets the controller. */
@@ -158,6 +142,38 @@ public class CoralPivotSubsystem extends SubsystemBase {
     private Angle getPivotAngle() {
         return Rotations.of(encoder.getPosition());
     }
+
+    // #region Commands and Triggers
+
+    public Command movePivotToAngle(Angle angle) {
+        return this.run(() -> {
+            setPivotGoal(angle);
+            this.enable();
+        }).until(this.atGoal());
+    }
+
+    public Command movePivot(double speed) {
+        return this.startEnd(
+                () -> motorController.set(speed),
+                () -> motorController.set(0.0));
+    }
+
+    public Command adjustPivotAngle(Angle angleAdjustment) {
+        return this.defer(
+                () -> Commands.runOnce(
+                        () -> {
+                            enable();
+                            setPivotGoal(
+                                    Degrees.of(Units.rotationsToDegrees(
+                                            pIDController.getGoal().position + angleAdjustment.in(Rotations))));
+                        }));
+    }
+
+    protected Trigger atGoal() {
+        return new Trigger(() -> pIDController.atGoal());
+    }
+
+    // #endregion
 
     @Override
     public void simulationPeriodic() {

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.Coral.Elevator;
 
+import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -19,11 +20,13 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants.CORAL;
@@ -107,17 +110,23 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
     }
 
-    public Command moveElevatorToHeight(Distance height) {
-        return this.run(() -> {
-            this.enable();
-            setElevatorHeightGoal(height);
-        }).until(this.atGoal());
-    }
+    public void periodic() {
+        if (enabled) {
+            double pidOutput = pIDController.calculate(getPosition().in(Meters));
+            double feedForward = elevatorFeedForward.calculateWithVelocities(
+                    getVelocity().in(MetersPerSecond), pIDController.getSetpoint().velocity);
+            double motorEffortVoltage = pidOutput + feedForward;
 
-    public Command moveElevator(double speed) {
-        return this.startEnd(
-                () -> leadMotorController.set(speed),
-                () -> leadMotorController.set(0.0));
+            leadMotorController.setVoltage(motorEffortVoltage);
+        }
+
+        SmartDashboard.putBoolean("Elevator Enabled", enabled);
+        SmartDashboard.putNumber("Elevator position", getPosition().in(Meters));
+        SmartDashboard.putNumber("Elevator pos. error inches", Units.metersToInches(pIDController.getPositionError()));
+        SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
+        SmartDashboard.putNumber("Elevator position goal", pIDController.getGoal().position);
+        SmartDashboard.putNumber("Elevator encoder", encoder.getPosition());
+        SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
     }
 
     private void setElevatorHeightGoal(Distance height) {
@@ -138,10 +147,6 @@ public class ElevatorSubsystem extends SubsystemBase {
                         / ELEVATOR.kElevatorGearing);
     }
 
-    protected Trigger atGoal() {
-        return new Trigger(() -> pIDController.atGoal());
-    }
-
     /** Enables the PID control. Resets the controller. */
     protected void enable() {
         enabled = true;
@@ -154,24 +159,36 @@ public class ElevatorSubsystem extends SubsystemBase {
         enabled = false;
     }
 
-    public void periodic() {
-        if (enabled) {
-            double pidOutput = pIDController.calculate(getPosition().in(Meters));
-            double feedForward = elevatorFeedForward.calculateWithVelocities(
-                    getVelocity().in(MetersPerSecond), pIDController.getSetpoint().velocity);
-            double motorEffortVoltage = pidOutput + feedForward;
+    // #region Commands and Triggers
 
-            leadMotorController.setVoltage(motorEffortVoltage);
-        }
-
-        SmartDashboard.putBoolean("Elevator Enabled", enabled);
-        SmartDashboard.putNumber("Elevator position", getPosition().in(Meters));
-        SmartDashboard.putNumber("Elevator pos. error inches", Units.metersToInches(pIDController.getPositionError()));
-        SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
-        SmartDashboard.putNumber("Elevator position goal", pIDController.getGoal().position);
-        SmartDashboard.putNumber("Elevator encoder", encoder.getPosition());
-        SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
+    public Command moveElevatorToHeight(Distance height) {
+        return this.run(() -> {
+            this.enable();
+            setElevatorHeightGoal(height);
+        }).until(this.atGoal());
     }
+
+    public Command adjustElevatorHeight(Distance heightAdjustment) {
+        return this.defer(
+                () -> Commands.runOnce(
+                        () -> {
+                            enable();
+                            setElevatorHeightGoal(
+                                    Meters.of(pIDController.getGoal().position).plus(heightAdjustment));
+                        }));
+    }
+
+    public Command moveElevator(double speed) {
+        return this.startEnd(
+                () -> leadMotorController.set(speed),
+                () -> leadMotorController.set(0.0));
+    }
+
+    protected Trigger atGoal() {
+        return new Trigger(() -> pIDController.atGoal());
+    }
+
+    // #endregion
 
     @Override
     public void simulationPeriodic() {
