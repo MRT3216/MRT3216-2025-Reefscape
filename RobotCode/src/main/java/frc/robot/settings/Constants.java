@@ -13,6 +13,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 
@@ -114,13 +115,14 @@ public final class Constants {
     public static final class CORAL {
         public enum POSITIONS {
             // TODO: decide if we need starting and stow and set angles
-            STARTING(Meters.of(0), Degrees.of(70)),
-            STOW(Meters.of(0), Degrees.of(0)),
-            CORAL_STATION(Meters.of(1), Degrees.of(60)),
+            STARTING(Meters.of(0), Degrees.of(50)),
+            STOW(Meters.of(0), Degrees.of(50)),
+            SCORE_PREP(Meters.of(0.2), Degrees.of(-50)),
+            CORAL_STATION(Meters.of(1), Degrees.of(30)),
             L1(Meters.of(0.4), Degrees.of(0)),
-            L2(Meters.of(0.8), Degrees.of(30)),
-            L3(Meters.of(1.2), Degrees.of(45)),
-            L4(Meters.of(1.6), Degrees.of(60));
+            L2(Meters.of(0.8), Degrees.of(-15)),
+            L3(Meters.of(1.2), Degrees.of(-30)),
+            L4(Meters.of(1.6), Degrees.of(-45));
 
             private Distance height;
             private Angle angle;
@@ -162,24 +164,15 @@ public final class Constants {
             public static final double kElevatorKi = 0;
             public static final double kElevatorKd = 0;
 
-            public static final double kElevatorkS = 0;// 0.02; // volts (V)
-            public static final double kElevatorkG = 0.5; // volts (V)
-            public static final double kElevatorkV = 0;//3.8; // volt per velocity (V/(m/s))
+            public static final double kElevatorkS = 0.1;// 0.02; // volts (V)
+            public static final double kElevatorkG = 0.30; // volts (V)
+            public static final double kElevatorkV = 3.3;//3.8; // volt per velocity (V/(m/s))
             public static final double kElevatorkA = 0;//0.17; // volt per acceleration (V/(m/s²))
 
-            public static final LinearVelocity kMaxElevatorVelocity = Meters.of(4).per(Second); // m/s
-            public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(8).per(Second).per(Second);
+            public static final LinearVelocity kMaxElevatorVelocity = Meters.of(1).per(Second); // m/s
+            public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(2).per(Second).per(Second);
 
             public static final double kElevatorRampRate = 0.5;
-        }
-
-        public static final class END_EFFECTOR {
-            public static final boolean kMotorInverted = false;
-            public static final int kMotorCurrentLimit = 40;
-            public static final int kVoltageCompensation = 10;
-            public static final Angle kMaxError = Degree.of(1.0);
-
-            public static final double VOLTAGE_THRESHOLD = 5; // TODO: Add correct value
         }
 
         public static final class PIVOT {
@@ -209,20 +202,29 @@ public final class Constants {
             public static final double kMOI = SingleJointedArmSim.estimateMOI(kPivotArmLength.in(Meters),
                     kPivotMass.in(Kilograms));
 
-            public static final double kPivotKp = 50;
+            public static final double kPivotKp = 45;
             public static final double kPivotKi = 0;
             public static final double kPivotKd = 0;
 
             // TODO: Need to get these values from recalc 
             public static final double kPivotkS = 0; // volts (V)
-            public static final double kPivotkG = 0.57; // volts (V)
-            public static final double kPivotkV = 3;//3; // volts * seconds / radians
-            public static final double kPivotkA = 0; // volts * seconds^2 / radians
+            public static final double kPivotkG = 0.2; // volts (V)
+            public static final double kPivotkV = 2.39;//3; // volts * seconds / radians
+            public static final double kPivotkA = 0.12; // volts * seconds^2 / radians
 
             public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(180); // degrees per second
             public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(360); // degrees per second squared max acceleration
 
             public static final double kPivotRampRate = 1;
+        }
+
+        public static final class END_EFFECTOR {
+            public static final InvertedValue kMotorInverted = InvertedValue.CounterClockwise_Positive;
+            public static final int kMotorCurrentLimit = 40;
+            public static final int kVoltageCompensation = 10;
+            public static final Angle kMaxError = Degree.of(1.0);
+            public static final double intakeSpeed = 0.3;
+            public static final double outtakeSpeed = -0.3;
         }
     }
 
@@ -289,7 +291,7 @@ public final class Constants {
             public static final int kMotorCurrentLimit = 40;
             public static final int kVoltageCompensation = 10;
             public static final double intakeSpeed = 0.3;
-            public static final double outtakeSpeed = -intakeSpeed;
+            public static final double outtakeSpeed = -0.3;
         }
     }
 
