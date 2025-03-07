@@ -147,12 +147,12 @@ public final class Constants {
             public static final int kVoltageCompensation = 10;
             // // The soft limits are set in the motor controller to limit
             // // movement past a certain point. Consider this an emergency limit
-            public static final Distance kSoftMaxHeight = Meters.of(1.72);;
+            public static final Distance kSoftMaxHeight = Meters.of(1.77);;
             public static final Distance kSoftMinHeight = Meters.of(0);;
             // // These limits should be used to set how far we allow
             // // code to move the elevator. These should allow less movement than
             // // the soft limits
-            public static final Distance kMaxHeight = Meters.of(1.7);
+            public static final Distance kMaxHeight = Meters.of(1.75);
             public static final Distance kMinHeight = Inches.of(0.5);
             public static final Distance kPositionTolerance = Inches.of(0.5);
 
