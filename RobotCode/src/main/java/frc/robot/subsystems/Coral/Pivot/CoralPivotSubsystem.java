@@ -134,6 +134,8 @@ public class CoralPivotSubsystem extends SubsystemBase {
                 Units.rotationsToDegrees(pIDController.getPositionError()));
         SmartDashboard.putNumber("Coral Pivot position setpoint",
                 Units.rotationsToDegrees(pIDController.getSetpoint().position));
+                SmartDashboard.putNumber("Coral Pivot position goal",
+                Units.rotationsToDegrees(pIDController.getGoal().position));
         SmartDashboard.putNumber("Coral Pivot encoder absolute", encoder.getPosition());
         SmartDashboard.putNumber("Coral Pivot encoder motor", motorController.getEncoder().getPosition());
         SmartDashboard.putNumber("Coral Pivot Motor effort", motorController.getAppliedOutput());
