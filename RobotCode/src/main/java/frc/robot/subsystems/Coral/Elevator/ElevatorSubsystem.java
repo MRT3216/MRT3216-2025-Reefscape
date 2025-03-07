@@ -18,6 +18,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -164,7 +165,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
 
         SmartDashboard.putBoolean("Elevator Enabled", enabled);
-        SmartDashboard.putNumber("Elevator position error", pIDController.getPositionError());
+        SmartDashboard.putNumber("Elevator position", getPosition().in(Meters));
+        SmartDashboard.putNumber("Elevator pos. error inches", Units.metersToInches(pIDController.getPositionError()));
         SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
         SmartDashboard.putNumber("Elevator position goal", pIDController.getGoal().position);
         SmartDashboard.putNumber("Elevator encoder", encoder.getPosition());
