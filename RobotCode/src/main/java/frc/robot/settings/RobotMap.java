@@ -14,6 +14,7 @@ public final class RobotMap {
 
             public static final class END_EFFECTOR_MAP {
                 public static final int motorCANID = 7;
+                public static final int laserCanCANID = 8; 
             }
         }
 
