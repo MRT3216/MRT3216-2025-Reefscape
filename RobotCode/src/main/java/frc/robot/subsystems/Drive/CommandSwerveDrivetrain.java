@@ -1,5 +1,8 @@
 package frc.robot.subsystems.Drive;
 
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
+
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -17,13 +20,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -68,6 +70,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     /** Field object. */
     private Field2d field = new Field2d();
+
+    private boolean slowMode = false;
 
     // #endregion
 
@@ -310,6 +314,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                         vision.getReefPolePose(reefBranch)));
     }
 
+    public Command toggleSlowMode() {
+        return this.defer(() -> this.runOnce(
+                () -> slowMode = !slowMode));
+    }
+
+    public boolean isSlowMode() {
+        return slowMode;
+    }
+
     public Command getLeft3PAuto() {
         // Create a path following command using AutoBuilder. This will also trigger event markers.
         return driveAndAlignToReefBranch(ReefBranch.J)
@@ -364,7 +377,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder",
                     ex.getStackTrace());
         }
-
     }
 
     /**
@@ -393,6 +405,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
         vision.updatePoseEstimation(this);
+
+        SmartDashboard.putBoolean("Slow Mode", slowMode);
     }
 
     private void startSimThread() {
@@ -444,3 +458,39 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 visionMeasurementStdDevs);
     }
 }
+
+// public LinearVelocity getVelocityMagnitude() {
+//     ChassisSpeeds cs = getState().Speeds;
+//     return MetersPerSecond.of(new Translation2d(cs.vxMetersPerSecond, cs.vyMetersPerSecond).getNorm());
+// }
+
+// // Credit to FRC3136 ORCA (Official Robot Constructors of Ashland)
+// private Rotation2d getPathVelocityHeading(ChassisSpeeds cs, Pose2d target) {
+//     if (this.getVelocityMagnitude().in(MetersPerSecond) < 0.25) {
+//         var diff = target.minus(this.getState().Pose).getTranslation();
+//         return (diff.getNorm() < 0.01) ? target.getRotation() : diff.getAngle();// .rotateBy(Rotation2d.k180deg);
+//     }
+//     return new Rotation2d(cs.vxMetersPerSecond, cs.vyMetersPerSecond);
+// }
+
+// // Credit to FRC3136 ORCA (Official Robot Constructors of Ashland)
+// private Command goToTargetPoseOrcaMethod(Pose2d targetPose) {
+//     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+//             new Pose2d(getState().Pose.getTranslation(),
+//                     getPathVelocityHeading(this.getState().Speeds, targetPose)),
+//             targetPose);
+
+//     if (waypoints.get(0).anchor().getDistance(waypoints.get(1).anchor()) < 0.01) {
+//         return Commands.print("Auto alignment too close to desired position to continue");
+//     }
+
+//     PathPlannerPath path = new PathPlannerPath(
+//             waypoints,
+//             Constants.PATHING.pathConstraints,
+//             new IdealStartingState(this.getVelocityMagnitude(), this.getState().Pose.getRotation()),
+//             new GoalEndState(0.0, targetPose.getRotation()));
+
+//     path.preventFlipping = true;
+
+//     return AutoBuilder.followPath(path);
+// }
