@@ -1,6 +1,5 @@
 package frc.robot.subsystems.Coral.Elevator;
 
-import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -11,16 +10,15 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.EncoderConfig;
-import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -33,6 +31,7 @@ import frc.robot.settings.Constants.CORAL;
 import frc.robot.settings.Constants.CORAL.ELEVATOR;
 import frc.robot.settings.RobotMap.ROBOT.CORAL_SYSTEM.ELEVATOR_MAP;
 
+@Logged
 public class ElevatorSubsystem extends SubsystemBase {
     // #region Fields
 
@@ -127,6 +126,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Elevator position goal", pIDController.getGoal().position);
         SmartDashboard.putNumber("Elevator encoder", encoder.getPosition());
         SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
+
     }
 
     private void setElevatorHeightGoal(Distance height) {
@@ -188,6 +188,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         return new Trigger(() -> pIDController.atGoal());
     }
 
+    public Trigger aboveHight() {
+        return new Trigger(() -> getPosition().gt(Meters.of(0.5)));
+    }
+    
     // #endregion
 
     @Override
