@@ -299,6 +299,7 @@ public final class Constants {
         public static final boolean kMotorInverted = false;
         public static final int kMotorCurrentLimit = 80;
         public static final int kVoltageCompensation = 10;
+        public static final double speed = 0.3;
     }
 
     public static final class SIMULATION {
