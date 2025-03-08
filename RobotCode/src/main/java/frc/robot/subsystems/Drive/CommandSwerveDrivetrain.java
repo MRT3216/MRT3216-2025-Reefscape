@@ -298,9 +298,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Pose2d reefPoseClose = reefPose.transformBy(
                 Constants.FIELD_OFFSETS.getReefOffsetPositionClose());
 
+        System.out.println(vision.getDistanceFromRobotPose(reefPose));
+
         if (vision.getDistanceFromRobotPose(reefPose) < Constants.PATHING.pathingMinimumDistance) {
+            System.out.println("CLOSE");
             return new DriveToPose(this, reefPoseClose);
         } else {
+            System.out.println("FAR");
             return AutoBuilder
                     .pathfindToPose(reefPose, Constants.PATHING.pathConstraints,
                             Constants.PATHING.pathToCloseAlignEndVelocityMPS)
