@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inches;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -15,6 +12,7 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.CoralCommands;
 import frc.robot.generated.TunerConstants;
@@ -30,7 +28,6 @@ import frc.robot.subsystems.Coral.EndEffector.CoralEndEffectorSubsystem;
 import frc.robot.subsystems.Coral.Pivot.CoralPivotSubsystem;
 import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 
-@Logged
 public class RobotContainer {
     // #region Fields
 
@@ -85,23 +82,26 @@ public class RobotContainer {
                                         -driverController
                                                 .getLeftY()
                                                 * Constants.DRIVETRAIN.MaxSpeed
-                                                * (drivetrain.isSlowMode() || elevator.aboveHeight().getAsBoolean()
-                                                        ? 0.1
-                                                        : 1.0)) // Drive forward with negative Y (forward)
+                                                * (drivetrain.isSlowMode().getAsBoolean()
+                                                        || elevator.aboveHeight().getAsBoolean()
+                                                                ? 0.1
+                                                                : 1.0)) // Drive forward with negative Y (forward)
                                 .withVelocityY(
                                         -driverController
                                                 .getLeftX()
                                                 * Constants.DRIVETRAIN.MaxSpeed
-                                                * (drivetrain.isSlowMode() || elevator.aboveHeight().getAsBoolean()
-                                                        ? 0.1
-                                                        : 1.0)) // Drive left with negative X (left)
+                                                * (drivetrain.isSlowMode().getAsBoolean()
+                                                        || elevator.aboveHeight().getAsBoolean()
+                                                                ? 0.1
+                                                                : 1.0)) // Drive left with negative X (left)
                                 .withRotationalRate(
                                         -driverController
                                                 .getRightX()
                                                 * Constants.DRIVETRAIN.MaxAngularRate
-                                                * (drivetrain.isSlowMode() || elevator.aboveHeight().getAsBoolean()
-                                                        ? 0.3
-                                                        : 1.0)) // Drive counterclockwise with negative X (left)
+                                                * (drivetrain.isSlowMode().getAsBoolean()
+                                                        || elevator.aboveHeight().getAsBoolean()
+                                                                ? 0.3
+                                                                : 1.0)) // Drive counterclockwise with negative X (left)
                 ));
 
         driverController.a().whileTrue(drivetrain.driveToLeftCoralStation());

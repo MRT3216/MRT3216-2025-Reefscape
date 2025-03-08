@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveToPose;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
@@ -298,14 +299,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Pose2d reefPoseClose = reefPose.transformBy(
                 Constants.FIELD_OFFSETS.getReefOffsetPositionClose());
 
-        System.out.println(vision.getDistanceFromRobotPose(reefPose));
-
         if (vision.getDistanceFromRobotPose(reefPose) < Constants.PATHING.pathingMinimumDistance) {
-            System.out.println("CLOSE");
             return new DriveToPose(this, reefPoseClose);
         } else {
-            System.out.println("FAR");
-            return AutoBuilder
+           return AutoBuilder
                     .pathfindToPose(reefPose, Constants.PATHING.pathConstraints,
                             Constants.PATHING.pathToCloseAlignEndVelocityMPS)
                     .andThen(new DriveToPose(this, reefPoseClose));
@@ -323,8 +320,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 () -> slowMode = !slowMode));
     }
 
-    public boolean isSlowMode() {
-        return slowMode;
+    public Trigger isSlowMode() {
+        return new Trigger(() -> slowMode);
     }
 
     public Command getLeft3PAuto() {
