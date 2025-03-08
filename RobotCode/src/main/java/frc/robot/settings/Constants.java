@@ -52,7 +52,7 @@ public final class Constants {
         public static final double maxAngularVelocityRPS = Units.degreesToRadians(540);
         public static final double maxAngularAccelerationRPSS = Units.degreesToRadians(720);
         public static final double pathingMinimumDistance = 1;
-        public static final double pathToCloseAlignEndVelocityMPS = 3;
+        public static final double pathToCloseAlignEndVelocityMPS = 1;
     }
 
     public static final class CLOSE_PATHING {
@@ -65,8 +65,8 @@ public final class Constants {
     }
 
     public static final class FIELD_OFFSETS {
-        public static double reefXOffsetCloseAdj = 0.1;
-        public static double reefXOffsetInitial = 0.6;
+        public static double reefXOffsetCloseAdj = 0.5;
+        public static double reefXOffsetInitial = 1;
         public static double reefYOffsetLeftBranch = Units.inchesToMeters(-7);
         public static double reefYOffsetRightBranch = -1 * reefYOffsetLeftBranch;
         public static double coralStationXOffset = 0.5;
