@@ -72,14 +72,14 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
                 });
     }
 
-    private Command intakeCoral() {
+    public Command intakeCoral() {
         return this.startEnd(
                 () -> runAtSpeed(END_EFFECTOR.intakeSpeed),
                 () -> stopIntake())
                 .until(hasCoral());
     }
 
-    private Command outtakeCoral() {
+    public Command outtakeCoral() {
         return this.startEnd(
                 () -> runAtSpeed(END_EFFECTOR.outtakeSpeed),
                 () -> stopIntake())
