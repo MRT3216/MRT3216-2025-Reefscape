@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants.CORAL;
 import frc.robot.settings.Constants.CORAL.ELEVATOR;
+import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.RobotMap.ROBOT.CORAL_SYSTEM.ELEVATOR_MAP;
 
 @Logged
@@ -42,6 +43,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private ElevatorSimulation elevatorSimContainer;
     private ElevatorFeedforward elevatorFeedForward;
     private boolean enabled;
+    private POSITIONS currentPosition = POSITIONS.STARTING;
 
     // #endregion
 
@@ -126,7 +128,12 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Elevator position goal", pIDController.getGoal().position);
         SmartDashboard.putNumber("Elevator encoder", encoder.getPosition());
         SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
-
+        SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
+        SmartDashboard.putBoolean("L4", currentPosition == POSITIONS.L4);
+        SmartDashboard.putBoolean("L3", currentPosition == POSITIONS.L3);
+        SmartDashboard.putBoolean("L2", currentPosition == POSITIONS.L2);
+        SmartDashboard.putBoolean("L1", currentPosition == POSITIONS.L1);
+        SmartDashboard.putBoolean("Starting", currentPosition == POSITIONS.STARTING);
     }
 
     private void setElevatorHeightGoal(Distance height) {
@@ -145,6 +152,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         return MetersPerSecond.of(
                 (encoder.getVelocity() / 60) * (2 * Math.PI * ELEVATOR.kElevatorDrumRadius)
                         / ELEVATOR.kElevatorGearing);
+    }
+
+    private void setPosition(POSITIONS position) {
+        currentPosition = position;
     }
 
     /** Enables the PID control. Resets the controller. */
@@ -178,20 +189,28 @@ public class ElevatorSubsystem extends SubsystemBase {
                         }));
     }
 
-    public Command moveElevator(double speed) {
-        return this.startEnd(
-                () -> leadMotorController.set(speed),
-                () -> leadMotorController.set(0.0));
+    public Command moveToPosition() {
+        return moveElevatorToHeight(currentPosition.getHeight());
+    }
+
+    public Command setTargetPos(POSITIONS pos) {
+        return Commands.runOnce(() -> {
+            setPosition(pos);
+        });
     }
 
     protected Trigger atGoal() {
         return new Trigger(() -> pIDController.atGoal());
     }
 
-    public Trigger aboveHight() {
+    public Trigger aboveHeight() {
         return new Trigger(() -> getPosition().gt(Meters.of(0.5)));
     }
-    
+
+    public String currentLevel() {
+        return currentPosition.toString();
+    }
+
     // #endregion
 
     @Override
