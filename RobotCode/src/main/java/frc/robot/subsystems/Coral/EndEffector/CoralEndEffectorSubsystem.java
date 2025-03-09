@@ -72,7 +72,7 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
                 .until(noCoral());
     }
 
-    private Trigger hasCoral() {
+    public Trigger hasCoral() {
         return new Trigger(this::coralInIntake);
     }
 
