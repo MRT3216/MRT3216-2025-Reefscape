@@ -8,16 +8,18 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.AutoCommands;
+import frc.robot.commands.ComboCommands;
 import frc.robot.commands.CoralCommands;
+import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
 import frc.robot.settings.Constants.CLIMBER;
+import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.Algae.Pivot.AlgaePivotSubsystem;
@@ -64,9 +66,9 @@ public class RobotContainer {
     }
 
     private void configureAutos() {
-        autoChooser.addOption("Left 3P", drivetrain.getLeft3PAuto());
-        autoChooser.addOption("Center 1P", drivetrain.getCenter1PAuto());
-        autoChooser.addOption("Right 3P", drivetrain.getRight3PAuto());
+        autoChooser.addOption("Left 3P", AutoCommands.getLeft3PAuto(drivetrain));
+        autoChooser.addOption("Center 1P", AutoCommands.getCenter1PAuto(drivetrain));
+        autoChooser.addOption("Right 3P", AutoCommands.getRight3PAuto(drivetrain));
 
         SmartDashboard.putData("Auto Mode", autoChooser);
     }
@@ -104,12 +106,13 @@ public class RobotContainer {
                                                                 : 1.0)) // Drive counterclockwise with negative X (left)
                 ));
 
-        driverController.a().whileTrue(drivetrain.driveToLeftCoralStation());
-        driverController.b().whileTrue(drivetrain.driveToRightCoralStation());
-        driverController.x().whileTrue(drivetrain.driveToBargeClimb());
-        driverController.y().whileTrue(drivetrain.driveToProcessor());
-        driverController.leftTrigger().whileTrue(drivetrain.driveToNearestLeftReefPole());
-        driverController.rightTrigger().whileTrue(drivetrain.driveToNearestRightReefPole());
+        driverController.a()
+                .whileTrue(ComboCommands.getCoralCommand(CoralStationSide.LEFT, drivetrain, coralEndEffector));
+        driverController.b().whileTrue(DriveCommands.driveToRightCoralStation(drivetrain));
+        driverController.x().whileTrue(DriveCommands.driveToBargeClimb(drivetrain));
+        driverController.y().whileTrue(DriveCommands.driveToProcessor(drivetrain));
+        driverController.leftTrigger().whileTrue(DriveCommands.driveToNearestLeftReefPole(drivetrain));
+        driverController.rightTrigger().whileTrue(DriveCommands.driveToNearestRightReefPole(drivetrain));
         driverController.leftBumper().onTrue(algaePivot.togglePivotPosition());
         driverController.rightBumper().whileTrue(algaeRollers.runRollerCommand());
         // Reset the field-centric heading on start press
