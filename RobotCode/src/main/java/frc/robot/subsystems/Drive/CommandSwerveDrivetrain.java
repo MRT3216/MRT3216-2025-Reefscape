@@ -30,13 +30,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveToPose;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.settings.Constants;
-import frc.robot.settings.Constants.BargeCage;
-import frc.robot.settings.Constants.BranchSide;
-import frc.robot.settings.Constants.CoralStationSide;
-import frc.robot.settings.Constants.ReefBranch;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -217,7 +212,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     // #endregion
 
-    // #region Commands
+    // #region SysID
 
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
@@ -227,6 +222,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
+    }
+
+    public Supplier<Pose2d> getRobotPose() {
+        return () -> getState().Pose;
     }
 
     /**
@@ -251,69 +250,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
-    private Command driveToPose(Pose2d pose) {
-        return vision.getDistanceFromRobotPose(pose) > Constants.PATHING.pathingMinimumDistance
-                ? AutoBuilder.pathfindToPose(pose, Constants.PATHING.pathConstraints, 0)
-                : new DriveToPose(this, pose);
-    }
-
-    public Command driveToBargeClimb() {
-        return this.defer(
-                () -> this.driveToPose(
-                        this.vision.getBargePose(BargeCage.middleCage)));
-    }
-
-    public Command driveToProcessor() {
-        return this.defer(
-                () -> this.driveToPose(
-                        this.vision.getProcessorPose()));
-    }
-
-    public Command driveToLeftCoralStation() {
-        return this.defer(
-                () -> this.driveToPose(
-                        vision.getCoralStationPose(CoralStationSide.LEFT)));
-    }
-
-    public Command driveToRightCoralStation() {
-        return this.defer(
-                () -> this.driveToPose(
-                        vision.getCoralStationPose(CoralStationSide.RIGHT)));
-    }
-
-    public Command driveToNearestLeftReefPole() {
-        return this.defer(() -> driveToNearestReefThenAlign(BranchSide.LEFT));
-    }
-
-    public Command driveToNearestRightReefPole() {
-        return this.defer(() -> driveToNearestReefThenAlign(BranchSide.RIGHT));
-    }
-
-    private Command driveToNearestReefThenAlign(BranchSide side) {
-        Pose2d reefPose = vision.getNearestReefFaceInitial(side);
-
-        return driveToReefPoseThenAlign(reefPose);
-    }
-
-    private Command driveToReefPoseThenAlign(Pose2d reefPose) {
-        Pose2d reefPoseClose = reefPose.transformBy(
-                Constants.FIELD_OFFSETS.getReefOffsetPositionClose());
-
-        if (vision.getDistanceFromRobotPose(reefPose) < Constants.PATHING.pathingMinimumDistance) {
-            return new DriveToPose(this, reefPoseClose);
-        } else {
-           return AutoBuilder
-                    .pathfindToPose(reefPose, Constants.PATHING.pathConstraints,
-                            Constants.PATHING.pathToCloseAlignEndVelocityMPS)
-                    .andThen(new DriveToPose(this, reefPoseClose));
-        }
-    }
-
-    public Command driveAndAlignToReefBranch(ReefBranch reefBranch) {
-        return this.defer(
-                () -> this.driveToReefPoseThenAlign(
-                        vision.getReefPolePose(reefBranch)));
-    }
+    // #endregion
 
     public Command toggleSlowMode() {
         return this.defer(() -> this.runOnce(
@@ -323,32 +260,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Trigger isSlowMode() {
         return new Trigger(() -> slowMode);
     }
-
-    public Command getLeft3PAuto() {
-        // Create a path following command using AutoBuilder. This will also trigger event markers.
-        return driveAndAlignToReefBranch(ReefBranch.J)
-                .andThen(driveToLeftCoralStation())
-                .andThen(driveAndAlignToReefBranch(ReefBranch.K))
-                .andThen(driveToLeftCoralStation())
-                .andThen(driveAndAlignToReefBranch(ReefBranch.L))
-                .andThen(driveToLeftCoralStation());
-    }
-
-    public Command getCenter1PAuto() {
-        return driveAndAlignToReefBranch(ReefBranch.H);
-    }
-
-    public Command getRight3PAuto() {
-        // Create a path following command using AutoBuilder. This will also trigger event markers.
-        return driveAndAlignToReefBranch(ReefBranch.E)
-                .andThen(driveToRightCoralStation())
-                .andThen(driveAndAlignToReefBranch(ReefBranch.D))
-                .andThen(driveToRightCoralStation())
-                .andThen(driveAndAlignToReefBranch(ReefBranch.C))
-                .andThen(driveToRightCoralStation());
-    }
-
-    // #endregion
 
     private void configureAutoBuilder() {
         try {
