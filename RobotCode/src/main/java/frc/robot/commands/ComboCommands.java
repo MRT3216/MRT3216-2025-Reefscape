@@ -13,6 +13,6 @@ public class ComboCommands {
         return drivetrain.defer(() -> Commands.parallel(
                 side == CoralStationSide.LEFT ? DriveCommands.driveToLeftCoralStation(drivetrain)
                         : DriveCommands.driveToRightCoralStation(drivetrain),
-                endEffector.intakeCoral()));
+                endEffector.intakeCoralCommand()));
     }
 }

@@ -9,7 +9,7 @@ public class AlgaeCommands {
     public static Command intakeAlgae(AlgaePivotSubsystem pivot, AlgaeRollersSubsystem rollers) {
         return pivot.movePivotToAngle(Positions.INTAKING.getAngle())
                 .alongWith(rollers.runRollerCommand())
-                .until(rollers.hasAlgae())
+                .until(rollers.hasAlgaeTrigger())
                 .andThen(pivot.movePivotToAngle((Positions.STOW_SCORING.getAngle())));
     }
 

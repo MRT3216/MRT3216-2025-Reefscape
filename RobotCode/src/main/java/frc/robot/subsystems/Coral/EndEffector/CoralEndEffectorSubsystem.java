@@ -1,8 +1,5 @@
 package frc.robot.subsystems.Coral.EndEffector;
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -20,21 +17,10 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
 
     public CoralEndEffectorSubsystem() {
         motor = new TalonFX(END_EFFECTOR_MAP.motorCANID);
-
         laserCan = new LaserCan(END_EFFECTOR_MAP.laserCanCANID);
 
-        // TODO: Need to finish this configuration
         TalonFXConfigurator motorConfigurator = motor.getConfigurator();
-        TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
-        MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
-        motorOutputConfigs.Inverted = END_EFFECTOR.kMotorInverted;
-        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
-        currentLimitsConfigs.StatorCurrentLimit = END_EFFECTOR.kMotorCurrentLimit;
-        currentLimitsConfigs.StatorCurrentLimitEnable = true;
-
-        motorConfigurator.apply(motorConfiguration);
-        motorConfigurator.apply(motorOutputConfigs);
-        motorConfigurator.apply(currentLimitsConfigs);
+        motorConfigurator.apply(END_EFFECTOR.motorConfiguration);
     }
 
     public void periodic() {
@@ -61,25 +47,25 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
 
     // region Commands and Triggers
 
-    public Command runEndEffector() {
+    public Command runEndEffectorCommand() {
         return this.defer(
                 () -> {
                     if (coralInIntake()) {
-                        return outtakeCoral();
+                        return outtakeCoralCommand();
                     } else {
-                        return intakeCoral();
+                        return intakeCoralCommand();
                     }
                 });
     }
 
-    public Command intakeCoral() {
+    public Command intakeCoralCommand() {
         return this.startEnd(
                 () -> runAtSpeed(END_EFFECTOR.intakeSpeed),
                 () -> stopIntake())
                 .until(hasCoral());
     }
 
-    public Command outtakeCoral() {
+    public Command outtakeCoralCommand() {
         return this.startEnd(
                 () -> runAtSpeed(END_EFFECTOR.outtakeSpeed),
                 () -> stopIntake())

@@ -1,5 +1,6 @@
 package frc.robot.settings;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
@@ -13,7 +14,9 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 
@@ -23,6 +26,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -219,12 +223,20 @@ public final class Constants {
         }
 
         public static final class END_EFFECTOR {
-            public static final InvertedValue kMotorInverted = InvertedValue.CounterClockwise_Positive;
-            public static final int kMotorCurrentLimit = 40;
-            public static final int kVoltageCompensation = 10;
-            public static final Angle kMaxError = Degree.of(1.0);
             public static final double intakeSpeed = 0.3;
             public static final double outtakeSpeed = -0.3;
+
+            // TODO: Need to finish this configuration
+            public static final TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
+            static {
+                motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+                motorConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+                motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+                motorConfiguration.CurrentLimits.SupplyCurrentLowerLimit = 30;
+                motorConfiguration.CurrentLimits.SupplyCurrentLimit = 60;
+                motorConfiguration.CurrentLimits.SupplyCurrentLowerTime = 0.5;
+            }
         }
     }
 
@@ -287,11 +299,26 @@ public final class Constants {
         }
 
         public static final class ROLLERS {
+            public static final Current HAS_ALGAE_CURRENT = Amps.of(15);
+            public static final double HOLD_ALGAE_INTAKE_VOLTAGE = 1;
+            public static final AngularVelocity HAS_ALGAE_VELOCITY = RotationsPerSecond.of(2102 / 60);
             public static final boolean kMotorInverted = false;
             public static final int kMotorCurrentLimit = 40;
             public static final int kVoltageCompensation = 10;
             public static final double intakeSpeed = 0.3;
             public static final double outtakeSpeed = -0.3;
+
+            // TODO: Need to finish this configuration
+            public static final TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
+            static {
+                motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+                motorConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+                motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+                motorConfiguration.CurrentLimits.SupplyCurrentLowerLimit = 30;
+                motorConfiguration.CurrentLimits.SupplyCurrentLimit = 60;
+                motorConfiguration.CurrentLimits.SupplyCurrentLowerTime = 0.5;
+            }
         }
     }
 

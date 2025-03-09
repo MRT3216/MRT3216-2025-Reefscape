@@ -168,8 +168,8 @@ public class RobotContainer {
         operatorController.leftTrigger().whileTrue(climber.runClimber(-CLIMBER.speed));
         operatorController.leftTrigger().whileTrue(climber.runClimber(CLIMBER.speed));
 
-        operatorController.leftBumper().onTrue(coralEndEffector.intakeCoral());
-        operatorController.rightBumper().onTrue(coralEndEffector.outtakeCoral());
+        operatorController.leftBumper().onTrue(coralEndEffector.intakeCoralCommand());
+        operatorController.rightBumper().onTrue(coralEndEffector.outtakeCoralCommand());
 
         //operatorController.povUp().onTrue();
     }
