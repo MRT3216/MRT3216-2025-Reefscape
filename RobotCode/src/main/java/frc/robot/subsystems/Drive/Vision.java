@@ -1,7 +1,5 @@
 package frc.robot.subsystems.Drive;
 
-// #region Imports
-
 import static edu.wpi.first.units.Units.Microseconds;
 import static edu.wpi.first.units.Units.Seconds;
 
@@ -39,8 +37,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
 import frc.robot.settings.FieldConstants;
 
-// #endregion
-
 /**
  * Example PhotonVision class to aid in the pursuit of accurate odometry. Taken from
  * https://gitlab.com/ironclad_code/ironclad-2024/-/blob/master/src/main/java/frc/robot/vision/Vision.java?ref_type=heads
@@ -50,15 +46,11 @@ public class Vision {
      * Photon Vision Simulation
      */
     public VisionSystemSim visionSim;
+
     /**
      * Current pose from the pose estimator using wheel odometry.
      */
     private Supplier<Pose2d> currentPose;
-
-    /**
-     * Field from {@link swervelib.SwerveDrive#field}
-     */
-    private Field2d field2d;
 
     /**
      * Constructor for the Vision class.
@@ -66,9 +58,8 @@ public class Vision {
      * @param currentPose Current pose supplier, should reference {@link SwerveDrive#getPose()}
      * @param field       Current field, should be {@link SwerveDrive#field}
      */
-    public Vision(Supplier<Pose2d> currentPose, Field2d field) {
+    public Vision(Supplier<Pose2d> currentPose) {
         this.currentPose = currentPose;
-        this.field2d = field;
 
         if (Robot.isSimulation()) {
             visionSim = new VisionSystemSim("Vision");
@@ -181,31 +172,6 @@ public class Vision {
     public VisionSystemSim getVisionSim() {
         return visionSim;
     }
-
-    /**
-    //  * Update the {@link Field2d} to include tracked targets/
-    //  */
-    // public void updateVisionField() {
-    //     List<PhotonTrackedTarget> targets = new ArrayList<PhotonTrackedTarget>();
-    //     for (Cameras c : Cameras.values()) {
-    //         if (!c.resultsList.isEmpty()) {
-    //             PhotonPipelineResult latest = c.resultsList.get(0);
-    //             if (latest.hasTargets()) {
-    //                 targets.addAll(latest.targets);
-    //             }
-    //         }
-    //     }
-
-    //     List<Pose2d> poses = new ArrayList<>();
-    //     for (PhotonTrackedTarget target : targets) {
-    //         if (FieldConstants.fieldLayout.getTagPose(target.getFiducialId()).isPresent()) {
-    //             Pose2d targetPose = FieldConstants.fieldLayout.getTagPose(target.getFiducialId()).get().toPose2d();
-    //             poses.add(targetPose);
-    //         }
-    //     }
-
-    //     field2d.getObject("tracked targets").setPoses(poses);
-    // }
 
     /**
      * Camera Enum to select each camera
@@ -462,9 +428,9 @@ public class Vision {
             estimatedRobotPose = visionEst;
         }
 
-        public void addHeadingData(Rotation2d heading) {
-            poseEstimator.addHeadingData(Microseconds.of(NetworkTablesJNI.now()).in(Seconds), heading);
-        }
+        // public void addHeadingData(Rotation2d heading) {
+        //     poseEstimator.addHeadingData(Microseconds.of(NetworkTablesJNI.now()).in(Seconds), heading);
+        // }
 
         /**
          * Calculates new standard deviations This algorithm is a heuristic that creates dynamic standard deviations based

@@ -17,25 +17,6 @@ import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.Constants.ReefBranch;
 
 public class FieldPoses {
-
-    /**
-     * Calculates a target pose relative to an AprilTag on the field.
-     *
-     * @param aprilTag    The ID of the AprilTag.
-     * @param robotOffset The offset {@link Transform2d} of the robot to apply to the pose for the robot to position
-     *                    itself correctly.
-     * @return The target pose of the AprilTag.
-     */
-    public static Pose2d getAprilTagPoseFromFieldMap(int aprilTagID, Transform2d robotOffset) {
-        Optional<Pose3d> aprilTagPose3d = FieldConstants.fieldLayout.getTagPose(aprilTagID);
-        if (aprilTagPose3d.isPresent()) {
-            return aprilTagPose3d.get().toPose2d().transformBy(robotOffset);
-        } else {
-            throw new RuntimeException(
-                    "Cannot get AprilTag " + aprilTagID + " from field " + FieldConstants.fieldLayout.toString());
-        }
-    }
-
     public static Pose2d getNearestReefFaceInitial(BranchSide side, Supplier<Pose2d> currentPose) {
         return getNearestReefFace(currentPose).transformBy(Constants.FIELD_OFFSETS.getReefOffsetPoseInitial(side));
     }
@@ -87,5 +68,23 @@ public class FieldPoses {
 
     public static double getDistanceFromRobotPose(Pose2d pose, Supplier<Pose2d> currentPose) {
         return PhotonUtils.getDistanceToPose(currentPose.get(), pose);
+    }
+
+    /**
+    * Calculates a target pose relative to an AprilTag on the field.
+    *
+    * @param aprilTag    The ID of the AprilTag.
+    * @param robotOffset The offset {@link Transform2d} of the robot to apply to the pose for the robot to position
+    *                    itself correctly.
+    * @return The target pose of the AprilTag.
+    */
+    public static Pose2d getAprilTagPoseFromFieldMap(int aprilTagID, Transform2d robotOffset) {
+        Optional<Pose3d> aprilTagPose3d = FieldConstants.fieldLayout.getTagPose(aprilTagID);
+        if (aprilTagPose3d.isPresent()) {
+            return aprilTagPose3d.get().toPose2d().transformBy(robotOffset);
+        } else {
+            throw new RuntimeException(
+                    "Cannot get AprilTag " + aprilTagID + " from field " + FieldConstants.fieldLayout.toString());
+        }
     }
 }

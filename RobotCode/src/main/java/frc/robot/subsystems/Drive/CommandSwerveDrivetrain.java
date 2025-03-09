@@ -64,9 +64,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
-    /** Field object. */
-    private Field2d field = new Field2d();
-
     private boolean slowMode = false;
 
     // #endregion
@@ -295,7 +292,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     * Setup the photon vision class.
     */
     private void setupPhotonVision() {
-        vision = new Vision(() -> getState().Pose, field);
+        vision = new Vision(() -> getState().Pose);
     }
 
     @Override
