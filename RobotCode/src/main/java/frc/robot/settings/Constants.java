@@ -82,6 +82,8 @@ public final class Constants {
         public static double cageYOffset = 0.0;
         public static double cageRotation = 90;
 
+        public static Distance elevatorPrepCoralStationDistance = Meters.of(1);
+
         public static final Transform2d getReefOffsetPoseInitial(BranchSide side) {
             return new Transform2d(FIELD_OFFSETS.reefXOffsetInitial,
                     side.equals(BranchSide.LEFT) ? FIELD_OFFSETS.reefYOffsetLeftBranch
