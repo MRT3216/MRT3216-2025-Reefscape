@@ -18,9 +18,10 @@ import frc.robot.commands.CoralCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
+import frc.robot.settings.Constants.BranchSide;
 import frc.robot.settings.Constants.CLIMBER;
-import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
+import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.Algae.Pivot.AlgaePivotSubsystem;
 import frc.robot.subsystems.Algae.Rollers.AlgaeRollersSubsystem;
@@ -53,6 +54,8 @@ public class RobotContainer {
     private final AlgaePivotSubsystem algaePivot = new AlgaePivotSubsystem();
     private final AlgaeRollersSubsystem algaeRollers = new AlgaeRollersSubsystem();
     private final ClimberSubsystem climber = new ClimberSubsystem();
+    private final ComboCommands comboCommands = new ComboCommands(drivetrain, elevator, coralPivot, coralEndEffector,
+            algaePivot, algaeRollers, climber);
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("None");;
@@ -106,19 +109,20 @@ public class RobotContainer {
                                                                 : 1.0)) // Drive counterclockwise with negative X (left)
                 ));
 
-        driverController.a()
-                .whileTrue(ComboCommands.getCoralCommand(CoralStationSide.LEFT, drivetrain, coralEndEffector));
+        driverController.a().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT));
         driverController.b().whileTrue(DriveCommands.driveToRightCoralStation(drivetrain));
         driverController.x().whileTrue(DriveCommands.driveToBargeClimb(drivetrain));
         driverController.y().whileTrue(DriveCommands.driveToProcessor(drivetrain));
-        driverController.leftTrigger().whileTrue(DriveCommands.driveToNearestLeftReefPole(drivetrain));
-        driverController.rightTrigger().whileTrue(DriveCommands.driveToNearestRightReefPole(drivetrain));
+        driverController.leftTrigger().whileTrue(comboCommands.scoreCoralOnReef(() -> BranchSide.LEFT));
+        driverController.rightTrigger().whileTrue(comboCommands.scoreCoralOnReef(() -> BranchSide.RIGHT));
         driverController.leftBumper().onTrue(algaePivot.togglePivotPosition());
         driverController.rightBumper().whileTrue(algaeRollers.runRollerCommand());
         // Reset the field-centric heading on start press
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         driverController.rightStick().onTrue(drivetrain.toggleSlowMode());
+        driverController.leftStick().onTrue(
+                CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.STOW));
 
         // TODO: Use this method to aim wheels for climb
         // driverController.b().whileTrue(drivetrain.applyRequest(
@@ -137,15 +141,20 @@ public class RobotContainer {
         //         .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         driverController.povUp()
-                .onTrue(CoralCommands.moveElevatorAndPivotToHeight(elevator, coralPivot, POSITIONS.L4));
+                .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
+                        () -> POSITIONS.L4));
         driverController.povRight()
-                .onTrue(CoralCommands.moveElevatorAndPivotToHeight(elevator, coralPivot, POSITIONS.L3));
+                .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
+                        () -> POSITIONS.L3));
         driverController.povLeft()
-                .onTrue(CoralCommands.moveElevatorAndPivotToHeight(elevator, coralPivot, POSITIONS.L2));
+                .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
+                        () -> POSITIONS.L2));
         driverController.povDown()
-                .onTrue(CoralCommands.moveElevatorAndPivotToHeight(elevator, coralPivot, POSITIONS.L1));
+                .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
+                        () -> POSITIONS.L1));
         driverController.back()
-                .onTrue(CoralCommands.moveElevatorAndPivotToHeight(elevator, coralPivot, POSITIONS.SCORE_PREP));
+                .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
+                        () -> POSITIONS.SCORE_PREP));
 
         // driverController.leftBumper().onTrue(coralPivot.adjustPivotAngle(Degrees.of(-1)));
         // driverController.rightBumper().onTrue(coralPivot.adjustPivotAngle(Degrees.of(1)));
