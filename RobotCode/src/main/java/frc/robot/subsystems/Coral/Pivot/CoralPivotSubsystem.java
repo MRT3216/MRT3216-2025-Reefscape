@@ -152,12 +152,6 @@ public class CoralPivotSubsystem extends SubsystemBase {
         }).until(this.atGoal());
     }
 
-    public Command movePivot(double speed) {
-        return this.startEnd(
-                () -> motorController.set(speed),
-                () -> motorController.set(0.0));
-    }
-
     public Command adjustPivotAngle(Angle angleAdjustment) {
         return this.defer(
                 () -> Commands.runOnce(
