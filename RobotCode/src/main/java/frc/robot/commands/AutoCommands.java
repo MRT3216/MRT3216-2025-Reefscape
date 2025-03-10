@@ -1,32 +1,40 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.settings.Constants.CORAL.POSITIONS;
+import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.Constants.ReefBranch;
-import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 
 public class AutoCommands {
 
-    public static Command getLeft3PAuto(CommandSwerveDrivetrain drivetrain) {
+    public static Command getLeft3PAuto(ComboCommands comboCommands) {
         // Create a path following command using AutoBuilder. This will also trigger event markers.
-        return DriveCommands.driveAndAlignToReefBranch(() -> ReefBranch.J, drivetrain)
-                .andThen(DriveCommands.driveToLeftCoralStation(drivetrain))
-                .andThen(DriveCommands.driveAndAlignToReefBranch(() -> ReefBranch.K, drivetrain))
-                .andThen(DriveCommands.driveToLeftCoralStation(drivetrain))
-                .andThen(DriveCommands.driveAndAlignToReefBranch(() -> ReefBranch.L, drivetrain))
-                .andThen(DriveCommands.driveToLeftCoralStation(drivetrain));
+        return comboCommands.driveAndAlignToReefBranchAndScorePrep(() -> ReefBranch.J, () -> POSITIONS.L4)
+                .andThen(comboCommands.scoreCoral())
+                .andThen(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT))
+                .andThen(comboCommands.driveAndAlignToReefBranchAndScorePrep(() -> ReefBranch.K, () -> POSITIONS.L4))
+                .andThen(comboCommands.scoreCoral())
+                .andThen(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT))
+                .andThen(comboCommands.driveAndAlignToReefBranchAndScorePrep(() -> ReefBranch.L, () -> POSITIONS.L4))
+                .andThen(comboCommands.scoreCoral())
+                .andThen(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT));
     }
 
-    public static Command getCenter1PAuto(CommandSwerveDrivetrain drivetrain) {
-        return DriveCommands.driveAndAlignToReefBranch(() -> ReefBranch.H, drivetrain);
+    public static Command getCenter1PAuto(ComboCommands comboCommands) {
+        return comboCommands.driveAndAlignToReefBranchAndScorePrep(() -> ReefBranch.H, () -> POSITIONS.L4)
+                .andThen(comboCommands.scoreCoral());
     }
 
-    public static Command getRight3PAuto(CommandSwerveDrivetrain drivetrain) {
+    public static Command getRight3PAuto(ComboCommands comboCommands) {
         // Create a path following command using AutoBuilder. This will also trigger event markers.
-        return DriveCommands.driveAndAlignToReefBranch(() -> ReefBranch.E, drivetrain)
-                .andThen(DriveCommands.driveToRightCoralStation(drivetrain))
-                .andThen(DriveCommands.driveAndAlignToReefBranch(() -> ReefBranch.D, drivetrain))
-                .andThen(DriveCommands.driveToRightCoralStation(drivetrain))
-                .andThen(DriveCommands.driveAndAlignToReefBranch(() -> ReefBranch.C, drivetrain))
-                .andThen(DriveCommands.driveToRightCoralStation(drivetrain));
+        return comboCommands.driveAndAlignToReefBranchAndScorePrep(() -> ReefBranch.E, () -> POSITIONS.L4)
+                .andThen(comboCommands.scoreCoral())
+                .andThen(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT))
+                .andThen(comboCommands.driveAndAlignToReefBranchAndScorePrep(() -> ReefBranch.D, () -> POSITIONS.L4))
+                .andThen(comboCommands.scoreCoral())
+                .andThen(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT))
+                .andThen(comboCommands.driveAndAlignToReefBranchAndScorePrep(() -> ReefBranch.C, () -> POSITIONS.L4))
+                .andThen(comboCommands.scoreCoral())
+                .andThen(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
     }
 }

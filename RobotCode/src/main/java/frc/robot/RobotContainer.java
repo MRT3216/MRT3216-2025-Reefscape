@@ -69,9 +69,9 @@ public class RobotContainer {
     }
 
     private void configureAutos() {
-        autoChooser.addOption("Left 3P", AutoCommands.getLeft3PAuto(drivetrain));
-        autoChooser.addOption("Center 1P", AutoCommands.getCenter1PAuto(drivetrain));
-        autoChooser.addOption("Right 3P", AutoCommands.getRight3PAuto(drivetrain));
+        autoChooser.addOption("Left 3P", AutoCommands.getLeft3PAuto(comboCommands));
+        autoChooser.addOption("Center 1P", AutoCommands.getCenter1PAuto(comboCommands));
+        autoChooser.addOption("Right 3P", AutoCommands.getRight3PAuto(comboCommands));
 
         SmartDashboard.putData("Auto Mode", autoChooser);
     }
@@ -110,11 +110,12 @@ public class RobotContainer {
                 ));
 
         driverController.a().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT));
-        driverController.b().whileTrue(DriveCommands.driveToRightCoralStation(drivetrain));
-        driverController.x().whileTrue(DriveCommands.driveToBargeClimb(drivetrain));
+        driverController.b().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
+        driverController.x().onTrue(comboCommands.scoreCoral());
         driverController.y().whileTrue(DriveCommands.driveToProcessor(drivetrain));
-        driverController.leftTrigger().whileTrue(comboCommands.scoreCoralOnReef(() -> BranchSide.LEFT));
-        driverController.rightTrigger().whileTrue(comboCommands.scoreCoralOnReef(() -> BranchSide.RIGHT));
+        driverController.leftTrigger()
+                .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.LEFT));
+        driverController.rightTrigger().whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.RIGHT));
         driverController.leftBumper().onTrue(algaePivot.togglePivotPosition());
         driverController.rightBumper().whileTrue(algaeRollers.runRollerCommand());
         // Reset the field-centric heading on start press

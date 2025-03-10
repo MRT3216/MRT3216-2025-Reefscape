@@ -38,15 +38,15 @@ public class AlgaePivotSimulation {
                 PIVOT.kPivotGearing,
                 PIVOT.kMOI,
                 PIVOT.kPivotArmLength.in(Meters),
-                PIVOT.kSoftReverseLimit.in(Radians),
-                PIVOT.kSoftForwardLimit.in(Radians),
+                PIVOT.kSoftReverseLimit.in(Radians) - 100,
+                PIVOT.kSoftForwardLimit.in(Radians) + 100,
                 true,
                 PIVOT.Positions.STARTING.getAngle().in(Radians));
 
         this.realMotorController = motorController;
         this.simMotorController = new SparkFlexSim(realMotorController, pivotGearbox);
         this.realEncoder = encoder;
-        this.simEncoder = new SparkAbsoluteEncoderSim(realMotorController);
+        this.simEncoder = simMotorController.getAbsoluteEncoderSim();
         this.m_simBattery = BatterySimSubsystem.getInstance();
 
         MechanismVisualizationSubsystem.getInstance()

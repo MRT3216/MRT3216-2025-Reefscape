@@ -29,4 +29,8 @@ public class CoralCommands {
         return Commands.defer(() -> (elevator.moveElevatorToHeight(position.get().getHeight())
                 .alongWith(pivot.movePivotToAngle(position.get().getAngle()))), Set.of(elevator, pivot));
     }
+
+    public Command scoreCoral(ElevatorSubsystem elevator, CoralPivotSubsystem pivot, CoralEndEffectorSubsystem endEffector){
+        return endEffector.outtakeCoralCommand().andThen(moveElevatorAndPivotToHeightCommand(elevator, pivot, ()->POSITIONS.STOW));
+    }
 }

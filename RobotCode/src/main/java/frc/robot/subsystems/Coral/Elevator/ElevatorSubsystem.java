@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -107,13 +109,13 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         if (RobotBase.isSimulation()) {
             this.elevatorSimContainer = new ElevatorSimulation(leadMotorController,
-                    () -> getPosition().in(Meters));
+                    () -> getPositionDistance().in(Meters));
         }
     }
 
     public void periodic() {
         if (enabled) {
-            double pidOutput = pIDController.calculate(getPosition().in(Meters));
+            double pidOutput = pIDController.calculate(getPositionDistance().in(Meters));
             double feedForward = elevatorFeedForward.calculateWithVelocities(
                     getVelocity().in(MetersPerSecond), pIDController.getSetpoint().velocity);
             double motorEffortVoltage = pidOutput + feedForward;
@@ -122,7 +124,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
 
         SmartDashboard.putBoolean("Elevator Enabled", enabled);
-        SmartDashboard.putNumber("Elevator position", getPosition().in(Meters));
+        SmartDashboard.putNumber("Elevator position", getPositionDistance().in(Meters));
         SmartDashboard.putNumber("Elevator pos. error inches", Units.metersToInches(pIDController.getPositionError()));
         SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
         SmartDashboard.putNumber("Elevator position goal", pIDController.getGoal().position);
@@ -134,6 +136,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("L2", currentPosition == POSITIONS.L2);
         SmartDashboard.putBoolean("L1", currentPosition == POSITIONS.L1);
         SmartDashboard.putBoolean("Starting", currentPosition == POSITIONS.STARTING);
+        SmartDashboard.putString("Curent Position", getSelectedPosition().get().toString());
     }
 
     private void setElevatorHeightGoal(Distance height) {
@@ -143,9 +146,13 @@ public class ElevatorSubsystem extends SubsystemBase {
         pIDController.setGoal(goalHeightinMeters);
     }
 
-    public Distance getPosition() {
+    public Distance getPositionDistance() {
         return Meters.of(encoder.getPosition() * (2 * Math.PI * ELEVATOR.kElevatorDrumRadius)
                 / ELEVATOR.kElevatorGearing);
+    }
+
+    public Supplier<POSITIONS> getSelectedPosition() {
+        return () -> currentPosition;
     }
 
     public LinearVelocity getVelocity() {
@@ -194,9 +201,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command setTargetPos(POSITIONS pos) {
-        return Commands.runOnce(() -> {
-            setPosition(pos);
-        });
+        return this.defer(() -> Commands.runOnce(() -> setPosition(pos)));
+
     }
 
     protected Trigger atGoal() {
@@ -204,7 +210,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Trigger aboveHeight() {
-        return new Trigger(() -> getPosition().gt(Meters.of(0.5)));
+        return new Trigger(() -> getPositionDistance().gt(Meters.of(0.5)));
     }
 
     public String currentLevel() {

@@ -4,6 +4,8 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,12 +22,12 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
     public AlgaeRollersSubsystem() {
         motorController = new TalonFX(ROLLERS_MAP.motorCANID);
 
-        // TODO: Need to finish this configuration
         TalonFXConfigurator motorConfigurator = motorController.getConfigurator();
-        TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
+        TalonFXConfiguration motorConfiguration = ROLLERS.motorConfiguration;
         motorConfigurator.apply(motorConfiguration);
+
         if (RobotBase.isSimulation()) {
-            //this.rollerSimContainer = new AlgaeRollersSimulation();
+            this.rollerSimContainer = new AlgaeRollersSimulation(motorController);
         }
     }
 
@@ -35,11 +37,6 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
 
     private void stopIntake() {
         motorController.set(0);
-    }
-
-    public Trigger hasAlgae() {
-        // TODO: Finish this
-        return new Trigger(() -> false);
     }
 
     // TODO: check this again
@@ -55,13 +52,46 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
                     () -> setIntakeSpeed(ROLLERS.intakeSpeed),
                     () -> stopIntake());
         }
+    }
 
-        // // TODO: I think this needs more logic (check last years bot)
-        // .until(() -> voltage > END_EFFECTOR.VOLTAGE_THRESHOLD);
+    public Command runRollers(double speed) {
+        return this.startEnd(
+                () -> setIntakeSpeed(speed),
+                () -> stopIntake());
+    }
+
+    // From Team 3255: https://github.com/FRCTeam3255/2025_Robot_Code/blob/main/src/main/java/frc/robot/RobotContainer.java#L334
+    private boolean hasAlgae() {
+        Current intakeCurrent = motorController.getStatorCurrent().getValue();
+
+        AngularVelocity intakeVelocity = motorController.getVelocity().getValue();
+        double intakeAcceleration = motorController.getAcceleration().getValueAsDouble();
+
+        Current intakeHasGamePieceCurrent = ROLLERS.HAS_ALGAE_CURRENT;
+        AngularVelocity intakeHasGamePieceVelocity = ROLLERS.HAS_ALGAE_VELOCITY;
+
+        if ((intakeCurrent.gte(intakeHasGamePieceCurrent))
+                && (intakeVelocity.lte(intakeHasGamePieceVelocity))
+                && (intakeAcceleration < 0)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public Trigger hasAlgaeTrigger() {
+        return new Trigger(this::hasAlgae);
     }
 
     public void periodic() {
-        SmartDashboard.putNumber("Algae Roller Speed",
-                motorController.getVelocity().getValueAsDouble());
+
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        if (rollerSimContainer != null) {
+            rollerSimContainer.simulationPeriodic();
+            SmartDashboard.putNumber("Algae Roller Speed", motorController.getVelocity().getValueAsDouble());
+        }
     }
 }

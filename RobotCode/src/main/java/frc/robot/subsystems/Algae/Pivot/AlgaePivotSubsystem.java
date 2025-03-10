@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
@@ -25,6 +26,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants.ALGAE.PIVOT;
@@ -32,7 +34,8 @@ import frc.robot.settings.RobotMap.ROBOT.ALGAE_SYSTEM.PIVOT_MAP;
 
 public class AlgaePivotSubsystem extends SubsystemBase {
     private final SparkFlex motorController;
-    private AbsoluteEncoder encoder;
+    private AbsoluteEncoder absoluteEncoder;
+    private RelativeEncoder motorEncoder;
     private ProfiledPIDController pIDController;
     private ArmFeedforward feedforward;
     private boolean enabled = false;
@@ -50,10 +53,14 @@ public class AlgaePivotSubsystem extends SubsystemBase {
                 .voltageCompensation(PIVOT.kVoltageCompensation)
                 .openLoopRampRate(PIVOT.kPivotRampRate);
 
-        encoder = motorController.getAbsoluteEncoder();
+        absoluteEncoder = motorController.getAbsoluteEncoder();
         AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
         encoderConfig.zeroCentered(true);
         motorControllerConfig.apply(encoderConfig);
+
+        motorEncoder = motorController.getEncoder();
+        EncoderConfig motorEncoderConfig = new EncoderConfig();
+        motorControllerConfig.apply(motorEncoderConfig);
 
         SoftLimitConfig softLimitConfig = new SoftLimitConfig();
         softLimitConfig
@@ -61,7 +68,7 @@ public class AlgaePivotSubsystem extends SubsystemBase {
                 // absolute encoder so adjust by the gearing
                 .forwardSoftLimit(PIVOT.kSoftForwardLimit.in(Rotations) * PIVOT.kPivotGearing)
                 .forwardSoftLimitEnabled(true)
-                .reverseSoftLimit(PIVOT.kSoftReverseLimit.in(Rotations))
+                .reverseSoftLimit(PIVOT.kSoftReverseLimit.in(Rotations) * PIVOT.kPivotGearing)
                 .reverseSoftLimitEnabled(true);
         motorControllerConfig.apply(softLimitConfig);
 
@@ -69,7 +76,7 @@ public class AlgaePivotSubsystem extends SubsystemBase {
                 PersistMode.kPersistParameters);
 
         // Set the motor's internal encoder to the absolute position
-        motorController.getEncoder().setPosition(encoder.getPosition() * PIVOT.kPivotGearing);
+        motorEncoder.setPosition(absoluteEncoder.getPosition() * PIVOT.kPivotGearing);
 
         pIDController = new ProfiledPIDController(
                 PIVOT.kPivotKp,
@@ -91,37 +98,8 @@ public class AlgaePivotSubsystem extends SubsystemBase {
         pIDController.reset(getPivotAngle().in(Rotations));
 
         if (RobotBase.isSimulation()) {
-            this.simContainer = new AlgaePivotSimulation(encoder, motorController);
+            this.simContainer = new AlgaePivotSimulation(absoluteEncoder, motorController);
         }
-    }
-
-    public Command movePivotToAngle(Angle angle) {
-        return this.run(() -> {
-            setPivotGoal(angle);
-            this.enable();
-        }).until(this.atGoal());
-    }
-
-    public Command togglePivotPosition() {
-        // TODO: Don't like this.
-        return this.runOnce(() -> {
-            currentPosition = currentPosition == PIVOT.Positions.INTAKING ? PIVOT.Positions.STOW_SCORING
-                    : PIVOT.Positions.INTAKING;
-
-            setPivotGoal(currentPosition.getAngle());
-            this.enable();
-        });
-    }
-
-    private void setPivotGoal(Angle angle) {
-        double goalAngleInRotations = MathUtil.clamp(angle.in(Rotations),
-                PIVOT.kMinPivotAngle.in(Rotations),
-                PIVOT.kMaxPivotAngle.in(Rotations));
-        pIDController.setGoal(goalAngleInRotations);
-    }
-
-    protected Trigger atGoal() {
-        return new Trigger(() -> pIDController.atGoal());
     }
 
     public void periodic() {
@@ -140,9 +118,16 @@ public class AlgaePivotSubsystem extends SubsystemBase {
                 Units.rotationsToDegrees(pIDController.getPositionError()));
         SmartDashboard.putNumber("Algae Pivot position setpoint",
                 Units.rotationsToDegrees(pIDController.getSetpoint().position));
-        SmartDashboard.putNumber("Algae Pivot encoder absolute", encoder.getPosition());
+        SmartDashboard.putNumber("Algae Pivot encoder absolute", absoluteEncoder.getPosition());
         SmartDashboard.putNumber("Algae Pivot encoder motor", motorController.getEncoder().getPosition());
-        SmartDashboard.putNumber("Coral Pivot Motor effort", motorController.getAppliedOutput());
+        SmartDashboard.putNumber("Algae Pivot Motor effort", motorController.getAppliedOutput());
+    }
+
+    private void setPivotGoal(Angle angle) {
+        double goalAngleInRotations = MathUtil.clamp(angle.in(Rotations),
+                PIVOT.kMinPivotAngle.in(Rotations),
+                PIVOT.kMaxPivotAngle.in(Rotations));
+        pIDController.setGoal(goalAngleInRotations);
     }
 
     /** Enables the PID control. Resets the controller. */
@@ -166,13 +151,50 @@ public class AlgaePivotSubsystem extends SubsystemBase {
     }
 
     private Angle getPivotAngle() {
-        return Rotations.of(encoder.getPosition());
+        return Rotations.of(absoluteEncoder.getPosition());
     }
+
+    // #region Commands and Triggers
+
+    public Command movePivotToAngle(Angle angle) {
+        return this.run(() -> {
+            setPivotGoal(angle);
+            this.enable();
+        }).until(this.atGoal());
+    }
+
+    public Command togglePivotPosition() {
+        // TODO: Don't like this.
+        return this.runOnce(() -> {
+            currentPosition = currentPosition == PIVOT.Positions.INTAKING ? PIVOT.Positions.STOW_SCORING
+                    : PIVOT.Positions.INTAKING;
+
+            setPivotGoal(currentPosition.getAngle());
+            this.enable();
+        });
+    }
+
+    public Command adjustPivotAngle(Angle angleAdjustment) {
+        return this.defer(
+                () -> Commands.runOnce(
+                        () -> {
+                            enable();
+                            setPivotGoal(
+                                    Degrees.of(pIDController.getGoal().position + angleAdjustment.in(Rotations)));
+                        }));
+    }
+
+    protected Trigger atGoal() {
+        return new Trigger(() -> pIDController.atGoal());
+    }
+
+    // #endregion
 
     @Override
     public void simulationPeriodic() {
         if (simContainer != null) {
             simContainer.simulationPeriodic();
+            //motorEncoder.setPosition(absoluteEncoder.getPosition() * PIVOT.kPivotGearing);
             // SmartDashboard.putBoolean("Algae Pivot Enabled", enabled);
             // SmartDashboard.putNumber("Algae Pivot position error",
             //         Units.rotationsToDegrees(pIDController.getPositionError()));

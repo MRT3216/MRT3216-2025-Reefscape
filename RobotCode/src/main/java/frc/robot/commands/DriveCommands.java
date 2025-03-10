@@ -11,10 +11,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants;
 import frc.robot.settings.Constants.BargeCage;
-import frc.robot.settings.Constants.BranchSide;
 import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.Constants.FIELD_OFFSETS;
-import frc.robot.settings.Constants.ReefBranch;
 import frc.robot.settings.FieldPoses;
 import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 
@@ -37,50 +35,17 @@ public class DriveCommands {
                         FieldPoses.getProcessorPose(), drivetrain));
     }
 
-    public static Command driveToLeftCoralStation(CommandSwerveDrivetrain drivetrain) {
+    public static Command driveToCoralStation(CommandSwerveDrivetrain drivetrain, Supplier<CoralStationSide> side) {
         return drivetrain.defer(
                 () -> DriveCommands.driveToPose(
-                        FieldPoses.getCoralStationPose(CoralStationSide.LEFT), drivetrain));
-    }
-
-    public static Command driveToRightCoralStation(CommandSwerveDrivetrain drivetrain) {
-        return drivetrain.defer(
-                () -> DriveCommands.driveToPose(
-                        FieldPoses.getCoralStationPose(CoralStationSide.RIGHT), drivetrain));
-    }
-
-    public static Command driveToNearestReefThenAlign(Supplier<BranchSide> side, CommandSwerveDrivetrain drivetrain) {
-        Supplier<Pose2d> reefPose = () -> FieldPoses.getNearestReefFaceInitial(side.get(), drivetrain.getRobotPose());
-
-        return drivetrain.defer(() -> driveToReefPoseThenAlign(reefPose, drivetrain));
-    }
-
-    private static Command driveToReefPoseThenAlign(Supplier<Pose2d> reefPose, CommandSwerveDrivetrain drivetrain) {
-        Pose2d reefPoseClose = reefPose.get().transformBy(
-                Constants.FIELD_OFFSETS.getReefOffsetPositionClose());
-
-        if (FieldPoses.getDistanceFromRobotPose(reefPose.get(),
-                drivetrain.getRobotPose()) < Constants.PATHING.pathingMinimumDistance) {
-            return new DriveToPose(drivetrain, reefPoseClose);
-        } else {
-            return AutoBuilder
-                    .pathfindToPose(reefPose.get(), Constants.PATHING.pathConstraints,
-                            Constants.PATHING.pathToCloseAlignEndVelocityMPS)
-                    .andThen(new DriveToPose(drivetrain, reefPoseClose));
-        }
-    }
-
-    public static Command driveAndAlignToReefBranch(Supplier<ReefBranch> reefBranch,
-            CommandSwerveDrivetrain drivetrain) {
-        return drivetrain.defer(
-                () -> DriveCommands.driveToReefPoseThenAlign(
-                        () -> FieldPoses.getReefPolePose(reefBranch.get()),
+                        FieldPoses.getCoralStationPose(side.get()),
                         drivetrain));
     }
 
     public static Trigger readyToPrepElevatorForCoralStation(Supplier<CoralStationSide> side,
             Supplier<Pose2d> robotPoseSupplier) {
-        return new Trigger(() -> FieldPoses.getDistanceFromRobotPose(FieldPoses.getCoralStationPose(side.get()),
-                robotPoseSupplier) < FIELD_OFFSETS.elevatorPrepReefDistance.in(Meters));
+        return new Trigger(
+            () -> (FieldPoses.getDistanceFromRobotPose(FieldPoses.getCoralStationPose(side.get()),
+                robotPoseSupplier) < FIELD_OFFSETS.elevatorPrepCoralStationDistance.in(Meters)));
     }
 }

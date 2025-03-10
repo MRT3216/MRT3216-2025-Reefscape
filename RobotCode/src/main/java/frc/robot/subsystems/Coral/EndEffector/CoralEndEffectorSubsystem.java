@@ -76,7 +76,7 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
         return new Trigger(this::coralInIntake);
     }
 
-    private Trigger noCoral() {
+    public Trigger noCoral() {
         return new Trigger(() -> !coralInIntake());
     }
 
