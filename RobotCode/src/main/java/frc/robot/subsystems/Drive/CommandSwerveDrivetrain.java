@@ -1,4 +1,7 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.Drive;
+
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
 
@@ -8,6 +11,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
@@ -16,23 +20,19 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveToPose;
+import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.settings.Constants;
-import frc.robot.settings.Constants.BargeCage;
-import frc.robot.settings.Constants.BranchSide;
 import frc.robot.settings.Constants.CoralStationSide;
-import frc.robot.settings.Constants.ReefBranch;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -65,8 +65,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
-    /** Field object. */
-    private Field2d field = new Field2d();
+    private boolean slowMode = false;
 
     // #endregion
 
@@ -211,7 +210,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     // #endregion
 
-    // #region Commands
+    // #region SysID
 
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
@@ -221,6 +220,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
+    }
+
+    public Supplier<Pose2d> getRobotPose() {
+        return () -> getState().Pose;
     }
 
     /**
@@ -245,95 +248,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
-    private Command driveToPose(Pose2d pose) {
-        return vision.getDistanceFromRobotPose(pose) > Constants.PATHING.pathingMinimumDistance
-                ? AutoBuilder.pathfindToPose(pose, Constants.PATHING.pathConstraints, 0)
-                : new DriveToPose(this, pose);
-    }
-
-    public Command driveToBargeClimb() {
-        return this.defer(
-                () -> this.driveToPose(
-                        this.vision.getBargePose(BargeCage.middleCage)));
-    }
-
-    public Command driveToProcessor() {
-        return this.defer(
-                () -> this.driveToPose(
-                        this.vision.getProcessorPose()));
-    }
-
-    public Command driveToLeftCoralStation() {
-        return this.defer(
-                () -> this.driveToPose(
-                        vision.getCoralStationPose(CoralStationSide.LEFT)));
-    }
-
-    public Command driveToRightCoralStation() {
-        return this.defer(
-                () -> this.driveToPose(
-                        vision.getCoralStationPose(CoralStationSide.RIGHT)));
-    }
-
-    public Command driveToNearestLeftReefPole() {
-        return this.defer(() -> driveToNearestReefThenAlign(BranchSide.LEFT));
-    }
-
-    public Command driveToNearestRightReefPole() {
-        return this.defer(() -> driveToNearestReefThenAlign(BranchSide.RIGHT));
-    }
-
-    private Command driveToNearestReefThenAlign(BranchSide side) {
-        Pose2d reefPose = vision.getNearestReefFaceInitial(side);
-
-        return driveToReefPoseThenAlign(reefPose);
-    }
-
-    private Command driveToReefPoseThenAlign(Pose2d reefPose) {
-        Pose2d reefPoseClose = reefPose.transformBy(
-                Constants.FIELD_OFFSETS.getReefOffsetPositionClose());
-
-        if (vision.getDistanceFromRobotPose(reefPose) < Constants.PATHING.pathingMinimumDistance) {
-            return new DriveToPose(this, reefPoseClose);
-        } else {
-            return AutoBuilder
-                    .pathfindToPose(reefPose, Constants.PATHING.pathConstraints,
-                            Constants.PATHING.pathToCloseAlignEndVelocityMPS)
-                    .andThen(new DriveToPose(this, reefPoseClose));
-        }
-    }
-
-    public Command driveAndAlignToReefBranch(ReefBranch reefBranch) {
-        return this.defer(
-                () -> this.driveToReefPoseThenAlign(
-                        vision.getReefPolePose(reefBranch)));
-    }
-
-    public Command getLeft3PAuto() {
-        // Create a path following command using AutoBuilder. This will also trigger event markers.
-        return driveAndAlignToReefBranch(ReefBranch.J)
-                .andThen(driveToLeftCoralStation())
-                .andThen(driveAndAlignToReefBranch(ReefBranch.K))
-                .andThen(driveToLeftCoralStation())
-                .andThen(driveAndAlignToReefBranch(ReefBranch.L))
-                .andThen(driveToLeftCoralStation());
-    }
-
-    public Command getCenter1PAuto() {
-        return driveAndAlignToReefBranch(ReefBranch.H);
-    }
-
-    public Command getRight3PAuto() {
-        // Create a path following command using AutoBuilder. This will also trigger event markers.
-        return driveAndAlignToReefBranch(ReefBranch.E)
-                .andThen(driveToRightCoralStation())
-                .andThen(driveAndAlignToReefBranch(ReefBranch.D))
-                .andThen(driveToRightCoralStation())
-                .andThen(driveAndAlignToReefBranch(ReefBranch.C))
-                .andThen(driveToRightCoralStation());
-    }
-
     // #endregion
+
+    public Command toggleSlowMode() {
+        return this.defer(() -> this.runOnce(
+                () -> slowMode = !slowMode));
+    }
+
+    public Trigger isSlowMode() {
+        return new Trigger(() -> slowMode);
+    }
 
     private void configureAutoBuilder() {
         try {
@@ -357,6 +281,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
                     this // Subsystem for requirements
             );
+            // DO THIS AFTER CONFIGURATION OF YOUR DESIRED PATHFINDER
+            PathfindingCommand.warmupCommand().schedule();
         } catch (Exception ex) {
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder",
                     ex.getStackTrace());
@@ -367,7 +293,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     * Setup the photon vision class.
     */
     private void setupPhotonVision() {
-        vision = new Vision(() -> getState().Pose, field);
+        vision = new Vision(() -> getState().Pose);
     }
 
     @Override
@@ -389,6 +315,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
         vision.updatePoseEstimation(this);
+
+        SmartDashboard.putBoolean("Slow Mode", slowMode);
+        SmartDashboard.putBoolean("Close to Coral Station",
+                DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.LEFT, getRobotPose())
+                        .getAsBoolean());
     }
 
     private void startSimThread() {
@@ -440,3 +371,39 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 visionMeasurementStdDevs);
     }
 }
+
+// public LinearVelocity getVelocityMagnitude() {
+//     ChassisSpeeds cs = getState().Speeds;
+//     return MetersPerSecond.of(new Translation2d(cs.vxMetersPerSecond, cs.vyMetersPerSecond).getNorm());
+// }
+
+// // Credit to FRC3136 ORCA (Official Robot Constructors of Ashland)
+// private Rotation2d getPathVelocityHeading(ChassisSpeeds cs, Pose2d target) {
+//     if (this.getVelocityMagnitude().in(MetersPerSecond) < 0.25) {
+//         var diff = target.minus(this.getState().Pose).getTranslation();
+//         return (diff.getNorm() < 0.01) ? target.getRotation() : diff.getAngle();// .rotateBy(Rotation2d.k180deg);
+//     }
+//     return new Rotation2d(cs.vxMetersPerSecond, cs.vyMetersPerSecond);
+// }
+
+// // Credit to FRC3136 ORCA (Official Robot Constructors of Ashland)
+// private Command goToTargetPoseOrcaMethod(Pose2d targetPose) {
+//     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+//             new Pose2d(getState().Pose.getTranslation(),
+//                     getPathVelocityHeading(this.getState().Speeds, targetPose)),
+//             targetPose);
+
+//     if (waypoints.get(0).anchor().getDistance(waypoints.get(1).anchor()) < 0.01) {
+//         return Commands.print("Auto alignment too close to desired position to continue");
+//     }
+
+//     PathPlannerPath path = new PathPlannerPath(
+//             waypoints,
+//             Constants.PATHING.pathConstraints,
+//             new IdealStartingState(this.getVelocityMagnitude(), this.getState().Pose.getRotation()),
+//             new GoalEndState(0.0, targetPose.getRotation()));
+
+//     path.preventFlipping = true;
+
+//     return AutoBuilder.followPath(path);
+// }

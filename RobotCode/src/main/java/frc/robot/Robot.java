@@ -4,12 +4,19 @@
 
 package frc.robot;
 
+import au.grapplerobotics.CanBridge;
+import edu.wpi.first.epilogue.Epilogue;
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.hal.AllianceStationID;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+@Logged
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
 
@@ -17,11 +24,20 @@ public class Robot extends TimedRobot {
 
     public Robot() {
         m_robotContainer = new RobotContainer();
+        CanBridge.runTCP();
+
+        // Starts recording to data log
+        DataLogManager.start();
+        // Record both DS control and joystick data
+        DriverStation.startDataLog(DataLogManager.getLog());
+        Epilogue.bind(this);
     }
 
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+
+        SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
     }
 
     @Override
@@ -39,11 +55,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-        // if (m_autonomousCommand != null) {
-        //     m_autonomousCommand.schedule();
-        // }
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.schedule();
+        }
     }
 
     @Override

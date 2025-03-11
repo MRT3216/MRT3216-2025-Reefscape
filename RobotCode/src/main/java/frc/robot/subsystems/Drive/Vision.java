@@ -1,12 +1,9 @@
-package frc.robot.subsystems;
-
-// #region Imports
+package frc.robot.subsystems.Drive;
 
 import static edu.wpi.first.units.Units.Microseconds;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -28,9 +25,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -40,15 +35,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
-import frc.robot.settings.AllianceFlipUtil;
-import frc.robot.settings.Constants;
-import frc.robot.settings.Constants.BargeCage;
-import frc.robot.settings.Constants.BranchSide;
-import frc.robot.settings.Constants.CoralStationSide;
-import frc.robot.settings.Constants.ReefBranch;
 import frc.robot.settings.FieldConstants;
-
-// #endregion
 
 /**
  * Example PhotonVision class to aid in the pursuit of accurate odometry. Taken from
@@ -59,15 +46,11 @@ public class Vision {
      * Photon Vision Simulation
      */
     public VisionSystemSim visionSim;
+
     /**
      * Current pose from the pose estimator using wheel odometry.
      */
     private Supplier<Pose2d> currentPose;
-
-    /**
-     * Field from {@link swervelib.SwerveDrive#field}
-     */
-    private Field2d field2d;
 
     /**
      * Constructor for the Vision class.
@@ -75,9 +58,8 @@ public class Vision {
      * @param currentPose Current pose supplier, should reference {@link SwerveDrive#getPose()}
      * @param field       Current field, should be {@link SwerveDrive#field}
      */
-    public Vision(Supplier<Pose2d> currentPose, Field2d field) {
+    public Vision(Supplier<Pose2d> currentPose) {
         this.currentPose = currentPose;
-        this.field2d = field;
 
         if (Robot.isSimulation()) {
             visionSim = new VisionSystemSim("Vision");
@@ -87,73 +69,6 @@ public class Vision {
                 c.addToVisionSim(visionSim);
             }
         }
-    }
-
-    /**
-     * Calculates a target pose relative to an AprilTag on the field.
-     *
-     * @param aprilTag    The ID of the AprilTag.
-     * @param robotOffset The offset {@link Transform2d} of the robot to apply to the pose for the robot to position
-     *                    itself correctly.
-     * @return The target pose of the AprilTag.
-     */
-    public static Pose2d getAprilTagPoseFromFieldMap(int aprilTagID, Transform2d robotOffset) {
-        Optional<Pose3d> aprilTagPose3d = FieldConstants.fieldLayout.getTagPose(aprilTagID);
-        if (aprilTagPose3d.isPresent()) {
-            return aprilTagPose3d.get().toPose2d().transformBy(robotOffset);
-        } else {
-            throw new RuntimeException(
-                    "Cannot get AprilTag " + aprilTagID + " from field " + FieldConstants.fieldLayout.toString());
-        }
-    }
-
-    public Pose2d getNearestReefFaceInitial(BranchSide side) {
-        return getNearestReefFace().transformBy(Constants.FIELD_OFFSETS.getReefOffsetPoseInitial(side));
-    }
-
-    public Pose2d getNearestReefFace() {
-        // Alliance flip the robot pose, find the nearest blue side reef, then reflip
-        Pose2d pose = AllianceFlipUtil.apply(currentPose.get())
-                .nearest(Arrays.asList(FieldConstants.Reef.centerFaces));
-        return AllianceFlipUtil.apply(pose);
-    }
-
-    public Pose2d getProcessorPose() {
-        // Alliance flip the pose
-        return AllianceFlipUtil.apply(
-                FieldConstants.Processor.centerFace.transformBy(Constants.FIELD_OFFSETS.processorOffset));
-    }
-
-    public Pose2d getBargePose(BargeCage cage) {
-        Translation2d bargeTranslation = new Translation2d();
-
-        switch (cage) {
-            case farCage:
-                bargeTranslation = FieldConstants.Barge.farCage;
-                break;
-            case middleCage:
-                bargeTranslation = FieldConstants.Barge.middleCage;
-                break;
-            case closeCage:
-                bargeTranslation = FieldConstants.Barge.closeCage;
-        }
-
-        // Alliance flip the pose
-        return AllianceFlipUtil.apply(
-                new Pose2d(bargeTranslation, Rotation2d.fromDegrees(0))
-                        .transformBy(Constants.FIELD_OFFSETS.cageOffset));
-    }
-
-    public Pose2d getCoralStationPose(CoralStationSide side) {
-        return AllianceFlipUtil.apply(
-                side.equals(CoralStationSide.LEFT) ? FieldConstants.CoralStation.leftCenterFace
-                        : FieldConstants.CoralStation.rightCenterFace)
-                .transformBy(Constants.FIELD_OFFSETS.coralStationOffsetPose);
-    }
-
-    public Pose2d getReefPolePose(ReefBranch reefBranch) {
-        return AllianceFlipUtil.apply(FieldConstants.Reef.centerFaces[reefBranch.getReefSide().getValue()]
-                .transformBy(Constants.FIELD_OFFSETS.getReefOffsetPoseInitial(reefBranch.getBranchSide())));
     }
 
     /**
@@ -227,10 +142,6 @@ public class Vision {
         return tag.map(pose3d -> PhotonUtils.getDistanceToPose(currentPose.get(), pose3d.toPose2d())).orElse(-1.0);
     }
 
-    public double getDistanceFromRobotPose(Pose2d pose) {
-        return PhotonUtils.getDistanceToPose(currentPose.get(), pose);
-    }
-
     /**
      * Get tracked target from a camera of AprilTagID
      *
@@ -261,31 +172,6 @@ public class Vision {
     public VisionSystemSim getVisionSim() {
         return visionSim;
     }
-
-    /**
-    //  * Update the {@link Field2d} to include tracked targets/
-    //  */
-    // public void updateVisionField() {
-    //     List<PhotonTrackedTarget> targets = new ArrayList<PhotonTrackedTarget>();
-    //     for (Cameras c : Cameras.values()) {
-    //         if (!c.resultsList.isEmpty()) {
-    //             PhotonPipelineResult latest = c.resultsList.get(0);
-    //             if (latest.hasTargets()) {
-    //                 targets.addAll(latest.targets);
-    //             }
-    //         }
-    //     }
-
-    //     List<Pose2d> poses = new ArrayList<>();
-    //     for (PhotonTrackedTarget target : targets) {
-    //         if (FieldConstants.fieldLayout.getTagPose(target.getFiducialId()).isPresent()) {
-    //             Pose2d targetPose = FieldConstants.fieldLayout.getTagPose(target.getFiducialId()).get().toPose2d();
-    //             poses.add(targetPose);
-    //         }
-    //     }
-
-    //     field2d.getObject("tracked targets").setPoses(poses);
-    // }
 
     /**
      * Camera Enum to select each camera
@@ -542,9 +428,9 @@ public class Vision {
             estimatedRobotPose = visionEst;
         }
 
-        public void addHeadingData(Rotation2d heading) {
-            poseEstimator.addHeadingData(Microseconds.of(NetworkTablesJNI.now()).in(Seconds), heading);
-        }
+        // public void addHeadingData(Rotation2d heading) {
+        //     poseEstimator.addHeadingData(Microseconds.of(NetworkTablesJNI.now()).in(Seconds), heading);
+        // }
 
         /**
          * Calculates new standard deviations This algorithm is a heuristic that creates dynamic standard deviations based

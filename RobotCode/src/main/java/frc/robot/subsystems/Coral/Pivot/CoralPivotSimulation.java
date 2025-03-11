@@ -1,6 +1,5 @@
-package frc.robot.subsystems.Coral;
+package frc.robot.subsystems.Coral.Pivot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
@@ -15,10 +14,11 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.settings.Constants.CORAL;
 import frc.robot.settings.Constants.CORAL.PIVOT;
 import frc.robot.settings.Constants.SIMULATION;
-import frc.robot.subsystems.BatterySim.BatterySimSubsystem;
-import frc.robot.subsystems.MechanismVisualization.MechanismVisualizationSubsystem;
+import frc.robot.subsystems.Sim.BatterySim.BatterySimSubsystem;
+import frc.robot.subsystems.Sim.MechanismVisualization.MechanismVisualizationSubsystem;
 
 public class CoralPivotSimulation {
     private BatterySimSubsystem m_simBattery;
@@ -39,15 +39,15 @@ public class CoralPivotSimulation {
                 PIVOT.kPivotGearing,
                 PIVOT.kMOI,
                 PIVOT.kPivotArmLength.in(Meters),
-                PIVOT.kMinPivotAngle.in(Radians),
-                PIVOT.kMaxPivotAngle.in(Radians),
+                PIVOT.kSoftReverseLimit.in(Radians),
+                PIVOT.kSoftForwardLimit.in(Radians),
                 true,
-                PIVOT.kStartingAngle.in(Degrees));
+                CORAL.POSITIONS.STARTING.getAngle().in(Radians));
 
         this.realMotorController = motorController;
         this.simMotorController = new SparkFlexSim(realMotorController, pivotGearbox);
         this.realEncoder = encoder;
-        this.simEncoder = new SparkAbsoluteEncoderSim(realMotorController);
+        this.simEncoder = simMotorController.getAbsoluteEncoderSim();//new SparkAbsoluteEncoderSim(realMotorController);
         this.m_simBattery = BatterySimSubsystem.getInstance();
 
         MechanismVisualizationSubsystem.getInstance()
