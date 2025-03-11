@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Algae.Rollers;
 
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -10,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.settings.Constants.ALGAE;
 import frc.robot.settings.Constants.ALGAE.ROLLERS;
 import frc.robot.settings.RobotMap.ROBOT.ALGAE_SYSTEM.ROLLERS_MAP;
 
@@ -47,8 +49,10 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
         } else {
             isLastDirectionIntake = true;
             return this.startEnd(
-                    () -> setRollerSpeed(ROLLERS.intakeSpeed),
-                    () -> stopIntake()).until(hasAlgaeTrigger());
+                    () -> {
+                        setRollerSpeed(ROLLERS.intakeSpeed);
+                    },
+                    () -> hold()).until(hasAlgaeTrigger());
         }
     }
 
@@ -75,6 +79,11 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
         } else {
             return false;
         }
+    }
+
+    private void hold() {
+        VoltageOut voltageRequest = new VoltageOut(0);
+        motorController.setControl(voltageRequest.withOutput(ROLLERS.HOLD_ALGAE_INTAKE_VOLTAGE));
     }
 
     public Trigger hasAlgaeTrigger() {
