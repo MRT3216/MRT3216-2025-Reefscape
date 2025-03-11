@@ -38,8 +38,8 @@ public class AlgaePivotSimulation {
                 PIVOT.kPivotGearing,
                 PIVOT.kMOI,
                 PIVOT.kPivotArmLength.in(Meters),
-                PIVOT.kSoftReverseLimit.in(Radians) - 100,
-                PIVOT.kSoftForwardLimit.in(Radians) + 100,
+                PIVOT.kSoftReverseLimit.in(Radians) - 2,
+                PIVOT.kSoftForwardLimit.in(Radians) + 2,
                 true,
                 PIVOT.Positions.STARTING.getAngle().in(Radians));
 
@@ -68,5 +68,6 @@ public class AlgaePivotSimulation {
         simEncoder.setPosition(Units.radiansToRotations(armPivotSim.getAngleRads()));
         m_simBattery.addCurrent(armPivotSim.getCurrentDrawAmps());
         SmartDashboard.putNumber("Algae Pivot Sim Current Draw", armPivotSim.getCurrentDrawAmps());
+        SmartDashboard.putNumber("Algae Pivot Sim Angle", Units.radiansToDegrees(armPivotSim.getAngleRads()));
     }
 }

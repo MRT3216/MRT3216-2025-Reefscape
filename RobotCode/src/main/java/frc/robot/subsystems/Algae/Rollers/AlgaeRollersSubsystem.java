@@ -1,6 +1,5 @@
 package frc.robot.subsystems.Algae.Rollers;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -23,15 +22,14 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
         motorController = new TalonFX(ROLLERS_MAP.motorCANID);
 
         TalonFXConfigurator motorConfigurator = motorController.getConfigurator();
-        TalonFXConfiguration motorConfiguration = ROLLERS.motorConfiguration;
-        motorConfigurator.apply(motorConfiguration);
+        motorConfigurator.apply(ROLLERS.motorConfiguration);
 
         if (RobotBase.isSimulation()) {
             this.rollerSimContainer = new AlgaeRollersSimulation(motorController);
         }
     }
 
-    private void setIntakeSpeed(double speed) {
+    private void setRollerSpeed(double speed) {
         motorController.set(speed);
     }
 
@@ -44,19 +42,19 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
         if (isLastDirectionIntake) {
             isLastDirectionIntake = false;
             return this.startEnd(
-                    () -> setIntakeSpeed(ROLLERS.outtakeSpeed),
+                    () -> setRollerSpeed(ROLLERS.outtakeSpeed),
                     () -> stopIntake());
         } else {
             isLastDirectionIntake = true;
             return this.startEnd(
-                    () -> setIntakeSpeed(ROLLERS.intakeSpeed),
-                    () -> stopIntake());
+                    () -> setRollerSpeed(ROLLERS.intakeSpeed),
+                    () -> stopIntake()).until(hasAlgaeTrigger());
         }
     }
 
     public Command runRollers(double speed) {
         return this.startEnd(
-                () -> setIntakeSpeed(speed),
+                () -> setRollerSpeed(speed),
                 () -> stopIntake());
     }
 
@@ -70,9 +68,9 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
         Current intakeHasGamePieceCurrent = ROLLERS.HAS_ALGAE_CURRENT;
         AngularVelocity intakeHasGamePieceVelocity = ROLLERS.HAS_ALGAE_VELOCITY;
 
-        if ((intakeCurrent.gte(intakeHasGamePieceCurrent))
-                && (intakeVelocity.lte(intakeHasGamePieceVelocity))
-                && (intakeAcceleration < 0)) {
+        if (intakeCurrent.gte(intakeHasGamePieceCurrent)
+                && intakeVelocity.lte(intakeHasGamePieceVelocity)
+                && intakeAcceleration < 0) {
             return true;
         } else {
             return false;
@@ -84,7 +82,8 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
     }
 
     public void periodic() {
-
+        SmartDashboard.putNumber("Algae Roller Speed", motorController.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Algae Roller Current", motorController.getStatorCurrent().getValueAsDouble());
     }
 
     @Override

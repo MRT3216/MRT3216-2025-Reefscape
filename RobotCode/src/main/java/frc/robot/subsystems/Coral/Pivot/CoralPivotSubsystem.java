@@ -87,8 +87,8 @@ public class CoralPivotSubsystem extends SubsystemBase {
         pIDController.setTolerance(PIVOT.kMaxPivotError.in(Rotations));
         // Set the inital position so that when enabled the controler
         // matches the initial position
-        //pIDController.reset(CORAL.POSITIONS.STARTING.getAngle().in(Rotations));
         pIDController.reset(getPivotAngle().in(Rotations));
+
         if (RobotBase.isSimulation()) {
             this.simContainer = new CoralPivotSimulation(encoder, motorController);
         }

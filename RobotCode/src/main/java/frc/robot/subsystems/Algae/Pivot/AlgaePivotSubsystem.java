@@ -35,7 +35,6 @@ import frc.robot.settings.RobotMap.ROBOT.ALGAE_SYSTEM.PIVOT_MAP;
 public class AlgaePivotSubsystem extends SubsystemBase {
     private final SparkFlex motorController;
     private AbsoluteEncoder absoluteEncoder;
-    private RelativeEncoder motorEncoder;
     private ProfiledPIDController pIDController;
     private ArmFeedforward feedforward;
     private boolean enabled = false;
@@ -58,10 +57,6 @@ public class AlgaePivotSubsystem extends SubsystemBase {
         encoderConfig.zeroCentered(true);
         motorControllerConfig.apply(encoderConfig);
 
-        motorEncoder = motorController.getEncoder();
-        EncoderConfig motorEncoderConfig = new EncoderConfig();
-        motorControllerConfig.apply(motorEncoderConfig);
-
         SoftLimitConfig softLimitConfig = new SoftLimitConfig();
         softLimitConfig
                 // Soft limits use the internal motor encoder rather than the attached
@@ -76,7 +71,7 @@ public class AlgaePivotSubsystem extends SubsystemBase {
                 PersistMode.kPersistParameters);
 
         // Set the motor's internal encoder to the absolute position
-        motorEncoder.setPosition(absoluteEncoder.getPosition() * PIVOT.kPivotGearing);
+        motorController.getEncoder().setPosition(absoluteEncoder.getPosition() * PIVOT.kPivotGearing);
 
         pIDController = new ProfiledPIDController(
                 PIVOT.kPivotKp,

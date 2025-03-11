@@ -27,10 +27,12 @@ public class CoralCommands {
     public static Command moveElevatorAndPivotToHeightCommand(ElevatorSubsystem elevator, CoralPivotSubsystem pivot,
             Supplier<POSITIONS> position) {
         return Commands.defer(() -> (elevator.moveElevatorToHeight(position.get().getHeight())
-                .alongWith(pivot.movePivotToAngle(position.get().getAngle()))), Set.of(elevator, pivot));
+                .andThen(pivot.movePivotToAngle(position.get().getAngle()))), Set.of(elevator, pivot));
     }
 
-    public Command scoreCoral(ElevatorSubsystem elevator, CoralPivotSubsystem pivot, CoralEndEffectorSubsystem endEffector){
-        return endEffector.outtakeCoralCommand().andThen(moveElevatorAndPivotToHeightCommand(elevator, pivot, ()->POSITIONS.STOW));
+    public Command scoreCoral(ElevatorSubsystem elevator, CoralPivotSubsystem pivot,
+            CoralEndEffectorSubsystem endEffector) {
+        return endEffector.outtakeCoralCommand()
+                .andThen(moveElevatorAndPivotToHeightCommand(elevator, pivot, () -> POSITIONS.STOW));
     }
 }

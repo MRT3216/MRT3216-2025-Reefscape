@@ -123,7 +123,7 @@ public final class Constants {
             // TODO: decide if we need starting and stow and set angles
             STARTING(Meters.of(0), Degrees.of(50)),
             STOW(Meters.of(0), Degrees.of(50)),
-            SCORE_PREP(Meters.of(0.2), Degrees.of(45)),
+            SCORE_PREP(Meters.of(0.3), Degrees.of(-60)),
             CORAL_STATION(Meters.of(0.34), Degrees.of(20)),
             L1(Meters.of(0.4), Degrees.of(0)),
             L2(Meters.of(0.61), Degrees.of(-32)),

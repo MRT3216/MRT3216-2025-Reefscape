@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -15,13 +18,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.ComboCommands;
 import frc.robot.commands.CoralCommands;
-import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
-import frc.robot.settings.Constants.BranchSide;
 import frc.robot.settings.Constants.CLIMBER;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
-import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.Algae.Pivot.AlgaePivotSubsystem;
 import frc.robot.subsystems.Algae.Rollers.AlgaeRollersSubsystem;
@@ -90,7 +90,7 @@ public class RobotContainer {
                                                 * (drivetrain.isSlowMode().getAsBoolean()
                                                         || elevator.aboveHeight().getAsBoolean()
                                                                 ? 0.1
-                                                                : 1.0)) // Drive forward with negative Y (forward)
+                                                                : 0.8)) // Drive forward with negative Y (forward)
                                 .withVelocityY(
                                         -driverController
                                                 .getLeftX()
@@ -98,7 +98,7 @@ public class RobotContainer {
                                                 * (drivetrain.isSlowMode().getAsBoolean()
                                                         || elevator.aboveHeight().getAsBoolean()
                                                                 ? 0.1
-                                                                : 1.0)) // Drive left with negative X (left)
+                                                                : 0.8)) // Drive left with negative X (left)
                                 .withRotationalRate(
                                         -driverController
                                                 .getRightX()
@@ -106,24 +106,25 @@ public class RobotContainer {
                                                 * (drivetrain.isSlowMode().getAsBoolean()
                                                         || elevator.aboveHeight().getAsBoolean()
                                                                 ? 0.3
-                                                                : 1.0)) // Drive counterclockwise with negative X (left)
+                                                                : 0.8)) // Drive counterclockwise with negative X (left)
                 ));
 
-        driverController.a().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT));
-        driverController.b().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
-        driverController.x().onTrue(comboCommands.scoreCoral());
-        driverController.y().whileTrue(DriveCommands.driveToProcessor(drivetrain));
-        driverController.leftTrigger()
-                .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.LEFT));
-        driverController.rightTrigger().whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.RIGHT));
-        driverController.leftBumper().onTrue(algaePivot.togglePivotPosition());
-        driverController.rightBumper().whileTrue(algaeRollers.runRollerCommand());
+        // driverController.a().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT));
+        // driverController.b().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
+        // driverController.x().onTrue(comboCommands.scoreCoral());
+        // driverController.y().whileTrue(DriveCommands.driveToProcessor(drivetrain));
+        // driverController.leftTrigger()
+        //         .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.LEFT));
+        // driverController.rightTrigger()
+        //         .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.RIGHT));
+        // driverController.leftBumper().onTrue(algaePivot.togglePivotPosition());
+        // driverController.rightBumper().whileTrue(algaeRollers.runRollerCommand());
         // Reset the field-centric heading on start press
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         driverController.rightStick().onTrue(drivetrain.toggleSlowMode());
-        driverController.leftStick().onTrue(
-                CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.STOW));
+        // driverController.leftStick().onTrue(
+        //         CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.STOW));
 
         // TODO: Use this method to aim wheels for climb
         // driverController.b().whileTrue(drivetrain.applyRequest(
@@ -141,6 +142,16 @@ public class RobotContainer {
         // driverController.start().and(driverController.x())
         //         .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
+        // driverController.povUp()
+        //         .onTrue(coralPivot.movePivotToAngle(POSITIONS.L4.getAngle()));
+        // driverController.povLeft()
+        //         .onTrue(coralPivot.movePivotToAngle(POSITIONS.L3.getAngle()));
+        // driverController.povRight()
+        //         .onTrue(coralPivot.movePivotToAngle(POSITIONS.L2.getAngle()));
+        // driverController.povDown()
+        //         .onTrue(coralPivot.movePivotToAngle(POSITIONS.CORAL_STATION.getAngle()));
+
+        
         driverController.povUp()
                 .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
                         () -> POSITIONS.L4));
@@ -152,18 +163,24 @@ public class RobotContainer {
                         () -> POSITIONS.L2));
         driverController.povDown()
                 .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
-                        () -> POSITIONS.L1));
+                        () -> POSITIONS.CORAL_STATION));
         driverController.back()
                 .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
                         () -> POSITIONS.SCORE_PREP));
 
-        // driverController.leftBumper().onTrue(coralPivot.adjustPivotAngle(Degrees.of(-1)));
-        // driverController.rightBumper().onTrue(coralPivot.adjustPivotAngle(Degrees.of(1)));
+        driverController.leftBumper().onTrue(coralPivot.adjustPivotAngle(Degrees.of(-1)));
+        driverController.rightBumper().onTrue(coralPivot.adjustPivotAngle(Degrees.of(1)));
+        // driverController.leftBumper().onTrue(algaePivot.adjustPivotAngle(Degrees.of(-1)));
+        // driverController.rightBumper().onTrue(algaePivot.adjustPivotAngle(Degrees.of(1)));
 
-        // driverController.leftTrigger().onTrue(elevator.adjustElevatorHeight(Inches.of(-0.5)));
-        // driverController.rightTrigger().onTrue(elevator.adjustElevatorHeight(Inches.of(0.5)));
+        driverController.leftTrigger().onTrue(elevator.adjustElevatorHeight(Inches.of(-0.5)));
+        driverController.rightTrigger().onTrue(elevator.adjustElevatorHeight(Inches.of(0.5)));
+        // driverController.leftTrigger().whileTrue(climber.runClimber(-0.3));
+        // driverController.rightTrigger().whileTrue(climber.runClimber(0.3));
 
-        // driverController.a().whileTrue(coralEndEffector.runEndEffector());
+        driverController.a().onTrue(coralEndEffector.runEndEffectorCommand());
+        driverController.b().onTrue(algaePivot.togglePivotPosition());
+        driverController.y().onTrue(algaeRollers.runRollerCommand());
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

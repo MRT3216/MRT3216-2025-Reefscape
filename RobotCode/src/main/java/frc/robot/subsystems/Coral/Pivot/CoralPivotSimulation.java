@@ -47,7 +47,7 @@ public class CoralPivotSimulation {
         this.realMotorController = motorController;
         this.simMotorController = new SparkFlexSim(realMotorController, pivotGearbox);
         this.realEncoder = encoder;
-        this.simEncoder = new SparkAbsoluteEncoderSim(realMotorController);
+        this.simEncoder = simMotorController.getAbsoluteEncoderSim();//new SparkAbsoluteEncoderSim(realMotorController);
         this.m_simBattery = BatterySimSubsystem.getInstance();
 
         MechanismVisualizationSubsystem.getInstance()

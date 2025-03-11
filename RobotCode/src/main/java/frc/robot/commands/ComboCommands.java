@@ -46,11 +46,11 @@ public class ComboCommands {
     public void configureBindings() {
         // #region Triggers
 
-        DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.LEFT, drivetrain.getRobotPose())
-                .onTrue(CoralCommands.intakeCoralFromStationCommand(elevator, coralPivot, coralEndEffector));
+        // DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.LEFT, drivetrain.getRobotPose())
+        //         .onTrue(CoralCommands.intakeCoralFromStationCommand(elevator, coralPivot, coralEndEffector));
 
-        DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.RIGHT, drivetrain.getRobotPose())
-                .onTrue(CoralCommands.intakeCoralFromStationCommand(elevator, coralPivot, coralEndEffector));
+        // DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.RIGHT, drivetrain.getRobotPose())
+        //         .onTrue(CoralCommands.intakeCoralFromStationCommand(elevator, coralPivot, coralEndEffector));
 
         // #endregion
     }
@@ -88,6 +88,7 @@ public class ComboCommands {
     public Command driveToNearestReefThenAlignAndScorePrep(Supplier<BranchSide> side) {
         Supplier<Pose2d> reefPose = () -> FieldPoses.getNearestReefFaceInitial(side.get(), drivetrain.getRobotPose());
         Supplier<POSITIONS> position = elevator.getSelectedPosition();
+        System.out.println("Position: " + position.get());
         return drivetrain.defer(() -> this.driveToReefPoseThenAlignAndScorePrep(reefPose, position));
     }
 

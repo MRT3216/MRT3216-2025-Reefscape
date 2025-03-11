@@ -45,7 +45,7 @@ public class DriveCommands {
     public static Trigger readyToPrepElevatorForCoralStation(Supplier<CoralStationSide> side,
             Supplier<Pose2d> robotPoseSupplier) {
         return new Trigger(
-            () -> (FieldPoses.getDistanceFromRobotPose(FieldPoses.getCoralStationPose(side.get()),
-                robotPoseSupplier) < FIELD_OFFSETS.elevatorPrepCoralStationDistance.in(Meters)));
+                () -> (FieldPoses.getDistanceFromRobotPose(FieldPoses.getCoralStationPose(side.get()),
+                        robotPoseSupplier) < FIELD_OFFSETS.elevatorPrepCoralStationDistance.in(Meters)));
     }
 }
