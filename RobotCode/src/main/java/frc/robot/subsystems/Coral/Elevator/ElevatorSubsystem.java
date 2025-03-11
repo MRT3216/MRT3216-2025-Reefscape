@@ -183,7 +183,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return this.run(() -> {
             this.enable();
             setElevatorHeightGoal(height);
-        }).until(this.atGoal()).andThen(Commands.runOnce(() -> applyFeedforward()));
+        }).until(this.atGoal());
     }
 
     public Command adjustElevatorHeight(Distance heightAdjustment) {
@@ -215,14 +215,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public String currentLevel() {
         return currentPosition.toString();
-    }
-
-    private void applyFeedforward(){
-        this.run(() -> {
-            double feedForward = elevatorFeedForward.calculateWithVelocities(
-            getVelocity().in(MetersPerSecond), pIDController.getSetpoint().velocity);
-            leadMotorController.setVoltage(feedForward);
-        });
     }
     
     // #endregion
