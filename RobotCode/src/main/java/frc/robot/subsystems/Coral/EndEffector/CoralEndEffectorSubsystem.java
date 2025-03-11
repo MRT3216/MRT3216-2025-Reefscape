@@ -66,10 +66,9 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
     }
 
     public Command outtakeCoralCommand() {
-        return this.startEnd(
-                () -> runAtSpeed(END_EFFECTOR.outtakeSpeed),
-                () -> stopIntake())
-                .until(noCoral());
+        return this.run(
+                () -> runAtSpeed(END_EFFECTOR.outtakeSpeed)).withTimeout(1)
+                .andThen(() -> stopIntake());
     }
 
     public Trigger hasCoral() {
