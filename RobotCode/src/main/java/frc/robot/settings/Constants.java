@@ -1,5 +1,14 @@
 package frc.robot.settings;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.PathConstraints;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.util.Units;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
@@ -13,16 +22,6 @@ import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
-
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.path.PathConstraints;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -288,7 +287,7 @@ public final class Constants {
             public static final double kPivotKi = 0;
             public static final double kPivotKd = 0;
 
-            // TODO: Need to get these values from recal 
+            // TODO: Need to get these values from recalc
             public static final double kPivotkS = 0; // volts (V)
             public static final double kPivotkG = 0.1; // volts (V)
             public static final double kPivotkV = 3; // volts * seconds / radians
