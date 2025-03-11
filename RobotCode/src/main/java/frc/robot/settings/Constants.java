@@ -123,12 +123,12 @@ public final class Constants {
             // TODO: decide if we need starting and stow and set angles
             STARTING(Meters.of(0), Degrees.of(50)),
             STOW(Meters.of(0), Degrees.of(50)),
-            SCORE_PREP(Meters.of(0.2), Degrees.of(-50)),
-            CORAL_STATION(Meters.of(1), Degrees.of(30)),
+            SCORE_PREP(Meters.of(0.2), Degrees.of(45)),
+            CORAL_STATION(Meters.of(0.34), Degrees.of(20)),
             L1(Meters.of(0.4), Degrees.of(0)),
-            L2(Meters.of(0.8), Degrees.of(-15)),
-            L3(Meters.of(1.2), Degrees.of(-30)),
-            L4(Meters.of(1.6), Degrees.of(-45));
+            L2(Meters.of(0.61), Degrees.of(-32)),
+            L3(Meters.of(1.02), Degrees.of(-32)),
+            L4(Meters.of(1.75), Degrees.of(-31));
 
             private Distance height;
             private Angle angle;
@@ -214,7 +214,7 @@ public final class Constants {
 
             // TODO: Need to get these values from recalc 
             public static final double kPivotkS = 0; // volts (V)
-            public static final double kPivotkG = 0.2; // volts (V)
+            public static final double kPivotkG = 0.3; // volts (V)
             public static final double kPivotkV = 2.39;//3; // volts * seconds / radians
             public static final double kPivotkA = 0.12; // volts * seconds^2 / radians
 
@@ -246,7 +246,7 @@ public final class Constants {
         public static final class PIVOT {
             public enum Positions {
                 INTAKING(Degrees.of(15)),
-                STOW_SCORING(Degrees.of(80)),
+                STOW_SCORING(Degrees.of(90)),
                 STARTING(Degrees.of(90));
 
                 private Angle angle;
@@ -260,7 +260,7 @@ public final class Constants {
                 }
             }
 
-            public static final boolean kMotorInverted = false;
+            public static final boolean kMotorInverted = true;
             public static final int kMotorCurrentLimit = 60;
             public static final int kVoltageCompensation = 10;
             public static final Angle kMaxPivotError = Degree.of(1.0); // Degrees
@@ -301,20 +301,17 @@ public final class Constants {
         }
 
         public static final class ROLLERS {
-            public static final Current HAS_ALGAE_CURRENT = Amps.of(15);
+            public static final Current HAS_ALGAE_CURRENT = Amps.of(12);
             public static final double HOLD_ALGAE_INTAKE_VOLTAGE = 1;
-            public static final AngularVelocity HAS_ALGAE_VELOCITY = RotationsPerSecond.of(2102 / 60);
-            public static final boolean kMotorInverted = false;
-            public static final int kMotorCurrentLimit = 40;
-            public static final int kVoltageCompensation = 10;
-            public static final double intakeSpeed = 0.3;
-            public static final double outtakeSpeed = -0.3;
+            public static final AngularVelocity HAS_ALGAE_VELOCITY = RotationsPerSecond.of(75);
+            public static final double intakeSpeed = 0.7;
+            public static final double outtakeSpeed = -0.7;
 
             // TODO: Need to finish this configuration
             public static final TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
             static {
                 motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-                motorConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+                motorConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
                 motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
                 motorConfiguration.CurrentLimits.SupplyCurrentLowerLimit = 30;
