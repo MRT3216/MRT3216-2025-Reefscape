@@ -43,12 +43,12 @@ public class MechanismVisualizationSubsystem extends SubsystemBase {
     // #endregion
 
     private MechanismVisualizationSubsystem() {
-        this.m_mech2d = new Mechanism2d(250, 250, new Color8Bit(255, 255, 255));
-        this.elevatorMech2dRoot = m_mech2d.getRoot("Elevator Root", 100, 50);
+        this.m_mech2d = new Mechanism2d(120, 120, new Color8Bit(255, 255, 255));
+        this.elevatorMech2dRoot = m_mech2d.getRoot("Elevator Root", 70, 10);
         this.m_elevatorMech2d = elevatorMech2dRoot
                 .append(new MechanismLigament2d("Elevator", 0.5, 90));
 
-        MechanismRoot2d secondaryRoot2d = m_mech2d.getRoot("Riser Root", 120, 50);
+        MechanismRoot2d secondaryRoot2d = m_mech2d.getRoot("Riser Root", 90, 10);
         secondaryRoot2d.append(new MechanismLigament2d("Elevator Riser",
                 ELEVATOR.kMaxHeight.in(Meters) * SIMULATION.kVisualizationPixelMultiplier,
                 90,
@@ -64,7 +64,7 @@ public class MechanismVisualizationSubsystem extends SubsystemBase {
                         10,
                         new Color8Bit(Color.kPurple)));
 
-        this.algaePivotMech2dRoot = m_mech2d.getRoot("Algae Pivot Root", 50, 50);
+        this.algaePivotMech2dRoot = m_mech2d.getRoot("Algae Pivot Root", 20, 10);
         this.algaePivotMech2d = this.algaePivotMech2dRoot.append(
                 new MechanismLigament2d("Algae Pivot",
                         ALGAE.PIVOT.kPivotArmLength.in(Meters)
