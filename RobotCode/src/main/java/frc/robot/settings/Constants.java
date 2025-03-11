@@ -121,7 +121,6 @@ public final class Constants {
     public static final class CORAL {
         public enum POSITIONS {
             // TODO: decide if we need starting and stow and set angles
-            STARTING(Meters.of(0), Degrees.of(50)),
             STOW(Meters.of(0), Degrees.of(50)),
             SCORE_PREP(Meters.of(0.3), Degrees.of(-60)),
             CORAL_STATION(Meters.of(0.34), Degrees.of(20)),
@@ -148,6 +147,7 @@ public final class Constants {
         }
 
         public static final class ELEVATOR {
+            public static final double slowModeHeight = 0.32;
             public static final boolean kLeadMotorInverted = true;
             public static final int kMotorCurrentLimit = 60;
             public static final int kVoltageCompensation = 10;
