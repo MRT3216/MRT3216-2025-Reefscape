@@ -44,7 +44,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /**
      * PhotonVision class to keep an accurate odometry.
      */
-    public Vision vision;
+    // TODO: Uncomment this line when PhotonVision is implemented
+    // public Vision vision;
 
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
@@ -293,7 +294,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     * Setup the photon vision class.
     */
     private void setupPhotonVision() {
-        vision = new Vision(() -> getState().Pose);
+        // TODO: Uncomment this line when PhotonVision is implemented
+        //vision = new Vision(() -> getState().Pose);
     }
 
     @Override
@@ -314,7 +316,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-        vision.updatePoseEstimation(this);
+        // TODO: Uncomment this line when PhotonVision is implemented
+        // vision.updatePoseEstimation(this);
 
         SmartDashboard.putBoolean("Slow Mode", slowMode);
         SmartDashboard.putBoolean("Close to Coral Station",
