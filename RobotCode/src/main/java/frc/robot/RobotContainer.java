@@ -69,7 +69,7 @@ public class RobotContainer {
     }
 
     private void configureAutos() {
-            // TODO: Uncomment this line when PhotonVision is implemented
+        // TODO: Uncomment this line when PhotonVision is implemented
         // autoChooser.addOption("Left 3P", AutoCommands.getLeft3PAuto(comboCommands));
         // autoChooser.addOption("Center 1P", AutoCommands.getCenter1PAuto(comboCommands));
         // autoChooser.addOption("Right 3P", AutoCommands.getRight3PAuto(comboCommands));
@@ -110,78 +110,56 @@ public class RobotContainer {
                                                                 : 0.8)) // Drive counterclockwise with negative X (left)
                 ));
 
-        // driverController.a().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT));
-        // driverController.b().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
-        // driverController.x().onTrue(comboCommands.scoreCoral());
-        // driverController.y().whileTrue(DriveCommands.driveToProcessor(drivetrain));
-        // driverController.leftTrigger()
-        //         .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.LEFT));
-        // driverController.rightTrigger()
-        //         .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.RIGHT));
-        // driverController.leftBumper().onTrue(algaePivot.togglePivotPosition());
-        // driverController.rightBumper().whileTrue(algaeRollers.runRollerCommand());
+        driverController.a().onTrue(comboCommands.scoreCoral());
+        driverController.b().onTrue(comboCommands.intakeCoralFromStationCommand());
+
+        driverController.rightTrigger().onTrue(
+                CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
+                        coralPivot, elevator.getSelectedPosition()));
+        driverController.leftBumper().onTrue(algaePivot.togglePivotPosition());
+        driverController.rightBumper().onTrue(algaeRollers.runRollerCommand());
+
         // Reset the field-centric heading on start press
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
+        driverController.leftStick().onTrue(
+            CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.STOW));
         driverController.rightStick().onTrue(drivetrain.toggleSlowMode());
-        // driverController.leftStick().onTrue(
-        //         CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.STOW));
+
+        // #region Testing
 
         // TODO: Use this method to aim wheels for climb
         // driverController.b().whileTrue(drivetrain.applyRequest(
         //         () -> point.withModuleDirection(
         //                 new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
 
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        // driverController.back().and(driverController.y())
-        //         .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        // driverController.back().and(driverController.x())
-        //         .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        // driverController.start().and(driverController.y())
-        //         .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        // driverController.start().and(driverController.x())
-        //         .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // driverController.povUp()
-        //         .onTrue(coralPivot.movePivotToAngle(POSITIONS.L4.getAngle()));
-        // driverController.povLeft()
-        //         .onTrue(coralPivot.movePivotToAngle(POSITIONS.L3.getAngle()));
-        // driverController.povRight()
-        //         .onTrue(coralPivot.movePivotToAngle(POSITIONS.L2.getAngle()));
-        // driverController.povDown()
-        //         .onTrue(coralPivot.movePivotToAngle(POSITIONS.CORAL_STATION.getAngle()));
-
-        
         driverController.povUp()
-                .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
+                .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator, coralPivot,
                         () -> POSITIONS.L4));
-        driverController.povRight()
-                .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
-                        () -> POSITIONS.L3));
-        driverController.povLeft()
-                .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
-                        () -> POSITIONS.L2));
-        driverController.povDown()
-                .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
-                        () -> POSITIONS.CORAL_STATION));
-        driverController.back()
-                .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
-                        () -> POSITIONS.SCORE_PREP));
+        // driverController.povRight()
+        //         .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
+        //                 () -> POSITIONS.L3));
+        // driverController.povLeft()
+        //         .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
+        //                 () -> POSITIONS.L2));
+        // driverController.povDown()
+        //         .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
+        //                 () -> POSITIONS.CORAL_STATION));
+        // driverController.back()
+        //         .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
+        //                 () -> POSITIONS.SCORE_PREP));
 
-        driverController.leftBumper().onTrue(coralPivot.adjustPivotAngle(Degrees.of(-1)));
-        driverController.rightBumper().onTrue(coralPivot.adjustPivotAngle(Degrees.of(1)));
+        // driverController.leftBumper().onTrue(coralPivot.adjustPivotAngle(Degrees.of(-1)));
+        // driverController.rightBumper().onTrue(coralPivot.adjustPivotAngle(Degrees.of(1)));
         // driverController.leftBumper().onTrue(algaePivot.adjustPivotAngle(Degrees.of(-1)));
         // driverController.rightBumper().onTrue(algaePivot.adjustPivotAngle(Degrees.of(1)));
 
-        driverController.leftTrigger().onTrue(elevator.adjustElevatorHeight(Inches.of(-0.5)));
-        driverController.rightTrigger().onTrue(elevator.adjustElevatorHeight(Inches.of(0.5)));
+        // driverController.leftTrigger().onTrue(elevator.adjustElevatorHeight(Inches.of(-0.5)));
+        // driverController.rightTrigger().onTrue(elevator.adjustElevatorHeight(Inches.of(0.5)));
         // driverController.leftTrigger().whileTrue(climber.runClimber(-0.3));
         // driverController.rightTrigger().whileTrue(climber.runClimber(0.3));
 
-        driverController.a().onTrue(coralEndEffector.runEndEffectorCommand());
-        driverController.b().onTrue(algaePivot.togglePivotPosition());
-        driverController.y().onTrue(algaeRollers.runRollerCommand());
+        // #endregion
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
@@ -191,15 +169,18 @@ public class RobotContainer {
         operatorController.b().onTrue(elevator.setTargetPos(POSITIONS.L2));
         operatorController.x().onTrue(elevator.setTargetPos(POSITIONS.L3));
         operatorController.y().onTrue(elevator.setTargetPos(POSITIONS.L4));
-        operatorController.start().onTrue(elevator.moveToPosition());
+        operatorController.start().onTrue(
+                CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
+                        coralPivot, elevator.getSelectedPosition()));
+
+        operatorController.leftStick().onTrue(
+                CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.STOW));
 
         operatorController.leftTrigger().whileTrue(climber.runClimber(-CLIMBER.speed));
-        operatorController.leftTrigger().whileTrue(climber.runClimber(CLIMBER.speed));
+        operatorController.rightTrigger().whileTrue(climber.runClimber(CLIMBER.speed));
 
         operatorController.leftBumper().onTrue(coralEndEffector.intakeCoralCommand());
         operatorController.rightBumper().onTrue(coralEndEffector.outtakeCoralCommand());
-
-        //operatorController.povUp().onTrue();
     }
 
     /**
