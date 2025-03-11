@@ -69,10 +69,11 @@ public class RobotContainer {
     }
 
     private void configureAutos() {
-        autoChooser.addOption("Left 3P", AutoCommands.getLeft3PAuto(comboCommands));
-        autoChooser.addOption("Center 1P", AutoCommands.getCenter1PAuto(comboCommands));
-        autoChooser.addOption("Right 3P", AutoCommands.getRight3PAuto(comboCommands));
-
+            // TODO: Uncomment this line when PhotonVision is implemented
+        // autoChooser.addOption("Left 3P", AutoCommands.getLeft3PAuto(comboCommands));
+        // autoChooser.addOption("Center 1P", AutoCommands.getCenter1PAuto(comboCommands));
+        // autoChooser.addOption("Right 3P", AutoCommands.getRight3PAuto(comboCommands));
+        autoChooser.addOption("Drive Forward", AutoCommands.driveForward(drivetrain));
         SmartDashboard.putData("Auto Mode", autoChooser);
     }
 

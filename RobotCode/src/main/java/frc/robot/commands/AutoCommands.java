@@ -1,9 +1,12 @@
 package frc.robot.commands;
 
+import com.ctre.phoenix6.swerve.SwerveRequest;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.Constants.ReefBranch;
+import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 
 public class AutoCommands {
 
@@ -36,5 +39,10 @@ public class AutoCommands {
                 .andThen(comboCommands.driveAndAlignToReefBranchAndScorePrep(() -> ReefBranch.C, () -> POSITIONS.L4))
                 .andThen(comboCommands.scoreCoral())
                 .andThen(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
+    }
+
+    public static Command driveForward(CommandSwerveDrivetrain drivetrain) {
+        SwerveRequest.FieldCentric forwardStraight = new SwerveRequest.FieldCentric();
+        return drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)).withTimeout(2);
     }
 }
