@@ -45,7 +45,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private ElevatorSimulation elevatorSimContainer;
     private ElevatorFeedforward elevatorFeedForward;
     private boolean enabled;
-    private POSITIONS currentPosition = POSITIONS.STARTING;
+    private POSITIONS currentPosition = POSITIONS.STOW;
 
     // #endregion
 
@@ -104,7 +104,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         pIDController.setTolerance(ELEVATOR.kPositionTolerance.in(Meters));
         // Set the inital position so that when enabled the controler
         // matches the initial position
-        pIDController.reset(CORAL.POSITIONS.STARTING.getHeight().in(Meters));
+        pIDController.reset(CORAL.POSITIONS.STOW.getHeight().in(Meters));
         enabled = false;
 
         if (RobotBase.isSimulation()) {
@@ -135,7 +135,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("L3", currentPosition == POSITIONS.L3);
         SmartDashboard.putBoolean("L2", currentPosition == POSITIONS.L2);
         SmartDashboard.putBoolean("L1", currentPosition == POSITIONS.L1);
-        SmartDashboard.putBoolean("Starting", currentPosition == POSITIONS.STARTING);
+        SmartDashboard.putBoolean("Stow", currentPosition == POSITIONS.STOW);
+        SmartDashboard.putBoolean("Score Prep", currentPosition == POSITIONS.SCORE_PREP);
         SmartDashboard.putString("Curent Position", getSelectedPosition().get().toString());
     }
 
@@ -196,7 +197,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                         }));
     }
 
-    public Command moveToPosition() {
+    public Command moveToSelectedPosition() {
         return moveElevatorToHeight(currentPosition.getHeight());
     }
 
@@ -210,7 +211,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Trigger aboveHeight() {
-        return new Trigger(() -> getPositionDistance().gt(Meters.of(0.5)));
+        return new Trigger(() -> getPositionDistance().gt(Meters.of(ELEVATOR.slowModeHeight)));
     }
 
     public String currentLevel() {
