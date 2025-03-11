@@ -17,7 +17,6 @@ public class ClimberSubsystem extends SubsystemBase {
         var talonFXConfigurator = motorController.getConfigurator();
         TalonFXConfiguration config = new TalonFXConfiguration();
         talonFXConfigurator.apply(config);
-
     }
 
     public Command runClimber(double speed) {

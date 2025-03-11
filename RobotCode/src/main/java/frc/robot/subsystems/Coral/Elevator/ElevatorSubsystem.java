@@ -62,7 +62,6 @@ public class ElevatorSubsystem extends SubsystemBase {
                 .voltageCompensation(ELEVATOR.kVoltageCompensation)
                 .openLoopRampRate(ELEVATOR.kElevatorRampRate);
 
-        //TODO: Check this
         encoder = leadMotorController.getEncoder();
         EncoderConfig encoderConfig = new EncoderConfig();
         encoderConfig.positionConversionFactor(1);
@@ -137,7 +136,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("L1", currentPosition == POSITIONS.L1);
         SmartDashboard.putBoolean("Stow", currentPosition == POSITIONS.STOW);
         SmartDashboard.putBoolean("Score Prep", currentPosition == POSITIONS.SCORE_PREP);
-        SmartDashboard.putString("Curent Position", getSelectedPosition().get().toString());
     }
 
     private void setElevatorHeightGoal(Distance height) {
@@ -224,11 +222,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         if (elevatorSimContainer != null) {
             elevatorSimContainer.simulationPeriodic();
-            // SmartDashboard.putBoolean("Elevator Enabled", enabled);
-            // SmartDashboard.putNumber("Elevator position error", pIDController.getPositionError());
-            // SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
-            // SmartDashboard.putNumber("Elevator position actual", encoder.getPosition());
-            // SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
         }
     }
 }

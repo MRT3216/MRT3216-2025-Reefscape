@@ -120,7 +120,6 @@ public final class Constants {
 
     public static final class CORAL {
         public enum POSITIONS {
-            // TODO: decide if we need starting and stow and set angles
             STOW(Meters.of(0), Degrees.of(50)),
             SCORE_PREP(Meters.of(0.3), Degrees.of(-60)),
             CORAL_STATION(Meters.of(0.34), Degrees.of(20)),
@@ -194,7 +193,6 @@ public final class Constants {
             // The soft limits are set in the motor controller to limit
             // movement past a certain point. Consider this an emergency limit
             // These are set to be with 0 as horiziontal
-            // TODO: Adjust these
             public static final Angle kSoftReverseLimit = Degree.of(-60);
             public static final Angle kSoftForwardLimit = Degree.of(57);
 
@@ -212,7 +210,6 @@ public final class Constants {
             public static final double kPivotKi = 0;
             public static final double kPivotKd = 0;
 
-            // TODO: Need to get these values from recalc 
             public static final double kPivotkS = 0; // volts (V)
             public static final double kPivotkG = 0.3; // volts (V)
             public static final double kPivotkV = 2.39;//3; // volts * seconds / radians
@@ -271,7 +268,6 @@ public final class Constants {
 
             // The soft limits are set in the motor controller to limit
             // movement past a certain point. Consider this an emergency limit
-            // TODO: Adjust these
             public static final Angle kSoftReverseLimit = Degree.of(0);
             public static final Angle kSoftForwardLimit = Degree.of(95);
 
@@ -288,7 +284,6 @@ public final class Constants {
             public static final double kPivotKi = 0;
             public static final double kPivotKd = 0;
 
-            // TODO: Need to get these values from recal 
             public static final double kPivotkS = 0; // volts (V)
             public static final double kPivotkG = 0.1; // volts (V)
             public static final double kPivotkV = 3; // volts * seconds / radians
@@ -307,7 +302,6 @@ public final class Constants {
             public static final double intakeSpeed = 0.7;
             public static final double outtakeSpeed = -0.7;
 
-            // TODO: Need to finish this configuration
             public static final TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
             static {
                 motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;

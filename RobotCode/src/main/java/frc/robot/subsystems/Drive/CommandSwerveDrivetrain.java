@@ -29,10 +29,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.settings.Constants;
-import frc.robot.settings.Constants.CoralStationSide;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -320,9 +318,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // vision.updatePoseEstimation(this);
 
         SmartDashboard.putBoolean("Slow Mode", slowMode);
-        SmartDashboard.putBoolean("Close to Coral Station",
-                DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.LEFT, getRobotPose())
-                        .getAsBoolean());
+        // SmartDashboard.putBoolean("Close to Coral Station",
+        //         DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.LEFT, getRobotPose())
+        //                 .getAsBoolean());
     }
 
     private void startSimThread() {
