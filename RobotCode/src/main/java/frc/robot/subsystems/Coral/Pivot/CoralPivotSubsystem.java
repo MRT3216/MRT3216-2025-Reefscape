@@ -146,7 +146,6 @@ public class CoralPivotSubsystem extends SubsystemBase {
     // #region Commands and Triggers
 
     public Command movePivotToAngle(Angle angle) {
-        System.out.println("Moving pivot to: " + angle.toShortString());
         return this.run(() -> {
             setPivotGoal(angle);
             this.enable();

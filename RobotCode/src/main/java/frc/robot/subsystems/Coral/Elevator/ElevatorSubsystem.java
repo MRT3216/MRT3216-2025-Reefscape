@@ -135,6 +135,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("L2", currentPosition == POSITIONS.L2);
         SmartDashboard.putBoolean("L1", currentPosition == POSITIONS.L1);
         SmartDashboard.putBoolean("Stow", currentPosition == POSITIONS.STOW);
+        SmartDashboard.putBoolean("Coral Station", currentPosition == POSITIONS.CORAL_STATION);
         SmartDashboard.putBoolean("Score Prep", currentPosition == POSITIONS.SCORE_PREP);
     }
 
@@ -178,10 +179,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // #region Commands and Triggers
 
-    public Command moveElevatorToHeight(Distance height) {
+    public Command moveElevatorToHeight(POSITIONS position) {
         return this.run(() -> {
             this.enable();
-            setElevatorHeightGoal(height);
+            setElevatorHeightGoal(position.getHeight());
         }).until(this.atGoal());
     }
 
@@ -196,7 +197,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command moveToSelectedPosition() {
-        return moveElevatorToHeight(currentPosition.getHeight());
+        return moveElevatorToHeight(currentPosition);
     }
 
     public Command setTargetPos(POSITIONS pos) {

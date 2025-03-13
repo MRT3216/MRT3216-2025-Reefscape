@@ -316,11 +316,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
         // TODO: Uncomment this line when PhotonVision is implemented
         // vision.updatePoseEstimation(this);
-
-        SmartDashboard.putBoolean("Slow Mode", slowMode);
-        // SmartDashboard.putBoolean("Close to Coral Station",
-        //         DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.LEFT, getRobotPose())
-        //                 .getAsBoolean());
     }
 
     private void startSimThread() {

@@ -194,4 +194,9 @@ public class RobotContainer {
         /* Run the path selected from the auto chooser */
         return autoChooser.getSelected();
     }
+
+    public void periodic() {
+        // This method will be called once per scheduler run
+        SmartDashboard.putBoolean("Slow Mode", drivetrain.isSlowMode().getAsBoolean() || elevator.aboveHeight().getAsBoolean());
+    }
 }

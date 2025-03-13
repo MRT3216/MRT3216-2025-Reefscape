@@ -18,7 +18,7 @@ public class CoralCommands {
             Supplier<POSITIONS> position) {
         return Commands.defer(
                 () -> (pivot.movePivotToAngle(POSITIONS.SCORE_PREP.getAngle())
-                        .alongWith(elevator.moveElevatorToHeight(position.get().getHeight()))
+                        .alongWith(elevator.moveElevatorToHeight(position.get()))
                         .andThen(pivot.movePivotToAngle(position.get().getAngle()))),
                 Set.of(elevator, pivot));
     }
@@ -30,7 +30,7 @@ public class CoralCommands {
             CoralPivotSubsystem pivot,
             Supplier<POSITIONS> position) {
         return Commands.defer(
-                () -> (elevator.moveElevatorToHeight(position.get().getHeight())
+                () -> (elevator.moveElevatorToHeight(position.get())
                         .alongWith(pivot.movePivotToAngle(position.get().getAngle()))),
                 Set.of(elevator, pivot));
     }

@@ -85,7 +85,6 @@ public class ComboCommands {
     public Command driveToNearestReefThenAlignAndScorePrep(Supplier<BranchSide> side) {
         Supplier<Pose2d> reefPose = () -> FieldPoses.getNearestReefFaceInitial(side.get(), drivetrain.getRobotPose());
         Supplier<POSITIONS> position = elevator.getSelectedPosition();
-        System.out.println("Position: " + position.get());
         return drivetrain.defer(() -> this.driveToReefPoseThenAlignAndScorePrep(reefPose, position));
     }
 
@@ -110,8 +109,6 @@ public class ComboCommands {
                         .moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.CORAL_STATION)
                         .alongWith(
                                 coralEndEffector.runEndEffectorCommand().until(coralEndEffector.hasCoral()))
-                        // TODO: TESTING!!!!! Remove timeout
-                        .withTimeout(2)
                         .andThen(
                                 CoralCommands.moveElevatorAndPivotToHeightCommand(
                                         elevator, coralPivot, () -> POSITIONS.SCORE_PREP)),

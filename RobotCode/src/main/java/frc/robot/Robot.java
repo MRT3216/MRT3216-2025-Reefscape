@@ -8,8 +8,10 @@ import au.grapplerobotics.CanBridge;
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.hal.AllianceStationID;
+import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,13 +33,16 @@ public class Robot extends TimedRobot {
         // Record both DS control and joystick data
         DriverStation.startDataLog(DataLogManager.getLog());
         Epilogue.bind(this);
+
+        WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
     }
 
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
 
-        SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());        
+        SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
+        m_robotContainer.periodic();
     }
 
     @Override
