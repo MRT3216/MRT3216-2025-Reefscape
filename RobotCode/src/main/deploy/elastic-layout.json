@@ -10,7 +10,7 @@
           {
             "title": "Has Coral",
             "x": 0.0,
-            "y": 288.0,
+            "y": 240.0,
             "width": 240.0,
             "height": 144.0,
             "type": "Boolean Box",
@@ -19,16 +19,16 @@
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,
-              "false_color": 4294906112,
+              "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
             }
           },
           {
             "title": "Alliance",
-            "x": 0.0,
-            "y": 144.0,
-            "width": 240.0,
+            "x": 960.0,
+            "y": 288.0,
+            "width": 288.0,
             "height": 144.0,
             "type": "Boolean Box",
             "properties": {
@@ -68,9 +68,9 @@
           },
           {
             "title": "Match Time",
-            "x": 432.0,
+            "x": 336.0,
             "y": 0.0,
-            "width": 240.0,
+            "width": 336.0,
             "height": 192.0,
             "type": "Match Time",
             "properties": {
@@ -84,10 +84,10 @@
           },
           {
             "title": "Slow Mode",
-            "x": 480.0,
-            "y": 240.0,
-            "width": 144.0,
-            "height": 144.0,
+            "x": 336.0,
+            "y": 192.0,
+            "width": 336.0,
+            "height": 192.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/Slow Mode",
@@ -101,7 +101,7 @@
           },
           {
             "title": "L4",
-            "x": 720.0,
+            "x": 768.0,
             "y": 0.0,
             "width": 96.0,
             "height": 96.0,
@@ -118,7 +118,7 @@
           },
           {
             "title": "L2",
-            "x": 720.0,
+            "x": 768.0,
             "y": 192.0,
             "width": 96.0,
             "height": 96.0,
@@ -135,7 +135,7 @@
           },
           {
             "title": "L3",
-            "x": 720.0,
+            "x": 768.0,
             "y": 96.0,
             "width": 96.0,
             "height": 96.0,
@@ -152,30 +152,13 @@
           },
           {
             "title": "L1",
-            "x": 720.0,
+            "x": 768.0,
             "y": 288.0,
             "width": 96.0,
             "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/L1",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Starting",
-            "x": 816.0,
-            "y": 0.0,
-            "width": 96.0,
-            "height": 96.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Starting",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,
