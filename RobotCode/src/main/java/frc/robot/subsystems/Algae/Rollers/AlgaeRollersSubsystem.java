@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants.ALGAE.ROLLERS;
+import frc.robot.settings.Constants.CORAL.END_EFFECTOR;
 import frc.robot.settings.RobotMap.ROBOT.ALGAE_SYSTEM.ROLLERS_MAP;
 
 public class AlgaeRollersSubsystem extends SubsystemBase {
@@ -34,31 +35,23 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
         motorController.set(speed);
     }
 
-    private void stopIntake() {
+    private void stopRollers() {
         motorController.set(0);
     }
 
     // TODO: check this again
-    public Command runRollerCommand() {
-        if (isLastDirectionIntake) {
-            isLastDirectionIntake = false;
-            return this.startEnd(
-                    () -> setRollerSpeed(ROLLERS.outtakeSpeed),
-                    () -> stopIntake());
-        } else {
-            isLastDirectionIntake = true;
-            return this.startEnd(
-                    () -> {
-                        setRollerSpeed(ROLLERS.intakeSpeed);
-                    },
-                    () -> hold()).until(hasAlgaeTrigger());
-        }
+    public Command intakeAlgae() {
+        return this.startEnd(
+                () -> {
+                    setRollerSpeed(ROLLERS.intakeSpeed);
+                },
+                () -> hold()).until(hasAlgaeTrigger());
     }
 
-    public Command runRollers(double speed) {
-        return this.startEnd(
-                () -> setRollerSpeed(speed),
-                () -> stopIntake());
+    public Command scoreAlgae() {
+        return this.run(
+                () -> setRollerSpeed(ROLLERS.outtakeSpeed)).withTimeout(1)
+                .andThen(() -> stopRollers());
     }
 
     // From Team 3255: https://github.com/FRCTeam3255/2025_Robot_Code/blob/main/src/main/java/frc/robot/RobotContainer.java#L334
