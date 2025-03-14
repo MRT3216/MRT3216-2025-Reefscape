@@ -12,11 +12,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.AlgaeCommands;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.ComboCommands;
 import frc.robot.commands.CoralCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
+import frc.robot.settings.Constants.ALGAE.PIVOT.Positions;
 import frc.robot.settings.Constants.CLIMBER;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.RobotMap;
@@ -87,7 +89,7 @@ public class RobotContainer {
                                                 * Constants.DRIVETRAIN.MaxSpeed
                                                 * (drivetrain.isSlowMode().getAsBoolean()
                                                         || elevator.aboveHeight().getAsBoolean()
-                                                                ? 0.1
+                                                                ? 0.15
                                                                 : 0.8)) // Drive forward with negative Y (forward)
                                 .withVelocityY(
                                         -driverController
@@ -95,7 +97,7 @@ public class RobotContainer {
                                                 * Constants.DRIVETRAIN.MaxSpeed
                                                 * (drivetrain.isSlowMode().getAsBoolean()
                                                         || elevator.aboveHeight().getAsBoolean()
-                                                                ? 0.1
+                                                                ? 0.15
                                                                 : 0.8)) // Drive left with negative X (left)
                                 .withRotationalRate(
                                         -driverController
@@ -113,14 +115,15 @@ public class RobotContainer {
         driverController.rightTrigger().onTrue(
                 CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
                         coralPivot, elevator.getSelectedPosition()));
-        driverController.leftBumper().onTrue(algaePivot.togglePivotPosition());
-        driverController.rightBumper().onTrue(algaeRollers.runRollerCommand());
+        //driverController.leftBumper().onTrue(algaePivot.togglePivotPosition());
+        driverController.leftBumper().onTrue(AlgaeCommands.intakeAlgae(algaePivot, algaeRollers));
+        driverController.rightBumper().onTrue(AlgaeCommands.scoreAlgae(algaePivot, algaeRollers));
 
         // Reset the field-centric heading on start press
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         driverController.leftStick().onTrue(
-            CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.STOW));
+                CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.STOW));
         driverController.rightStick().onTrue(drivetrain.toggleSlowMode());
 
         // #region Testing
@@ -173,9 +176,10 @@ public class RobotContainer {
         operatorController.leftStick().onTrue(
                 CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.STOW));
 
-        operatorController.leftTrigger().whileTrue(climber.runClimber(-CLIMBER.speed));
-        operatorController.rightTrigger().whileTrue(climber.runClimber(CLIMBER.speed));
-
+        // operatorController.leftTrigger().whileTrue(climber.runClimber(-CLIMBER.speed));
+        // operatorController.rightTrigger().whileTrue(climber.runClimber(CLIMBER.speed));
+        operatorController.leftTrigger().onTrue(algaePivot.movePivotToAngle(Positions.INTAKING.getAngle()));
+        operatorController.rightTrigger().onTrue(algaePivot.movePivotToAngle(Positions.STOW_SCORING.getAngle()));
         operatorController.leftBumper().onTrue(coralEndEffector.intakeCoralCommand());
         operatorController.rightBumper().onTrue(coralEndEffector.outtakeCoralCommand());
     }
@@ -197,6 +201,7 @@ public class RobotContainer {
 
     public void periodic() {
         // This method will be called once per scheduler run
-        SmartDashboard.putBoolean("Slow Mode", drivetrain.isSlowMode().getAsBoolean() || elevator.aboveHeight().getAsBoolean());
+        SmartDashboard.putBoolean("Slow Mode",
+                drivetrain.isSlowMode().getAsBoolean() || elevator.aboveHeight().getAsBoolean());
     }
 }
