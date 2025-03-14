@@ -120,9 +120,9 @@ public final class Constants {
 
     public static final class CORAL {
         public enum POSITIONS {
-            STOW(Meters.of(0), Degrees.of(50)),
+            STOW(Meters.of(0), Degrees.of(30)),
             SCORE_PREP(Meters.of(0.3), Degrees.of(-60)),
-            CORAL_STATION(Meters.of(0.34), Degrees.of(20)),
+            CORAL_STATION(Meters.of(0.38), Degrees.of(20)),
             L1(Meters.of(0.4), Degrees.of(0)),
             L2(Meters.of(0.61), Degrees.of(-32)),
             L3(Meters.of(1.02), Degrees.of(-32)),
@@ -174,8 +174,8 @@ public final class Constants {
             public static final double kElevatorkV = 3.3;//3.8; // volt per velocity (V/(m/s))
             public static final double kElevatorkA = 0;//0.17; // volt per acceleration (V/(m/s²))
 
-            public static final LinearVelocity kMaxElevatorVelocity = Meters.of(1).per(Second); // m/s
-            public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(2).per(Second).per(Second);
+            public static final LinearVelocity kMaxElevatorVelocity = Meters.of(2).per(Second); // m/s
+            public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(3).per(Second).per(Second);
 
             public static final double kElevatorRampRate = 0.5;
         }
@@ -242,7 +242,7 @@ public final class Constants {
     public static final class ALGAE {
         public static final class PIVOT {
             public enum Positions {
-                INTAKING(Degrees.of(15)),
+                INTAKING(Degrees.of(38)),
                 STOW_SCORING(Degrees.of(90)),
                 STARTING(Degrees.of(90));
 
@@ -297,7 +297,7 @@ public final class Constants {
 
         public static final class ROLLERS {
             public static final Current HAS_ALGAE_CURRENT = Amps.of(12);
-            public static final double HOLD_ALGAE_INTAKE_VOLTAGE = 1;
+            public static final double HOLD_ALGAE_INTAKE_VOLTAGE = 0.8;
             public static final AngularVelocity HAS_ALGAE_VELOCITY = RotationsPerSecond.of(75);
             public static final double intakeSpeed = 0.7;
             public static final double outtakeSpeed = -0.7;
