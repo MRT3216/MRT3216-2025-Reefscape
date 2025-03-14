@@ -122,7 +122,7 @@ public final class Constants {
         public enum POSITIONS {
             STOW(Meters.of(0), Degrees.of(30)),
             SCORE_PREP(Meters.of(0.3), Degrees.of(-60)),
-            CORAL_STATION(Meters.of(0.38), Degrees.of(20)),
+            CORAL_STATION(Meters.of(0.40), Degrees.of(20)),
             L1(Meters.of(0.4), Degrees.of(0)),
             L2(Meters.of(0.61), Degrees.of(-32)),
             L3(Meters.of(1.02), Degrees.of(-32)),
@@ -146,7 +146,7 @@ public final class Constants {
         }
 
         public static final class ELEVATOR {
-            public static final double slowModeHeight = 0.32;
+            public static final double slowModeHeight = 0.9;
             public static final boolean kLeadMotorInverted = true;
             public static final int kMotorCurrentLimit = 60;
             public static final int kVoltageCompensation = 10;
@@ -175,7 +175,7 @@ public final class Constants {
             public static final double kElevatorkA = 0;//0.17; // volt per acceleration (V/(m/s²))
 
             public static final LinearVelocity kMaxElevatorVelocity = Meters.of(2).per(Second); // m/s
-            public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(3).per(Second).per(Second);
+            public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(4).per(Second).per(Second);
 
             public static final double kElevatorRampRate = 0.5;
         }
@@ -206,12 +206,12 @@ public final class Constants {
             public static final double kMOI = SingleJointedArmSim.estimateMOI(kPivotArmLength.in(Meters),
                     kPivotMass.in(Kilograms));
 
-            public static final double kPivotKp = 45;
+            public static final double kPivotKp = 30;
             public static final double kPivotKi = 0;
             public static final double kPivotKd = 0;
 
             public static final double kPivotkS = 0; // volts (V)
-            public static final double kPivotkG = 0.3; // volts (V)
+            public static final double kPivotkG = 0.40;//0.3; // volts (V)
             public static final double kPivotkV = 2.39;//3; // volts * seconds / radians
             public static final double kPivotkA = 0.12; // volts * seconds^2 / radians
 

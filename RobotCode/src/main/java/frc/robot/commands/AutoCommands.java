@@ -45,4 +45,9 @@ public class AutoCommands {
         SwerveRequest.FieldCentric forwardStraight = new SwerveRequest.FieldCentric();
         return drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)).withTimeout(2);
     }
+
+    public static Command pushForward(CommandSwerveDrivetrain drivetrain) {
+        SwerveRequest.FieldCentric forwardStraight = new SwerveRequest.FieldCentric();
+        return drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-1.0).withVelocityY(0)).withTimeout(15);
+    }
 }

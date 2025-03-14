@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -19,7 +21,6 @@ import frc.robot.commands.CoralCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
 import frc.robot.settings.Constants.ALGAE.PIVOT.Positions;
-import frc.robot.settings.Constants.CLIMBER;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.Algae.Pivot.AlgaePivotSubsystem;
@@ -73,6 +74,7 @@ public class RobotContainer {
         // autoChooser.addOption("Center 1P", AutoCommands.getCenter1PAuto(comboCommands));
         // autoChooser.addOption("Right 3P", AutoCommands.getRight3PAuto(comboCommands));
         autoChooser.addOption("Drive Forward", AutoCommands.driveForward(drivetrain));
+        autoChooser.addOption("Push Forward", AutoCommands.pushForward(drivetrain));
         SmartDashboard.putData("Auto Mode", autoChooser);
     }
 
@@ -115,6 +117,8 @@ public class RobotContainer {
         driverController.rightTrigger().onTrue(
                 CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
                         coralPivot, elevator.getSelectedPosition()));
+        // driverController.rightTrigger().onTrue(
+        //         coralPivot.movePivotToAngle(Degrees.of(0)));
         //driverController.leftBumper().onTrue(algaePivot.togglePivotPosition());
         driverController.leftBumper().onTrue(AlgaeCommands.intakeAlgae(algaePivot, algaeRollers));
         driverController.rightBumper().onTrue(AlgaeCommands.scoreAlgae(algaePivot, algaeRollers));
