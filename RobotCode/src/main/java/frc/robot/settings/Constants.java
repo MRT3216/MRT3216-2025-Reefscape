@@ -122,8 +122,8 @@ public final class Constants {
         public enum POSITIONS {
             STOW(Meters.of(0), Degrees.of(30)),
             SCORE_PREP(Meters.of(0.3), Degrees.of(-60)),
-            CORAL_STATION(Meters.of(0.40), Degrees.of(20)),
-            L1(Meters.of(0.4), Degrees.of(0)),
+            CORAL_STATION(Meters.of(0.38), Degrees.of(25)),
+            L1(Meters.of(0), Degrees.of(25)),
             L2(Meters.of(0.61), Degrees.of(-32)),
             L3(Meters.of(1.02), Degrees.of(-32)),
             L4(Meters.of(1.75), Degrees.of(-31));
@@ -175,7 +175,7 @@ public final class Constants {
             public static final double kElevatorkA = 0;//0.17; // volt per acceleration (V/(m/s²))
 
             public static final LinearVelocity kMaxElevatorVelocity = Meters.of(2).per(Second); // m/s
-            public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(4).per(Second).per(Second);
+            public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(3.1).per(Second).per(Second);
 
             public static final double kElevatorRampRate = 0.5;
         }
@@ -215,8 +215,8 @@ public final class Constants {
             public static final double kPivotkV = 2.39;//3; // volts * seconds / radians
             public static final double kPivotkA = 0.12; // volts * seconds^2 / radians
 
-            public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(180); // degrees per second
-            public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(360); // degrees per second squared max acceleration
+            public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(360); // degrees per second
+            public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(450); // degrees per second squared max acceleration
 
             public static final double kPivotRampRate = 1;
         }
@@ -224,6 +224,7 @@ public final class Constants {
         public static final class END_EFFECTOR {
             public static final double intakeSpeed = 0.3;
             public static final double outtakeSpeed = -0.3;
+            public static final double outtakeSpeedL1 = -0.2;
 
             // TODO: Need to finish this configuration
             public static final TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
@@ -242,7 +243,7 @@ public final class Constants {
     public static final class ALGAE {
         public static final class PIVOT {
             public enum Positions {
-                INTAKING(Degrees.of(38)),
+                INTAKING(Degrees.of(25)),
                 STOW_SCORING(Degrees.of(90)),
                 STARTING(Degrees.of(90));
 
@@ -269,7 +270,7 @@ public final class Constants {
             // The soft limits are set in the motor controller to limit
             // movement past a certain point. Consider this an emergency limit
             public static final Angle kSoftReverseLimit = Degree.of(0);
-            public static final Angle kSoftForwardLimit = Degree.of(95);
+            public static final Angle kSoftForwardLimit = Degree.of(100);
 
             // These limits should be used to set how far we allow
             // code to move the arm. These should allow less movement than

@@ -74,6 +74,8 @@ public class RobotContainer {
         // autoChooser.addOption("Center 1P", AutoCommands.getCenter1PAuto(comboCommands));
         // autoChooser.addOption("Right 3P", AutoCommands.getRight3PAuto(comboCommands));
         autoChooser.addOption("Drive Forward", AutoCommands.driveForward(drivetrain));
+        autoChooser.addOption("Drive Forward L1",
+                AutoCommands.driveForwardL1(drivetrain, elevator, coralPivot, comboCommands));
         autoChooser.addOption("Push Forward", AutoCommands.pushForward(drivetrain));
         SmartDashboard.putData("Auto Mode", autoChooser);
     }

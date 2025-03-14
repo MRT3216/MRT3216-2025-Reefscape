@@ -122,4 +122,12 @@ public class ComboCommands {
                         CoralCommands.moveElevatorAndPivotToHeightCommand(
                                 elevator, coralPivot, () -> POSITIONS.STOW));
     }
+
+    public Command scoreCoralL1() {
+        // TODO: Adjust timeout
+        return coralEndEffector.outtakeCoralCommandL1().withTimeout(1)
+                .andThen(
+                        CoralCommands.moveElevatorAndPivotToHeightCommand(
+                                elevator, coralPivot, () -> POSITIONS.STOW));
+    }
 }

@@ -55,15 +55,15 @@ public class AlgaePivotSubsystem extends SubsystemBase {
         encoderConfig.zeroCentered(true);
         motorControllerConfig.apply(encoderConfig);
 
-        SoftLimitConfig softLimitConfig = new SoftLimitConfig();
-        softLimitConfig
-                // Soft limits use the internal motor encoder rather than the attached
-                // absolute encoder so adjust by the gearing
-                .forwardSoftLimit(PIVOT.kSoftForwardLimit.in(Rotations) * PIVOT.kPivotGearing)
-                .forwardSoftLimitEnabled(true)
-                .reverseSoftLimit(PIVOT.kSoftReverseLimit.in(Rotations) * PIVOT.kPivotGearing)
-                .reverseSoftLimitEnabled(true);
-        motorControllerConfig.apply(softLimitConfig);
+        // SoftLimitConfig softLimitConfig = new SoftLimitConfig();
+        // softLimitConfig
+        //         // Soft limits use the internal motor encoder rather than the attached
+        //         // absolute encoder so adjust by the gearing
+        //         .forwardSoftLimit(PIVOT.kSoftForwardLimit.in(Rotations) * PIVOT.kPivotGearing)
+        //         .forwardSoftLimitEnabled(true)
+        //         .reverseSoftLimit(PIVOT.kSoftReverseLimit.in(Rotations) * PIVOT.kPivotGearing)
+        //         .reverseSoftLimitEnabled(true);
+       // motorControllerConfig.apply(softLimitConfig);
 
         motorController.configure(motorControllerConfig, ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
