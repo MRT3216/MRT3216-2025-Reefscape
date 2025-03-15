@@ -4,7 +4,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
-import frc.robot.settings.AllianceFlipUtil;
 import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.Constants.ReefBranch;
 import frc.robot.subsystems.Coral.Elevator.ElevatorSubsystem;

@@ -116,7 +116,6 @@ public class ComboCommands {
     }
 
     public Command scoreCoral() {
-        // TODO: Adjust timeout
         return coralEndEffector.outtakeCoralCommand().withTimeout(1)
                 .andThen(
                         CoralCommands.moveElevatorAndPivotToHeightCommand(
@@ -124,7 +123,6 @@ public class ComboCommands {
     }
 
     public Command scoreCoralL1() {
-        // TODO: Adjust timeout
         return coralEndEffector.outtakeCoralCommandL1().withTimeout(1)
                 .andThen(
                         CoralCommands.moveElevatorAndPivotToHeightCommand(
