@@ -117,9 +117,7 @@ public class RobotContainer {
         driverController.rightTrigger().onTrue(
                 CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
                         coralPivot, elevator.getSelectedPosition()));
-        // driverController.rightTrigger().onTrue(
-        //         coralPivot.movePivotToAngle(Degrees.of(0)));
-        //driverController.leftBumper().onTrue(algaePivot.togglePivotPosition());
+
         driverController.leftBumper().onTrue(AlgaeCommands.intakeAlgae(algaePivot, algaeRollers));
         driverController.rightBumper().onTrue(AlgaeCommands.scoreAlgae(algaePivot, algaeRollers));
 
