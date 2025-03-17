@@ -14,9 +14,6 @@ import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.Constants.ReefBranch;
 import frc.robot.settings.FieldPoses;
-import frc.robot.subsystems.Algae.Pivot.AlgaePivotSubsystem;
-import frc.robot.subsystems.Algae.Rollers.AlgaeRollersSubsystem;
-import frc.robot.subsystems.Climber.ClimberSubsystem;
 import frc.robot.subsystems.Coral.Elevator.ElevatorSubsystem;
 import frc.robot.subsystems.Coral.EndEffector.CoralEndEffectorSubsystem;
 import frc.robot.subsystems.Coral.Pivot.CoralPivotSubsystem;
@@ -27,20 +24,13 @@ public class ComboCommands {
     private final ElevatorSubsystem elevator;
     private final CoralPivotSubsystem coralPivot;
     private final CoralEndEffectorSubsystem coralEndEffector;
-    private final AlgaePivotSubsystem algaePivot;
-    private final AlgaeRollersSubsystem algaeRollers;
-    private final ClimberSubsystem climber;
 
     public ComboCommands(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevator, CoralPivotSubsystem coralPivot,
-            CoralEndEffectorSubsystem coralEndEffector, AlgaePivotSubsystem algaePivot,
-            AlgaeRollersSubsystem algaeRollers, ClimberSubsystem climber) {
+            CoralEndEffectorSubsystem coralEndEffector) {
         this.drivetrain = drivetrain;
         this.elevator = elevator;
         this.coralPivot = coralPivot;
         this.coralEndEffector = coralEndEffector;
-        this.algaePivot = algaePivot;
-        this.algaeRollers = algaeRollers;
-        this.climber = climber;
 
         this.configureBindings();
     }
@@ -48,12 +38,11 @@ public class ComboCommands {
     public void configureBindings() {
         // #region Triggers
 
-        // TODO: Uncomment these lines when PhotonVision is implemented
-        // DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.LEFT, drivetrain.getRobotPose())
-        //         .onTrue(CoralCommands.intakeCoralFromStationCommand(elevator, coralPivot, coralEndEffector));
+        DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.LEFT, drivetrain.getRobotPose())
+                .onTrue(this.intakeCoralFromStationCommand());
 
-        // DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.RIGHT, drivetrain.getRobotPose())
-        //         .onTrue(CoralCommands.intakeCoralFromStationCommand(elevator, coralPivot, coralEndEffector));
+        DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.RIGHT, drivetrain.getRobotPose())
+                .onTrue(this.intakeCoralFromStationCommand());
 
         // #endregion
     }

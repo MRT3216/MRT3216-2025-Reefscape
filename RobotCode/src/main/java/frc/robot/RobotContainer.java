@@ -52,8 +52,7 @@ public class RobotContainer {
     private final AlgaePivotSubsystem algaePivot = new AlgaePivotSubsystem();
     private final AlgaeRollersSubsystem algaeRollers = new AlgaeRollersSubsystem();
     private final ClimberSubsystem climber = new ClimberSubsystem();
-    private final ComboCommands comboCommands = new ComboCommands(drivetrain, elevator, coralPivot, coralEndEffector,
-            algaePivot, algaeRollers, climber);
+    private final ComboCommands comboCommands = new ComboCommands(drivetrain, elevator, coralPivot, coralEndEffector);
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("None");;
@@ -67,10 +66,9 @@ public class RobotContainer {
     }
 
     private void configureAutos() {
-        // TODO: Uncomment this line when PhotonVision is implemented
-        // autoChooser.addOption("Left 3P", AutoCommands.getLeft3PAuto(comboCommands));
-        // autoChooser.addOption("Center 1P", AutoCommands.getCenter1PAuto(comboCommands));
-        // autoChooser.addOption("Right 3P", AutoCommands.getRight3PAuto(comboCommands));
+        autoChooser.addOption("Left 3P", AutoCommands.getLeft3PAuto(comboCommands));
+        autoChooser.addOption("Center 1P", AutoCommands.getCenter1PAuto(comboCommands));
+        autoChooser.addOption("Right 3P", AutoCommands.getRight3PAuto(comboCommands));
         autoChooser.addOption("Drive Forward", AutoCommands.driveForward(drivetrain));
         autoChooser.addOption("Drive Forward L1",
                 AutoCommands.driveForwardL1(drivetrain, elevator, coralPivot, comboCommands));

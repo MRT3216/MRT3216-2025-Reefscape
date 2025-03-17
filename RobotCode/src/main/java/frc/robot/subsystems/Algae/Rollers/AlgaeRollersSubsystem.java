@@ -16,7 +16,6 @@ import frc.robot.settings.RobotMap.ROBOT.ALGAE_SYSTEM.ROLLERS_MAP;
 
 public class AlgaeRollersSubsystem extends SubsystemBase {
     private final TalonFX motorController;
-    private boolean isLastDirectionIntake = false;
     private AlgaeRollersSimulation rollerSimContainer;
 
     public AlgaeRollersSubsystem() {
@@ -90,7 +89,6 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         if (rollerSimContainer != null) {
             rollerSimContainer.simulationPeriodic();
-            SmartDashboard.putNumber("Algae Roller Speed", motorController.getVelocity().getValueAsDouble());
         }
     }
 }

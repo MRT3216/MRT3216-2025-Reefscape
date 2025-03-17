@@ -41,8 +41,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /**
      * PhotonVision class to keep an accurate odometry.
      */
-    // TODO: Uncomment this line when PhotonVision is implemented
-    // public Vision vision;
+    public Vision vision;
 
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
@@ -291,8 +290,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     * Setup the photon vision class.
     */
     private void setupPhotonVision() {
-        // TODO: Uncomment this line when PhotonVision is implemented
-        //vision = new Vision(() -> getState().Pose);
+        vision = new Vision(() -> getState().Pose);
     }
 
     @Override

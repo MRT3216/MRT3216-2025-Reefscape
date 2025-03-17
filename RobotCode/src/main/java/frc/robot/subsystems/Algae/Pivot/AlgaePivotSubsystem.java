@@ -155,17 +155,6 @@ public class AlgaePivotSubsystem extends SubsystemBase {
         }).until(this.atGoal());
     }
 
-    public Command togglePivotPosition() {
-        // TODO: Don't like this.
-        return this.runOnce(() -> {
-            currentPosition = currentPosition == PIVOT.Positions.INTAKING ? PIVOT.Positions.STOW_SCORING
-                    : PIVOT.Positions.INTAKING;
-
-            setPivotGoal(currentPosition.getAngle());
-            this.enable();
-        });
-    }
-
     public Command adjustPivotAngle(Angle angleAdjustment) {
         return this.defer(
                 () -> Commands.runOnce(
