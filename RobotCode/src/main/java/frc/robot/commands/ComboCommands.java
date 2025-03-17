@@ -1,11 +1,13 @@
 package frc.robot.commands;
 
+import java.util.Set;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.settings.Constants;
 import frc.robot.settings.Constants.BranchSide;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
@@ -46,6 +48,7 @@ public class ComboCommands {
     public void configureBindings() {
         // #region Triggers
 
+        // TODO: Uncomment these lines when PhotonVision is implemented
         // DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.LEFT, drivetrain.getRobotPose())
         //         .onTrue(CoralCommands.intakeCoralFromStationCommand(elevator, coralPivot, coralEndEffector));
 
@@ -53,12 +56,6 @@ public class ComboCommands {
         //         .onTrue(CoralCommands.intakeCoralFromStationCommand(elevator, coralPivot, coralEndEffector));
 
         // #endregion
-    }
-
-    public Command retrieveFromCoralStationCommand(Supplier<CoralStationSide> side) {
-        return drivetrain.defer(() -> DriveCommands.driveToCoralStation(drivetrain, side));
-        // .andThen(CoralCommands.moveElevatorAndPivotToHeightCommand(
-        //         elevator, coralPivot, () -> POSITIONS.SCORE_PREP));
     }
 
     private Command driveToReefPoseThenAlignAndScorePrep(Supplier<Pose2d> reefPose, Supplier<POSITIONS> position) {
@@ -88,7 +85,6 @@ public class ComboCommands {
     public Command driveToNearestReefThenAlignAndScorePrep(Supplier<BranchSide> side) {
         Supplier<Pose2d> reefPose = () -> FieldPoses.getNearestReefFaceInitial(side.get(), drivetrain.getRobotPose());
         Supplier<POSITIONS> position = elevator.getSelectedPosition();
-        System.out.println("Position: " + position.get());
         return drivetrain.defer(() -> this.driveToReefPoseThenAlignAndScorePrep(reefPose, position));
     }
 
@@ -99,9 +95,37 @@ public class ComboCommands {
                         () -> FieldPoses.getReefPolePose(reefBranch.get()), position));
     }
 
+    public Command retrieveFromCoralStationCommand(Supplier<CoralStationSide> side) {
+        return drivetrain.defer(() -> DriveCommands.driveToCoralStation(drivetrain, side));
+        // .andThen(CoralCommands.moveElevatorAndPivotToHeightCommand(
+        //         elevator, coralPivot, () -> POSITIONS.SCORE_PREP));
+    }
+
+    public Command intakeCoralFromStationCommand() {
+        // Move the elevator to the coral station height and start the end effector
+        // After the coral has been retrieved, move the elevator and pivot to the score prep height
+        return Commands.defer(
+                () -> CoralCommands
+                        .moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.CORAL_STATION)
+                        .alongWith(
+                                coralEndEffector.runEndEffectorCommand().until(coralEndEffector.hasCoral()))
+                        .andThen(
+                                CoralCommands.moveElevatorAndPivotToHeightCommand(
+                                        elevator, coralPivot, () -> POSITIONS.SCORE_PREP)),
+                Set.of(elevator, coralPivot, coralEndEffector));
+    }
+
     public Command scoreCoral() {
-        // TODO: Remove timeout
         return coralEndEffector.outtakeCoralCommand().withTimeout(1)
-                .andThen(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.STOW));
+                .andThen(
+                        CoralCommands.moveElevatorAndPivotToHeightCommand(
+                                elevator, coralPivot, () -> POSITIONS.STOW));
+    }
+
+    public Command scoreCoralL1() {
+        return coralEndEffector.outtakeCoralCommandL1().withTimeout(1)
+                .andThen(
+                        CoralCommands.moveElevatorAndPivotToHeightCommand(
+                                elevator, coralPivot, () -> POSITIONS.STOW));
     }
 }

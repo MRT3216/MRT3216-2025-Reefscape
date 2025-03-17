@@ -8,12 +8,12 @@ import frc.robot.subsystems.Algae.Rollers.AlgaeRollersSubsystem;
 public class AlgaeCommands {
     public static Command intakeAlgae(AlgaePivotSubsystem pivot, AlgaeRollersSubsystem rollers) {
         return pivot.movePivotToAngle(Positions.INTAKING.getAngle())
-                .alongWith(rollers.runRollerCommand())
+                .alongWith(rollers.intakeAlgae())
                 .until(rollers.hasAlgaeTrigger())
                 .andThen(pivot.movePivotToAngle((Positions.STOW_SCORING.getAngle())));
     }
 
     public static Command scoreAlgae(AlgaePivotSubsystem pivot, AlgaeRollersSubsystem rollers) {
-        return rollers.runRollerCommand();
+        return rollers.scoreAlgae();
     }
 }

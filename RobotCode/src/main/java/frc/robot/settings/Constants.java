@@ -1,14 +1,5 @@
 package frc.robot.settings;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.path.PathConstraints;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.util.Units;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
@@ -22,6 +13,16 @@ import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
+
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.PathConstraints;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -119,12 +120,10 @@ public final class Constants {
 
     public static final class CORAL {
         public enum POSITIONS {
-            // TODO: decide if we need starting and stow and set angles
-            STARTING(Meters.of(0), Degrees.of(50)),
-            STOW(Meters.of(0), Degrees.of(50)),
+            STOW(Meters.of(0), Degrees.of(30)),
             SCORE_PREP(Meters.of(0.3), Degrees.of(-60)),
-            CORAL_STATION(Meters.of(0.34), Degrees.of(20)),
-            L1(Meters.of(0.4), Degrees.of(0)),
+            CORAL_STATION(Meters.of(0.39), Degrees.of(19)),
+            L1(Meters.of(0), Degrees.of(20)),
             L2(Meters.of(0.61), Degrees.of(-32)),
             L3(Meters.of(1.02), Degrees.of(-32)),
             L4(Meters.of(1.75), Degrees.of(-31));
@@ -147,6 +146,7 @@ public final class Constants {
         }
 
         public static final class ELEVATOR {
+            public static final double slowModeHeight = 0.9;
             public static final boolean kLeadMotorInverted = true;
             public static final int kMotorCurrentLimit = 60;
             public static final int kVoltageCompensation = 10;
@@ -174,8 +174,8 @@ public final class Constants {
             public static final double kElevatorkV = 3.3;//3.8; // volt per velocity (V/(m/s))
             public static final double kElevatorkA = 0;//0.17; // volt per acceleration (V/(m/s²))
 
-            public static final LinearVelocity kMaxElevatorVelocity = Meters.of(1).per(Second); // m/s
-            public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(2).per(Second).per(Second);
+            public static final LinearVelocity kMaxElevatorVelocity = Meters.of(2).per(Second); // m/s
+            public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(3.1).per(Second).per(Second);
 
             public static final double kElevatorRampRate = 0.5;
         }
@@ -193,7 +193,6 @@ public final class Constants {
             // The soft limits are set in the motor controller to limit
             // movement past a certain point. Consider this an emergency limit
             // These are set to be with 0 as horiziontal
-            // TODO: Adjust these
             public static final Angle kSoftReverseLimit = Degree.of(-60);
             public static final Angle kSoftForwardLimit = Degree.of(57);
 
@@ -207,18 +206,17 @@ public final class Constants {
             public static final double kMOI = SingleJointedArmSim.estimateMOI(kPivotArmLength.in(Meters),
                     kPivotMass.in(Kilograms));
 
-            public static final double kPivotKp = 45;
+            public static final double kPivotKp = 30;
             public static final double kPivotKi = 0;
             public static final double kPivotKd = 0;
 
-            // TODO: Need to get these values from recalc 
             public static final double kPivotkS = 0; // volts (V)
-            public static final double kPivotkG = 0.3; // volts (V)
+            public static final double kPivotkG = 0.40;//0.3; // volts (V)
             public static final double kPivotkV = 2.39;//3; // volts * seconds / radians
             public static final double kPivotkA = 0.12; // volts * seconds^2 / radians
 
-            public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(180); // degrees per second
-            public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(360); // degrees per second squared max acceleration
+            public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(360); // degrees per second
+            public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(450); // degrees per second squared max acceleration
 
             public static final double kPivotRampRate = 1;
         }
@@ -226,6 +224,7 @@ public final class Constants {
         public static final class END_EFFECTOR {
             public static final double intakeSpeed = 0.3;
             public static final double outtakeSpeed = -0.3;
+            public static final double outtakeSpeedL1 = -0.25;
 
             // TODO: Need to finish this configuration
             public static final TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
@@ -244,7 +243,7 @@ public final class Constants {
     public static final class ALGAE {
         public static final class PIVOT {
             public enum Positions {
-                INTAKING(Degrees.of(15)),
+                INTAKING(Degrees.of(25)),
                 STOW_SCORING(Degrees.of(90)),
                 STARTING(Degrees.of(90));
 
@@ -270,9 +269,8 @@ public final class Constants {
 
             // The soft limits are set in the motor controller to limit
             // movement past a certain point. Consider this an emergency limit
-            // TODO: Adjust these
             public static final Angle kSoftReverseLimit = Degree.of(0);
-            public static final Angle kSoftForwardLimit = Degree.of(95);
+            public static final Angle kSoftForwardLimit = Degree.of(100);
 
             // These limits should be used to set how far we allow
             // code to move the arm. These should allow less movement than
@@ -287,7 +285,6 @@ public final class Constants {
             public static final double kPivotKi = 0;
             public static final double kPivotKd = 0;
 
-            // TODO: Need to get these values from recalc
             public static final double kPivotkS = 0; // volts (V)
             public static final double kPivotkG = 0.1; // volts (V)
             public static final double kPivotkV = 3; // volts * seconds / radians
@@ -301,12 +298,11 @@ public final class Constants {
 
         public static final class ROLLERS {
             public static final Current HAS_ALGAE_CURRENT = Amps.of(12);
-            public static final double HOLD_ALGAE_INTAKE_VOLTAGE = 1;
+            public static final double HOLD_ALGAE_INTAKE_VOLTAGE = 0.8;
             public static final AngularVelocity HAS_ALGAE_VELOCITY = RotationsPerSecond.of(75);
             public static final double intakeSpeed = 0.7;
             public static final double outtakeSpeed = -0.7;
 
-            // TODO: Need to finish this configuration
             public static final TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
             static {
                 motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;

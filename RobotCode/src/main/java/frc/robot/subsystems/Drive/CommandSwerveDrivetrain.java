@@ -24,15 +24,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.settings.Constants;
-import frc.robot.settings.Constants.CoralStationSide;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -44,7 +41,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /**
      * PhotonVision class to keep an accurate odometry.
      */
-    public Vision vision;
+    // TODO: Uncomment this line when PhotonVision is implemented
+    // public Vision vision;
 
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
@@ -293,7 +291,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     * Setup the photon vision class.
     */
     private void setupPhotonVision() {
-        vision = new Vision(() -> getState().Pose);
+        // TODO: Uncomment this line when PhotonVision is implemented
+        //vision = new Vision(() -> getState().Pose);
     }
 
     @Override
@@ -314,12 +313,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-        vision.updatePoseEstimation(this);
-
-        SmartDashboard.putBoolean("Slow Mode", slowMode);
-        SmartDashboard.putBoolean("Close to Coral Station",
-                DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.LEFT, getRobotPose())
-                        .getAsBoolean());
+        // TODO: Uncomment this line when PhotonVision is implemented
+        // vision.updatePoseEstimation(this);
     }
 
     private void startSimThread() {

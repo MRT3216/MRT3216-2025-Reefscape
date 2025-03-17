@@ -1,18 +1,14 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Meters;
-
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants;
 import frc.robot.settings.Constants.BargeCage;
 import frc.robot.settings.Constants.CoralStationSide;
-import frc.robot.settings.Constants.FIELD_OFFSETS;
 import frc.robot.settings.FieldPoses;
 import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 
@@ -42,10 +38,11 @@ public class DriveCommands {
                         drivetrain));
     }
 
-    public static Trigger readyToPrepElevatorForCoralStation(Supplier<CoralStationSide> side,
-            Supplier<Pose2d> robotPoseSupplier) {
-        return new Trigger(
-                () -> (FieldPoses.getDistanceFromRobotPose(FieldPoses.getCoralStationPose(side.get()),
-                        robotPoseSupplier) < FIELD_OFFSETS.elevatorPrepCoralStationDistance.in(Meters)));
-    }
+    // TODO: Uncomment these lines when PhotonVision is implemented
+    // public static Trigger readyToPrepElevatorForCoralStation(Supplier<CoralStationSide> side,
+    //         Supplier<Pose2d> robotPoseSupplier) {
+    //     return new Trigger(
+    //             () -> (FieldPoses.getDistanceFromRobotPose(FieldPoses.getCoralStationPose(side.get()),
+    //                     robotPoseSupplier) < FIELD_OFFSETS.elevatorPrepCoralStationDistance.in(Meters)));
+    // }
 }

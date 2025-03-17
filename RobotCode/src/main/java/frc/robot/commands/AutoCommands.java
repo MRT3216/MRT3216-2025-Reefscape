@@ -1,9 +1,14 @@
 package frc.robot.commands;
 
+import com.ctre.phoenix6.swerve.SwerveRequest;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.Constants.ReefBranch;
+import frc.robot.subsystems.Coral.Elevator.ElevatorSubsystem;
+import frc.robot.subsystems.Coral.Pivot.CoralPivotSubsystem;
+import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 
 public class AutoCommands {
 
@@ -36,5 +41,28 @@ public class AutoCommands {
                 .andThen(comboCommands.driveAndAlignToReefBranchAndScorePrep(() -> ReefBranch.C, () -> POSITIONS.L4))
                 .andThen(comboCommands.scoreCoral())
                 .andThen(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
+    }
+
+    public static Command driveForward(CommandSwerveDrivetrain drivetrain) {
+        SwerveRequest.FieldCentric forwardStraight = new SwerveRequest.FieldCentric();
+        return drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)).withTimeout(2);
+    }
+
+    public static Command driveForwardL1(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevator,
+            CoralPivotSubsystem coralPivot, ComboCommands comboCommands) {
+        SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric();
+        return CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
+                () -> POSITIONS.L1)
+                .andThen(
+                        drivetrain.applyRequest(
+                                () -> forwardStraight.withVelocityX(0.5)
+                                        .withVelocityY(0))
+                                .withTimeout(5))
+                .andThen(comboCommands.scoreCoralL1());
+    }
+
+    public static Command pushForward(CommandSwerveDrivetrain drivetrain) {
+        SwerveRequest.FieldCentric forwardStraight = new SwerveRequest.FieldCentric();
+        return drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-1.0).withVelocityY(0)).withTimeout(15);
     }
 }

@@ -45,7 +45,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private ElevatorSimulation elevatorSimContainer;
     private ElevatorFeedforward elevatorFeedForward;
     private boolean enabled;
-    private POSITIONS currentPosition = POSITIONS.STARTING;
+    private POSITIONS currentPosition = POSITIONS.STOW;
 
     // #endregion
 
@@ -62,7 +62,6 @@ public class ElevatorSubsystem extends SubsystemBase {
                 .voltageCompensation(ELEVATOR.kVoltageCompensation)
                 .openLoopRampRate(ELEVATOR.kElevatorRampRate);
 
-        //TODO: Check this
         encoder = leadMotorController.getEncoder();
         EncoderConfig encoderConfig = new EncoderConfig();
         encoderConfig.positionConversionFactor(1);
@@ -104,7 +103,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         pIDController.setTolerance(ELEVATOR.kPositionTolerance.in(Meters));
         // Set the inital position so that when enabled the controler
         // matches the initial position
-        pIDController.reset(CORAL.POSITIONS.STARTING.getHeight().in(Meters));
+        pIDController.reset(CORAL.POSITIONS.STOW.getHeight().in(Meters));
         enabled = false;
 
         if (RobotBase.isSimulation()) {
@@ -135,8 +134,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("L3", currentPosition == POSITIONS.L3);
         SmartDashboard.putBoolean("L2", currentPosition == POSITIONS.L2);
         SmartDashboard.putBoolean("L1", currentPosition == POSITIONS.L1);
-        SmartDashboard.putBoolean("Starting", currentPosition == POSITIONS.STARTING);
-        SmartDashboard.putString("Curent Position", getSelectedPosition().get().toString());
+        SmartDashboard.putBoolean("Stow", currentPosition == POSITIONS.STOW);
+        SmartDashboard.putBoolean("Coral Station", currentPosition == POSITIONS.CORAL_STATION);
+        SmartDashboard.putBoolean("Score Prep", currentPosition == POSITIONS.SCORE_PREP);
     }
 
     private void setElevatorHeightGoal(Distance height) {
@@ -179,10 +179,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // #region Commands and Triggers
 
-    public Command moveElevatorToHeight(Distance height) {
+    public Command moveElevatorToHeight(POSITIONS position) {
         return this.run(() -> {
             this.enable();
-            setElevatorHeightGoal(height);
+            setElevatorHeightGoal(position.getHeight());
         }).until(this.atGoal());
     }
 
@@ -196,8 +196,8 @@ public class ElevatorSubsystem extends SubsystemBase {
                         }));
     }
 
-    public Command moveToPosition() {
-        return moveElevatorToHeight(currentPosition.getHeight());
+    public Command moveToSelectedPosition() {
+        return moveElevatorToHeight(currentPosition);
     }
 
     public Command setTargetPos(POSITIONS pos) {
@@ -210,7 +210,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Trigger aboveHeight() {
-        return new Trigger(() -> getPositionDistance().gt(Meters.of(0.5)));
+        return new Trigger(() -> getPositionDistance().gt(Meters.of(ELEVATOR.slowModeHeight)));
     }
 
     public String currentLevel() {
@@ -223,11 +223,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         if (elevatorSimContainer != null) {
             elevatorSimContainer.simulationPeriodic();
-            // SmartDashboard.putBoolean("Elevator Enabled", enabled);
-            // SmartDashboard.putNumber("Elevator position error", pIDController.getPositionError());
-            // SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
-            // SmartDashboard.putNumber("Elevator position actual", encoder.getPosition());
-            // SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
         }
     }
 }

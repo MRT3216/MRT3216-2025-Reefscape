@@ -6,14 +6,11 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
-import com.revrobotics.spark.config.EncoderConfig;
-import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -57,15 +54,15 @@ public class AlgaePivotSubsystem extends SubsystemBase {
         encoderConfig.zeroCentered(true);
         motorControllerConfig.apply(encoderConfig);
 
-        SoftLimitConfig softLimitConfig = new SoftLimitConfig();
-        softLimitConfig
-                // Soft limits use the internal motor encoder rather than the attached
-                // absolute encoder so adjust by the gearing
-                .forwardSoftLimit(PIVOT.kSoftForwardLimit.in(Rotations) * PIVOT.kPivotGearing)
-                .forwardSoftLimitEnabled(true)
-                .reverseSoftLimit(PIVOT.kSoftReverseLimit.in(Rotations) * PIVOT.kPivotGearing)
-                .reverseSoftLimitEnabled(true);
-        motorControllerConfig.apply(softLimitConfig);
+        // SoftLimitConfig softLimitConfig = new SoftLimitConfig();
+        // softLimitConfig
+        //         // Soft limits use the internal motor encoder rather than the attached
+        //         // absolute encoder so adjust by the gearing
+        //         .forwardSoftLimit(PIVOT.kSoftForwardLimit.in(Rotations) * PIVOT.kPivotGearing)
+        //         .forwardSoftLimitEnabled(true)
+        //         .reverseSoftLimit(PIVOT.kSoftReverseLimit.in(Rotations) * PIVOT.kPivotGearing)
+        //         .reverseSoftLimitEnabled(true);
+       // motorControllerConfig.apply(softLimitConfig);
 
         motorController.configure(motorControllerConfig, ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
