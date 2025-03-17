@@ -23,7 +23,6 @@ import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.Algae.Pivot.AlgaePivotSubsystem;
 import frc.robot.subsystems.Algae.Rollers.AlgaeRollersSubsystem;
-import frc.robot.subsystems.Climber.ClimberSubsystem;
 import frc.robot.subsystems.Coral.Elevator.ElevatorSubsystem;
 import frc.robot.subsystems.Coral.EndEffector.CoralEndEffectorSubsystem;
 import frc.robot.subsystems.Coral.Pivot.CoralPivotSubsystem;
@@ -51,7 +50,6 @@ public class RobotContainer {
     private final CoralEndEffectorSubsystem coralEndEffector = new CoralEndEffectorSubsystem();
     private final AlgaePivotSubsystem algaePivot = new AlgaePivotSubsystem();
     private final AlgaeRollersSubsystem algaeRollers = new AlgaeRollersSubsystem();
-    private final ClimberSubsystem climber = new ClimberSubsystem();
     private final ComboCommands comboCommands = new ComboCommands(drivetrain, elevator, coralPivot, coralEndEffector);
 
     /* Path follower */
