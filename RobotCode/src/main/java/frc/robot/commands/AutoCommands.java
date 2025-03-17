@@ -51,13 +51,13 @@ public class AutoCommands {
     public static Command driveForwardL1(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevator,
             CoralPivotSubsystem coralPivot, ComboCommands comboCommands) {
         SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric();
-        return drivetrain.applyRequest(
-                () -> forwardStraight.withVelocityX(0.5)
-                        .withVelocityY(0))
-                .withTimeout(4)
+        return CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
+                () -> POSITIONS.L1)
                 .andThen(
-                        CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
-                                () -> POSITIONS.L1))
+                        drivetrain.applyRequest(
+                                () -> forwardStraight.withVelocityX(0.5)
+                                        .withVelocityY(0))
+                                .withTimeout(5))
                 .andThen(comboCommands.scoreCoralL1());
     }
 

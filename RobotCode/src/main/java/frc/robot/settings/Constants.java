@@ -122,8 +122,8 @@ public final class Constants {
         public enum POSITIONS {
             STOW(Meters.of(0), Degrees.of(30)),
             SCORE_PREP(Meters.of(0.3), Degrees.of(-60)),
-            CORAL_STATION(Meters.of(0.38), Degrees.of(25)),
-            L1(Meters.of(0), Degrees.of(25)),
+            CORAL_STATION(Meters.of(0.39), Degrees.of(19)),
+            L1(Meters.of(0), Degrees.of(20)),
             L2(Meters.of(0.61), Degrees.of(-32)),
             L3(Meters.of(1.02), Degrees.of(-32)),
             L4(Meters.of(1.75), Degrees.of(-31));
@@ -224,7 +224,7 @@ public final class Constants {
         public static final class END_EFFECTOR {
             public static final double intakeSpeed = 0.3;
             public static final double outtakeSpeed = -0.3;
-            public static final double outtakeSpeedL1 = -0.2;
+            public static final double outtakeSpeedL1 = -0.25;
 
             // TODO: Need to finish this configuration
             public static final TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
