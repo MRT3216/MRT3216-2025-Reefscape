@@ -16,9 +16,12 @@ import frc.robot.commands.AlgaeCommands;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.ComboCommands;
 import frc.robot.commands.CoralCommands;
+import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
 import frc.robot.settings.Constants.ALGAE.PIVOT.Positions;
+import frc.robot.settings.Constants.BranchSide;
+import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.Algae.Pivot.AlgaePivotSubsystem;
@@ -52,7 +55,6 @@ public class RobotContainer {
     private final AlgaeRollersSubsystem algaeRollers = new AlgaeRollersSubsystem();
     private final ComboCommands comboCommands = new ComboCommands(drivetrain, elevator, coralPivot, coralEndEffector);
 
-    /* Path follower */
     private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("None");;
 
     // #endregion
@@ -107,12 +109,17 @@ public class RobotContainer {
                                                                 : 0.8)) // Drive counterclockwise with negative X (left)
                 ));
 
-        driverController.a().onTrue(comboCommands.scoreCoral());
-        driverController.b().onTrue(comboCommands.intakeCoralFromStationCommand());
+        // driverController.a().onTrue(comboCommands.scoreCoral());
+        // driverController.b().onTrue(comboCommands.intakeCoralFromStationCommand());
+        driverController.a().whileTrue(comboCommands.retrieveFromCoralStationCommand(()-> CoralStationSide.LEFT));
 
-        driverController.rightTrigger().onTrue(
-                CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
-                        coralPivot, elevator.getSelectedPosition()));
+        driverController.leftTrigger()
+                .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.LEFT));
+        driverController.rightTrigger()
+                .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.RIGHT));
+        // driverController.rightTrigger().onTrue(
+        //         CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
+        //                 coralPivot, elevator.getSelectedPosition()));
 
         driverController.leftBumper().onTrue(AlgaeCommands.intakeAlgae(algaePivot, algaeRollers));
         driverController.rightBumper().onTrue(AlgaeCommands.scoreAlgae(algaePivot, algaeRollers));
