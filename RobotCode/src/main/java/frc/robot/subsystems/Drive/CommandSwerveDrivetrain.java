@@ -311,8 +311,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-        // TODO: Uncomment this line when PhotonVision is implemented
-        // vision.updatePoseEstimation(this);
+        vision.updatePoseEstimation(this);
     }
 
     private void startSimThread() {

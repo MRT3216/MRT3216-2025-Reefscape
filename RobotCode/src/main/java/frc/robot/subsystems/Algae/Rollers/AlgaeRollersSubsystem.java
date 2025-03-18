@@ -37,7 +37,6 @@ public class AlgaeRollersSubsystem extends SubsystemBase {
         motorController.set(0);
     }
 
-    // TODO: check this again
     public Command intakeAlgae() {
         return this.startEnd(
                 () -> {

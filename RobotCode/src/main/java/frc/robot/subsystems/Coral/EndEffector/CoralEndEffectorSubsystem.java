@@ -77,6 +77,11 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
                 .andThen(() -> stopIntake());
     }
 
+    public Command stopEndEffector(){
+        return this.run(
+                () -> stopIntake());
+    }
+
     public Trigger hasCoral() {
         return new Trigger(this::coralInIntake);
     }
