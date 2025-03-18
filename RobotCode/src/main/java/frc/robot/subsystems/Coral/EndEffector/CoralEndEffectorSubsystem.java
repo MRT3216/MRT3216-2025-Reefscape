@@ -48,14 +48,11 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
     // region Commands and Triggers
 
     public Command runEndEffectorCommand() {
-        return this.defer(
-                () -> {
-                    if (coralInIntake()) {
-                        return outtakeCoralCommand();
-                    } else {
-                        return intakeCoralCommand();
-                    }
-                });
+        if (coralInIntake()) {
+            return outtakeCoralCommand();
+        } else {
+            return intakeCoralCommand();
+        }
     }
 
     public Command intakeCoralCommand() {
@@ -77,7 +74,7 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
                 .andThen(() -> stopIntake());
     }
 
-    public Command stopEndEffector(){
+    public Command stopEndEffector() {
         return this.run(
                 () -> stopIntake());
     }

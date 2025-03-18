@@ -45,7 +45,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     private ElevatorSimulation elevatorSimContainer;
     private ElevatorFeedforward elevatorFeedForward;
     private boolean enabled;
-    private POSITIONS currentPosition = POSITIONS.STOW;
+    // TODO: reset this to stow
+    private POSITIONS currentPosition = POSITIONS.L4;
 
     // #endregion
 
@@ -179,29 +180,28 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // #region Commands and Triggers
 
-    public Command moveElevatorToHeight(POSITIONS position) {
+    public Command moveElevatorToHeight(Supplier<POSITIONS> position) {
         return this.run(() -> {
             this.enable();
-            setElevatorHeightGoal(position.getHeight());
+            setElevatorHeightGoal(position.get().getHeight());
         }).until(this.atGoal());
     }
 
-    public Command adjustElevatorHeight(Distance heightAdjustment) {
-        return this.defer(
-                () -> Commands.runOnce(
-                        () -> {
-                            enable();
-                            setElevatorHeightGoal(
-                                    Meters.of(pIDController.getGoal().position).plus(heightAdjustment));
-                        }));
+    public Command adjustElevatorHeight(Supplier<Distance> heightAdjustment) {
+        return Commands.runOnce(
+                () -> {
+                    enable();
+                    setElevatorHeightGoal(
+                            Meters.of(pIDController.getGoal().position).plus(heightAdjustment.get()));
+                });
     }
 
     public Command moveToSelectedPosition() {
-        return moveElevatorToHeight(currentPosition);
+        return moveElevatorToHeight(getSelectedPosition());
     }
 
-    public Command setTargetPos(POSITIONS pos) {
-        return this.defer(() -> Commands.runOnce(() -> setPosition(pos)));
+    public Command setTargetPos(Supplier<POSITIONS> pos) {
+        return Commands.runOnce(() -> setPosition(pos.get()));
 
     }
 
@@ -216,7 +216,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public String currentLevel() {
         return currentPosition.toString();
     }
-    
+
     // #endregion
 
     @Override

@@ -21,8 +21,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
 import frc.robot.settings.Constants.ALGAE.PIVOT.Positions;
 import frc.robot.settings.Constants.BranchSide;
-import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
+import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.RobotMap;
 import frc.robot.subsystems.Algae.Pivot.AlgaePivotSubsystem;
 import frc.robot.subsystems.Algae.Rollers.AlgaeRollersSubsystem;
@@ -109,14 +109,17 @@ public class RobotContainer {
                                                                 : 0.8)) // Drive counterclockwise with negative X (left)
                 ));
 
-        // driverController.a().onTrue(comboCommands.scoreCoral());
-        // driverController.b().onTrue(comboCommands.intakeCoralFromStationCommand());
-        driverController.a().whileTrue(comboCommands.retrieveFromCoralStationCommand(()-> CoralStationSide.LEFT));
+        driverController.a().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT));
+        driverController.b().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
+        driverController.x().onTrue(comboCommands.scoreCoral());
+        driverController.y().onTrue(DriveCommands.driveToProcessor(drivetrain));
 
         driverController.leftTrigger()
                 .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.LEFT));
+
         driverController.rightTrigger()
                 .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.RIGHT));
+
         // driverController.rightTrigger().onTrue(
         //         CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
         //                 coralPivot, elevator.getSelectedPosition()));
@@ -133,14 +136,19 @@ public class RobotContainer {
 
         // #region Testing
 
+        driverController.povDown().onTrue(elevator.setTargetPos(() -> POSITIONS.L1));
+        driverController.povLeft().onTrue(elevator.setTargetPos(() -> POSITIONS.L2));
+        driverController.povRight().onTrue(elevator.setTargetPos(() -> POSITIONS.L3));
+        driverController.povUp().onTrue(elevator.setTargetPos(() -> POSITIONS.L4));
+
         // TODO: Use this method to aim wheels for climb
         // driverController.b().whileTrue(drivetrain.applyRequest(
         //         () -> point.withModuleDirection(
         //                 new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
 
-        driverController.povUp()
-                .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator, coralPivot,
-                        () -> POSITIONS.L4));
+        // driverController.povUp()
+        //         .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator, coralPivot,
+        //                 () -> POSITIONS.L4));
         // driverController.povRight()
         //         .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
         //                 () -> POSITIONS.L3));
@@ -170,10 +178,10 @@ public class RobotContainer {
     }
 
     private void configureOperatorBindings() {
-        operatorController.a().onTrue(elevator.setTargetPos(POSITIONS.L1));
-        operatorController.b().onTrue(elevator.setTargetPos(POSITIONS.L2));
-        operatorController.x().onTrue(elevator.setTargetPos(POSITIONS.L3));
-        operatorController.y().onTrue(elevator.setTargetPos(POSITIONS.L4));
+        operatorController.a().onTrue(elevator.setTargetPos(() -> POSITIONS.L1));
+        operatorController.b().onTrue(elevator.setTargetPos(() -> POSITIONS.L2));
+        operatorController.x().onTrue(elevator.setTargetPos(() -> POSITIONS.L3));
+        operatorController.y().onTrue(elevator.setTargetPos(() -> POSITIONS.L4));
         operatorController.start().onTrue(
                 CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
                         coralPivot, elevator.getSelectedPosition()));
@@ -183,8 +191,8 @@ public class RobotContainer {
 
         // operatorController.leftTrigger().whileTrue(climber.runClimber(-CLIMBER.speed));
         // operatorController.rightTrigger().whileTrue(climber.runClimber(CLIMBER.speed));
-        operatorController.leftTrigger().onTrue(algaePivot.movePivotToAngle(Positions.INTAKING.getAngle()));
-        operatorController.rightTrigger().onTrue(algaePivot.movePivotToAngle(Positions.STOW_SCORING.getAngle()));
+        operatorController.leftTrigger().onTrue(algaePivot.movePivotToAngle(() -> Positions.INTAKING));
+        operatorController.rightTrigger().onTrue(algaePivot.movePivotToAngle(() -> Positions.STOW_SCORING));
         operatorController.leftBumper().onTrue(coralEndEffector.intakeCoralCommand());
         operatorController.rightBumper().onTrue(coralEndEffector.outtakeCoralCommand());
     }

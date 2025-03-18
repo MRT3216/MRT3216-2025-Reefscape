@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -28,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants.CORAL.PIVOT;
+import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.RobotMap.ROBOT.CORAL_SYSTEM.PIVOT_MAP;
 
 public class CoralPivotSubsystem extends SubsystemBase {
@@ -145,22 +148,21 @@ public class CoralPivotSubsystem extends SubsystemBase {
 
     // #region Commands and Triggers
 
-    public Command movePivotToAngle(Angle angle) {
+    public Command movePivotToAngle(Supplier<POSITIONS> angle) {
         return this.run(() -> {
-            setPivotGoal(angle);
+            setPivotGoal(angle.get().getAngle());
             this.enable();
         }).until(this.atGoal());
     }
 
-    public Command adjustPivotAngle(Angle angleAdjustment) {
-        return this.defer(
-                () -> Commands.runOnce(
-                        () -> {
-                            enable();
-                            setPivotGoal(
-                                    Degrees.of(Units.rotationsToDegrees(
-                                            pIDController.getGoal().position + angleAdjustment.in(Rotations))));
-                        }));
+    public Command adjustPivotAngle(Supplier<Angle> angleAdjustment) {
+        return Commands.runOnce(
+                () -> {
+                    enable();
+                    setPivotGoal(
+                            Degrees.of(Units.rotationsToDegrees(
+                                    pIDController.getGoal().position + angleAdjustment.get().in(Rotations))));
+                });
     }
 
     protected Trigger atGoal() {

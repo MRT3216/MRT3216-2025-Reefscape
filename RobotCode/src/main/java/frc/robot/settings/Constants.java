@@ -14,6 +14,8 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -81,9 +83,9 @@ public final class Constants {
 
         public static Distance elevatorPrepCoralStationDistance = Meters.of(1);
 
-        public static final Transform2d getReefOffsetPoseInitial(BranchSide side) {
+        public static final Transform2d getReefOffsetPoseInitial(Supplier<BranchSide> side) {
             return new Transform2d(FIELD_OFFSETS.reefXOffsetInitial,
-                    side.equals(BranchSide.LEFT) ? FIELD_OFFSETS.reefYOffsetLeftBranch
+                    side.get().equals(BranchSide.LEFT) ? FIELD_OFFSETS.reefYOffsetLeftBranch
                             : FIELD_OFFSETS.reefYOffsetRightBranch,
                     Rotation2d.fromDegrees(180));
         }

@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -27,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants.ALGAE.PIVOT;
+import frc.robot.settings.Constants.ALGAE.PIVOT.Positions;
 import frc.robot.settings.RobotMap.ROBOT.ALGAE_SYSTEM.PIVOT_MAP;
 
 public class AlgaePivotSubsystem extends SubsystemBase {
@@ -62,7 +65,7 @@ public class AlgaePivotSubsystem extends SubsystemBase {
         //         .forwardSoftLimitEnabled(true)
         //         .reverseSoftLimit(PIVOT.kSoftReverseLimit.in(Rotations) * PIVOT.kPivotGearing)
         //         .reverseSoftLimitEnabled(true);
-       // motorControllerConfig.apply(softLimitConfig);
+        // motorControllerConfig.apply(softLimitConfig);
 
         motorController.configure(motorControllerConfig, ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
@@ -148,21 +151,20 @@ public class AlgaePivotSubsystem extends SubsystemBase {
 
     // #region Commands and Triggers
 
-    public Command movePivotToAngle(Angle angle) {
+    public Command movePivotToAngle(Supplier<Positions> angle) {
         return this.run(() -> {
-            setPivotGoal(angle);
+            setPivotGoal(angle.get().getAngle());
             this.enable();
         }).until(this.atGoal());
     }
 
-    public Command adjustPivotAngle(Angle angleAdjustment) {
-        return this.defer(
-                () -> Commands.runOnce(
-                        () -> {
-                            enable();
-                            setPivotGoal(
-                                    Degrees.of(pIDController.getGoal().position + angleAdjustment.in(Rotations)));
-                        }));
+    public Command adjustPivotAngle(Supplier<Angle> angleAdjustment) {
+        return Commands.runOnce(
+                () -> {
+                    enable();
+                    setPivotGoal(
+                            Degrees.of(pIDController.getGoal().position + angleAdjustment.get().in(Rotations)));
+                });
     }
 
     protected Trigger atGoal() {
