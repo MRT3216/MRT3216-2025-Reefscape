@@ -75,9 +75,6 @@ public final class Constants {
         public static double reefYOffsetRightBranch = -1 * reefYOffsetLeftBranch;
         public static double coralStationXOffset = 0.5;
         public static double processorXOffset = 0.5;
-        // TODO: This is offset additionally to compensate for the short field
-        public static double cageFieldTooShortOffset = Units.inchesToMeters(-9.25);
-        public static double cageFieldTooNarrowOffset = Units.inchesToMeters(-38.875);
         public static double cageXOffset = 0.0;
         public static double cageYOffset = 0.0;
         public static double cageRotation = 90;
@@ -105,8 +102,8 @@ public final class Constants {
                 Rotation2d.fromDegrees(180));
 
         public static final Transform2d cageOffset = new Transform2d(
-                FIELD_OFFSETS.cageXOffset + FIELD_OFFSETS.cageFieldTooShortOffset,
-                FIELD_OFFSETS.cageYOffset + FIELD_OFFSETS.cageFieldTooNarrowOffset,
+                FIELD_OFFSETS.cageXOffset,
+                FIELD_OFFSETS.cageYOffset,
                 Rotation2d.fromDegrees(FIELD_OFFSETS.cageRotation));
         public static final Transform2d processorOffset = new Transform2d(FIELD_OFFSETS.processorXOffset, 0,
                 Rotation2d.fromDegrees(0));
@@ -226,7 +223,6 @@ public final class Constants {
             public static final double outtakeSpeed = -0.3;
             public static final double outtakeSpeedL1 = -0.25;
 
-            // TODO: Need to finish this configuration
             public static final TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
             static {
                 motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
