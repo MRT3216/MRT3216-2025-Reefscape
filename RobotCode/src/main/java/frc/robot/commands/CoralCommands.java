@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import java.util.function.Supplier;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.subsystems.Coral.Elevator.ElevatorSubsystem;
@@ -13,11 +11,10 @@ public class CoralCommands {
     public static Command moveElevatorAndPivotToHeightCommandDelayPivot(
             ElevatorSubsystem elevator,
             CoralPivotSubsystem pivot,
-            Supplier<POSITIONS> position) {
-        return pivot.movePivotToAngle(() -> POSITIONS.SCORE_PREP)
-                .alongWith(elevator.moveElevatorToHeight(position))
+            POSITIONS position) {
+        return pivot.movePivotToAngle(POSITIONS.SCORE_PREP)
+                .alongWith(elevator.moveToTargetPosition())
                 .andThen(pivot.movePivotToAngle(position));
-
     }
 
     // Move the elevator and pivot to the specified position and immediately
@@ -25,9 +22,8 @@ public class CoralCommands {
     public static Command moveElevatorAndPivotToHeightCommand(
             ElevatorSubsystem elevator,
             CoralPivotSubsystem pivot,
-            Supplier<POSITIONS> position) {
+            POSITIONS position) {
         return elevator.moveElevatorToHeight(position)
                 .alongWith(pivot.movePivotToAngle(position));
-
     }
 }

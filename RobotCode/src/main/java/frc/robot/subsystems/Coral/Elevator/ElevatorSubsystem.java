@@ -4,8 +4,6 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 
-import java.util.function.Supplier;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -46,7 +44,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private ElevatorFeedforward elevatorFeedForward;
     private boolean enabled;
     // TODO: reset this to stow
-    private POSITIONS currentPosition = POSITIONS.L4;
+    private POSITIONS currentPosition = POSITIONS.L2;
 
     // #endregion
 
@@ -152,8 +150,8 @@ public class ElevatorSubsystem extends SubsystemBase {
                 / ELEVATOR.kElevatorGearing);
     }
 
-    public Supplier<POSITIONS> getSelectedPosition() {
-        return () -> currentPosition;
+    public POSITIONS getTargetPosition() {
+        return currentPosition;
     }
 
     public LinearVelocity getVelocity() {
@@ -180,29 +178,28 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // #region Commands and Triggers
 
-    public Command moveElevatorToHeight(Supplier<POSITIONS> position) {
+    public Command moveElevatorToHeight(POSITIONS position) {
         return this.run(() -> {
             this.enable();
-            setElevatorHeightGoal(position.get().getHeight());
+            setElevatorHeightGoal(position.getHeight());
         }).until(this.atGoal());
     }
 
-    public Command adjustElevatorHeight(Supplier<Distance> heightAdjustment) {
+    public Command moveToTargetPosition() {
+        return this.defer(()-> this.moveElevatorToHeight(getTargetPosition()));
+    }
+
+    public Command adjustElevatorHeight(Distance heightAdjustment) {
         return Commands.runOnce(
                 () -> {
                     enable();
                     setElevatorHeightGoal(
-                            Meters.of(pIDController.getGoal().position).plus(heightAdjustment.get()));
+                            Meters.of(pIDController.getGoal().position).plus(heightAdjustment));
                 });
     }
 
-    public Command moveToSelectedPosition() {
-        return moveElevatorToHeight(getSelectedPosition());
-    }
-
-    public Command setTargetPos(Supplier<POSITIONS> pos) {
-        return Commands.runOnce(() -> setPosition(pos.get()));
-
+    public Command setTargetPos(POSITIONS pos) {
+        return Commands.runOnce(() -> setPosition(pos));
     }
 
     protected Trigger atGoal() {

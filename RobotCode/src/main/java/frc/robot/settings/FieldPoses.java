@@ -14,21 +14,21 @@ import frc.robot.settings.Constants.CoralStationSide;
 import frc.robot.settings.Constants.ReefBranch;
 
 public class FieldPoses {
-    public static Supplier<Pose2d> getNearestReefFaceInitial(Supplier<BranchSide> side, Supplier<Pose2d> currentPose) {
-        return () -> getNearestReefFace(currentPose).get()
+    public static Pose2d getNearestReefFaceInitial(BranchSide side, Pose2d currentPose) {
+        return getNearestReefFace(currentPose)
                 .transformBy(Constants.FIELD_OFFSETS.getReefOffsetPoseInitial(side));
     }
 
-    public static Supplier<Pose2d> getNearestReefFace(Supplier<Pose2d> currentPose) {
+    public static Pose2d getNearestReefFace(Pose2d currentPose) {
         // Alliance flip the robot pose, find the nearest blue side reef, then reflip
-        Pose2d pose = AllianceFlipUtil.apply(currentPose.get())
+        Pose2d pose = AllianceFlipUtil.apply(currentPose)
                 .nearest(Arrays.asList(FieldConstants.Reef.centerFaces));
-        return () -> AllianceFlipUtil.apply(pose);
+        return AllianceFlipUtil.apply(pose);
     }
 
-    public static Supplier<Pose2d> getProcessorPose() {
+    public static Pose2d getProcessorPose() {
         // Alliance flip the pose
-        return () -> AllianceFlipUtil.apply(
+        return AllianceFlipUtil.apply(
                 FieldConstants.Processor.centerFace.transformBy(Constants.FIELD_OFFSETS.processorOffset));
     }
 
@@ -52,20 +52,20 @@ public class FieldPoses {
     //                     .transformBy(Constants.FIELD_OFFSETS.cageOffset));
     // }
 
-    public static Supplier<Pose2d> getCoralStationPose(Supplier<CoralStationSide> side) {
-        return () -> AllianceFlipUtil.apply(
-                side.get().equals(CoralStationSide.LEFT) ? FieldConstants.CoralStation.leftCenterFace
+    public static Pose2d getCoralStationPose(CoralStationSide side) {
+        return AllianceFlipUtil.apply(
+                side.equals(CoralStationSide.LEFT) ? FieldConstants.CoralStation.leftCenterFace
                         : FieldConstants.CoralStation.rightCenterFace)
                 .transformBy(Constants.FIELD_OFFSETS.coralStationOffsetPose);
     }
 
-    public static Supplier<Pose2d> getReefPolePose(Supplier<ReefBranch> reefBranch) {
-        return () -> AllianceFlipUtil.apply(FieldConstants.Reef.centerFaces[reefBranch.get().getReefSide().getValue()]
-                .transformBy(Constants.FIELD_OFFSETS.getReefOffsetPoseInitial(() -> reefBranch.get().getBranchSide())));
+    public static Pose2d getReefPolePose(ReefBranch reefBranch) {
+        return AllianceFlipUtil.apply(FieldConstants.Reef.centerFaces[reefBranch.getReefSide().getValue()]
+                .transformBy(Constants.FIELD_OFFSETS.getReefOffsetPoseInitial(reefBranch.getBranchSide())));
     }
 
-    public static Supplier<Double> getDistanceFromRobotPose(Supplier<Pose2d> pose, Supplier<Pose2d> currentPose) {
-        return ()-> PhotonUtils.getDistanceToPose(currentPose.get(), pose.get());
+    public static double getDistanceFromRobotPose(Pose2d pose, Pose2d currentPose) {
+        return PhotonUtils.getDistanceToPose(currentPose, pose);
     }
 
     /**

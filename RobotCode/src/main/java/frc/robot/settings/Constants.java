@@ -53,8 +53,8 @@ public final class Constants {
         public static final PathConstraints pathConstraints = new PathConstraints(
                 Constants.PATHING.maxVelocityMPS, Constants.PATHING.maxAccelerationMPSSq,
                 Constants.PATHING.maxAngularVelocityRPS, Constants.PATHING.maxAngularAccelerationRPSS);
-        public static final double maxVelocityMPS = 4;
-        public static final double maxAccelerationMPSSq = 6;
+        public static final double maxVelocityMPS = 2;
+        public static final double maxAccelerationMPSSq = 3;
         public static final double maxAngularVelocityRPS = Units.degreesToRadians(540);
         public static final double maxAngularAccelerationRPSS = Units.degreesToRadians(720);
         public static final double pathingMinimumDistance = 1;
@@ -83,9 +83,9 @@ public final class Constants {
 
         public static Distance elevatorPrepCoralStationDistance = Meters.of(1);
 
-        public static final Transform2d getReefOffsetPoseInitial(Supplier<BranchSide> side) {
+        public static final Transform2d getReefOffsetPoseInitial(BranchSide side) {
             return new Transform2d(FIELD_OFFSETS.reefXOffsetInitial,
-                    side.get().equals(BranchSide.LEFT) ? FIELD_OFFSETS.reefYOffsetLeftBranch
+                    side.equals(BranchSide.LEFT) ? FIELD_OFFSETS.reefYOffsetLeftBranch
                             : FIELD_OFFSETS.reefYOffsetRightBranch,
                     Rotation2d.fromDegrees(180));
         }

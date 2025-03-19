@@ -180,7 +180,7 @@ public class Vision {
         /**
         * Center Camera
         */
-        FRONT_LEFT("Front_Left",
+        FRONT_LEFT("Front-Left",
                 new Rotation3d(
                         Units.degreesToRadians(0),
                         Units.degreesToRadians(-15),
@@ -190,7 +190,7 @@ public class Vision {
                         Units.inchesToMeters(12.643),
                         Units.inchesToMeters(8.5)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
-        FRONT_RIGHT("Front_Right",
+        FRONT_RIGHT("Front-Right",
                 new Rotation3d(
                         Units.degreesToRadians(0),
                         Units.degreesToRadians(-15),
@@ -200,7 +200,7 @@ public class Vision {
                         Units.inchesToMeters(-12.643),
                         Units.inchesToMeters(8.5)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
-        BACK("Back_Left",
+        BACK("Back-Left",
                 new Rotation3d(
                         Units.degreesToRadians(0),
                         Units.degreesToRadians(-5),
@@ -210,7 +210,7 @@ public class Vision {
                         Units.inchesToMeters(11.947),
                         Units.inchesToMeters(26.125)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
-        BACK_RIGHT("Back_Right",
+        BACK_RIGHT("Back-Right",
                 new Rotation3d(
                         Units.degreesToRadians(0),
                         Units.degreesToRadians(-5),

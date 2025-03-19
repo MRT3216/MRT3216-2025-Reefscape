@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -12,7 +14,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.AlgaeCommands;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.ComboCommands;
 import frc.robot.commands.CoralCommands;
@@ -124,22 +125,22 @@ public class RobotContainer {
         //         CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
         //                 coralPivot, elevator.getSelectedPosition()));
 
-        driverController.leftBumper().onTrue(AlgaeCommands.intakeAlgae(algaePivot, algaeRollers));
-        driverController.rightBumper().onTrue(AlgaeCommands.scoreAlgae(algaePivot, algaeRollers));
+        // driverController.leftBumper().onTrue(AlgaeCommands.intakeAlgae(algaePivot, algaeRollers));
+        // driverController.rightBumper().onTrue(AlgaeCommands.scoreAlgae(algaePivot, algaeRollers));
 
         // Reset the field-centric heading on start press
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         driverController.leftStick().onTrue(
-                CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.STOW));
+                CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, POSITIONS.STOW));
         driverController.rightStick().onTrue(drivetrain.toggleSlowMode());
 
         // #region Testing
 
-        driverController.povDown().onTrue(elevator.setTargetPos(() -> POSITIONS.L1));
-        driverController.povLeft().onTrue(elevator.setTargetPos(() -> POSITIONS.L2));
-        driverController.povRight().onTrue(elevator.setTargetPos(() -> POSITIONS.L3));
-        driverController.povUp().onTrue(elevator.setTargetPos(() -> POSITIONS.L4));
+        driverController.povDown().onTrue(elevator.setTargetPos(POSITIONS.L1));
+        driverController.povLeft().onTrue(elevator.setTargetPos(POSITIONS.L2));
+        driverController.povRight().onTrue(elevator.setTargetPos(POSITIONS.L3));
+        driverController.povUp().onTrue(elevator.setTargetPos(POSITIONS.L4));
 
         // TODO: Use this method to aim wheels for climb
         // driverController.b().whileTrue(drivetrain.applyRequest(
@@ -162,13 +163,13 @@ public class RobotContainer {
         //         .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
         //                 () -> POSITIONS.SCORE_PREP));
 
-        // driverController.leftBumper().onTrue(coralPivot.adjustPivotAngle(Degrees.of(-1)));
-        // driverController.rightBumper().onTrue(coralPivot.adjustPivotAngle(Degrees.of(1)));
+        driverController.leftBumper().whileTrue(coralPivot.adjustPivotAngle(Degrees.of(-1)).repeatedly());
+        driverController.rightBumper().whileTrue(coralPivot.adjustPivotAngle(Degrees.of(1)).repeatedly());
         // driverController.leftBumper().onTrue(algaePivot.adjustPivotAngle(Degrees.of(-1)));
         // driverController.rightBumper().onTrue(algaePivot.adjustPivotAngle(Degrees.of(1)));
 
-        // driverController.leftTrigger().onTrue(elevator.adjustElevatorHeight(Inches.of(-0.5)));
-        // driverController.rightTrigger().onTrue(elevator.adjustElevatorHeight(Inches.of(0.5)));
+        // driverController.leftTrigger().whileTrue(elevator.adjustElevatorHeight(Inches.of(-0.5)).repeatedly());
+        // driverController.rightTrigger().whileTrue(elevator.adjustElevatorHeight(Inches.of(0.5)).repeatedly());
         // driverController.leftTrigger().whileTrue(climber.runClimber(-0.3));
         // driverController.rightTrigger().whileTrue(climber.runClimber(0.3));
 
@@ -178,21 +179,21 @@ public class RobotContainer {
     }
 
     private void configureOperatorBindings() {
-        operatorController.a().onTrue(elevator.setTargetPos(() -> POSITIONS.L1));
-        operatorController.b().onTrue(elevator.setTargetPos(() -> POSITIONS.L2));
-        operatorController.x().onTrue(elevator.setTargetPos(() -> POSITIONS.L3));
-        operatorController.y().onTrue(elevator.setTargetPos(() -> POSITIONS.L4));
+        operatorController.a().onTrue(elevator.setTargetPos(POSITIONS.L1));
+        operatorController.b().onTrue(elevator.setTargetPos(POSITIONS.L2));
+        operatorController.x().onTrue(elevator.setTargetPos(POSITIONS.L3));
+        operatorController.y().onTrue(elevator.setTargetPos(POSITIONS.L4));
         operatorController.start().onTrue(
                 CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
-                        coralPivot, elevator.getSelectedPosition()));
+                        coralPivot, elevator.getTargetPosition()));
 
         operatorController.leftStick().onTrue(
-                CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, () -> POSITIONS.STOW));
+                CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, POSITIONS.STOW));
 
         // operatorController.leftTrigger().whileTrue(climber.runClimber(-CLIMBER.speed));
         // operatorController.rightTrigger().whileTrue(climber.runClimber(CLIMBER.speed));
-        operatorController.leftTrigger().onTrue(algaePivot.movePivotToAngle(() -> Positions.INTAKING));
-        operatorController.rightTrigger().onTrue(algaePivot.movePivotToAngle(() -> Positions.STOW_SCORING));
+        operatorController.leftTrigger().onTrue(algaePivot.movePivotToAngle(Positions.INTAKING));
+        operatorController.rightTrigger().onTrue(algaePivot.movePivotToAngle(Positions.STOW_SCORING));
         operatorController.leftBumper().onTrue(coralEndEffector.intakeCoralCommand());
         operatorController.rightBumper().onTrue(coralEndEffector.outtakeCoralCommand());
     }

@@ -20,11 +20,11 @@ public class DriveCommands {
     //     return DriveCommands.driveToPose(FieldPoses.getBargePose(BargeCage.middleCage), drivetrain);
     // }
 
-    private static Command driveToPose(Supplier<Pose2d> pose, CommandSwerveDrivetrain drivetrain) {
+    private static Command driveToPose(Pose2d pose, CommandSwerveDrivetrain drivetrain) {
         return FieldPoses.getDistanceFromRobotPose(pose,
-                drivetrain.getRobotPose()).get() > Constants.PATHING.pathingMinimumDistance
-                        ? AutoBuilder.pathfindToPose(pose.get(), Constants.PATHING.pathConstraints, 0)
-                        : new DriveToPose(drivetrain, pose.get());
+                drivetrain.getRobotPose().get()) > Constants.PATHING.pathingMinimumDistance
+                        ? AutoBuilder.pathfindToPose(pose, Constants.PATHING.pathConstraints, 0)
+                        : new DriveToPose(drivetrain, pose);
     }
 
     public static Command driveToProcessor(CommandSwerveDrivetrain drivetrain) {
@@ -34,21 +34,21 @@ public class DriveCommands {
 
     public static Command driveToCoralStation(CommandSwerveDrivetrain drivetrain, Supplier<CoralStationSide> side) {
         return DriveCommands.driveToPose(
-                FieldPoses.getCoralStationPose(side),
+                FieldPoses.getCoralStationPose(side.get()),
                 drivetrain);
     }
 
     public static Trigger readyToPrepElevatorForCoralStation(Supplier<CoralStationSide> side,
             Supplier<Pose2d> robotPoseSupplier) {
         return new Trigger(
-                () -> (FieldPoses.getDistanceFromRobotPose(FieldPoses.getCoralStationPose(side),
-                        robotPoseSupplier).get() < FIELD_OFFSETS.elevatorPrepCoralStationDistance.in(Meters)));
+                () -> FieldPoses.getDistanceFromRobotPose(FieldPoses.getCoralStationPose(side.get()),
+                        robotPoseSupplier.get()) < FIELD_OFFSETS.elevatorPrepCoralStationDistance.in(Meters));
     }
 
     public static Trigger shouldStowElevator(Supplier<CoralStationSide> side,
             Supplier<Pose2d> robotPoseSupplier) {
         return new Trigger(
-                () -> (FieldPoses.getDistanceFromRobotPose(FieldPoses.getCoralStationPose(side),
-                        robotPoseSupplier).get() > FIELD_OFFSETS.elevatorPrepCoralStationDistance.in(Meters)));
+                () -> (FieldPoses.getDistanceFromRobotPose(FieldPoses.getCoralStationPose(side.get()),
+                        robotPoseSupplier.get()) > FIELD_OFFSETS.elevatorPrepCoralStationDistance.in(Meters)));
     }
 }

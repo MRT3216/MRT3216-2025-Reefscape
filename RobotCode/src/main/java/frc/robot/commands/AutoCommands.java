@@ -52,7 +52,7 @@ public class AutoCommands {
             CoralPivotSubsystem coralPivot, ComboCommands comboCommands) {
         SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric();
         return CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
-                () -> POSITIONS.L1)
+                POSITIONS.L1)
                 .andThen(
                         drivetrain.applyRequest(
                                 () -> forwardStraight.withVelocityX(0.5)
