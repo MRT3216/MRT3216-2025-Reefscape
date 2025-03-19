@@ -113,7 +113,7 @@ public class RobotContainer {
         driverController.a().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT));
         driverController.b().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
         driverController.x().onTrue(comboCommands.scoreCoral());
-        driverController.y().onTrue(DriveCommands.driveToProcessor(drivetrain));
+        driverController.y().whileTrue(DriveCommands.driveToProcessor(drivetrain));
 
         driverController.leftTrigger()
                 .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.LEFT));
