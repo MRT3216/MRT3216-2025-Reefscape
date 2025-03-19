@@ -33,6 +33,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
 import frc.robot.settings.FieldConstants;
@@ -92,16 +93,21 @@ public class Vision {
         }
 
         for (Cameras camera : Cameras.values()) {
-            //camera.addHeadingData(currentPose.get().getRotation());
-            Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
+            if (camera.isEnabled()) {
+                if (camera.getPrimaryStrategy() == PoseStrategy.CONSTRAINED_SOLVEPNP) {
+                    camera.addHeadingData(swerveDrive.getPigeon2().getRotation2d());
+                }
 
-            if (poseEst.isPresent()) {
-                var pose = poseEst.get();
+                Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
 
-                swerveDrive.addVisionMeasurement(
-                        pose.estimatedPose.toPose2d(),
-                        pose.timestampSeconds,
-                        camera.curStdDevs);
+                if (poseEst.isPresent()) {
+                    var pose = poseEst.get();
+
+                    swerveDrive.addVisionMeasurement(
+                            pose.estimatedPose.toPose2d(),
+                            pose.timestampSeconds,
+                            camera.curStdDevs);
+                }
             }
         }
     }
@@ -173,6 +179,22 @@ public class Vision {
         return visionSim;
     }
 
+    public void configureFarStrategy() {
+        Cameras.BACK_LEFT.setEnabled(true);
+        Cameras.BACK_RIGHT.setEnabled(true);
+
+        Cameras.FRONT_LEFT.setStrategy(PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR);
+        Cameras.FRONT_RIGHT.setStrategy(PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR);
+    }
+
+    public void configureCloseStrategy() {
+        Cameras.BACK_LEFT.setEnabled(false);
+        Cameras.BACK_RIGHT.setEnabled(false);
+
+        Cameras.FRONT_LEFT.setStrategy(PoseStrategy.CONSTRAINED_SOLVEPNP);
+        Cameras.FRONT_RIGHT.setStrategy(PoseStrategy.CONSTRAINED_SOLVEPNP);
+    }
+
     /**
      * Camera Enum to select each camera
      */
@@ -200,7 +222,7 @@ public class Vision {
                         Units.inchesToMeters(-12.643),
                         Units.inchesToMeters(8.5)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
-        BACK("Back-Left",
+        BACK_LEFT("Back-Left",
                 new Rotation3d(
                         Units.degreesToRadians(0),
                         Units.degreesToRadians(-5),
@@ -266,6 +288,8 @@ public class Vision {
          */
         private double lastReadTimestamp = Microseconds.of(NetworkTablesJNI.now()).in(Seconds);
 
+        private boolean enabled = true;
+
         static double timestampOffset = 0;
 
         /**
@@ -288,7 +312,7 @@ public class Vision {
             robotToCamTransform = new Transform3d(robotToCamTranslation, robotToCamRotation);
 
             poseEstimator = new PhotonPoseEstimator(FieldConstants.fieldLayout,
-                    PoseStrategy.CONSTRAINED_SOLVEPNP,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     robotToCamTransform);
             poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
@@ -321,6 +345,14 @@ public class Vision {
             if (Robot.isSimulation()) {
                 systemSim.addCamera(cameraSim, robotToCamTransform);
             }
+        }
+
+        public void setStrategy(PoseStrategy strategy) {
+            poseEstimator.setPrimaryStrategy(strategy);
+        }
+
+        public PoseStrategy getPrimaryStrategy() {
+            return poseEstimator.getPrimaryStrategy();
         }
 
         /**
@@ -365,6 +397,14 @@ public class Vision {
         public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
             updateUnreadResults();
             return estimatedRobotPose;
+        }
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
         }
 
         /**
@@ -428,9 +468,9 @@ public class Vision {
             estimatedRobotPose = visionEst;
         }
 
-        // public void addHeadingData(Rotation2d heading) {
-        //     poseEstimator.addHeadingData(Microseconds.of(NetworkTablesJNI.now()).in(Seconds), heading);
-        // }
+        public void addHeadingData(Rotation2d heading) {
+            poseEstimator.addHeadingData(Timer.getFPGATimestamp(), heading);
+        }
 
         /**
          * Calculates new standard deviations This algorithm is a heuristic that creates dynamic standard deviations based
