@@ -5,8 +5,6 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
-import java.util.function.Supplier;
-
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -148,20 +146,20 @@ public class CoralPivotSubsystem extends SubsystemBase {
 
     // #region Commands and Triggers
 
-    public Command movePivotToAngle(Supplier<POSITIONS> angle) {
+    public Command movePivotToAngle(POSITIONS angle) {
         return this.run(() -> {
-            setPivotGoal(angle.get().getAngle());
+            setPivotGoal(angle.getAngle());
             this.enable();
         }).until(this.atGoal());
     }
 
-    public Command adjustPivotAngle(Supplier<Angle> angleAdjustment) {
+    public Command adjustPivotAngle(Angle angleAdjustment) {
         return Commands.runOnce(
                 () -> {
                     enable();
                     setPivotGoal(
                             Degrees.of(Units.rotationsToDegrees(
-                                    pIDController.getGoal().position + angleAdjustment.get().in(Rotations))));
+                                    pIDController.getGoal().position + angleAdjustment.in(Rotations))));
                 });
     }
 
