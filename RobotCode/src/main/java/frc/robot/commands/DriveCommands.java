@@ -43,7 +43,7 @@ public class DriveCommands {
                 drivetrain);
     }
 
-    public static Trigger readyToPrepElevatorForCoralStation(Supplier<CoralStationSide> side,
+    public static final Trigger readyToPrepElevatorForCoralStation(Supplier<CoralStationSide> side,
             Supplier<Pose2d> robotPoseSupplier) {
         return new Trigger(
                 () -> FieldPoses.getDistanceFromRobotPose(FieldPoses.getCoralStationPose(side.get()),
