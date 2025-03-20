@@ -67,6 +67,8 @@ public class RobotContainer {
     }
 
     private void configureAutos() {
+        autoChooser.addOption("Right 1P", AutoCommands.getRight1PAuto(comboCommands));
+        autoChooser.addOption("Right 2P", AutoCommands.getRight2PAuto(comboCommands));
         autoChooser.addOption("Left 3P", AutoCommands.getLeft3PAuto(comboCommands));
         autoChooser.addOption("Center 1P", AutoCommands.getCenter1PAuto(comboCommands));
         autoChooser.addOption("Right 3P", AutoCommands.getRight3PAuto(comboCommands));

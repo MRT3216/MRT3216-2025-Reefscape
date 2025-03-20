@@ -43,6 +43,22 @@ public class AutoCommands {
                 .andThen(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
     }
 
+    public static Command getRight1PAuto(ComboCommands comboCommands) {
+        // Create a path following command using AutoBuilder. This will also trigger event markers.
+        return comboCommands.driveAndAlignToReefBranchAndScorePrep(() -> ReefBranch.D, () -> POSITIONS.L3)
+                .andThen(comboCommands.scoreCoral())
+                .andThen(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
+    }
+
+    public static Command getRight2PAuto(ComboCommands comboCommands) {
+        // Create a path following command using AutoBuilder. This will also trigger event markers.
+        return comboCommands.driveAndAlignToReefBranchAndScorePrep(() -> ReefBranch.D, () -> POSITIONS.L2)
+                .andThen(comboCommands.scoreCoral())
+                .andThen(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT))
+                .andThen(comboCommands.driveAndAlignToReefBranchAndScorePrep(() -> ReefBranch.C, () -> POSITIONS.L2))
+                .andThen(comboCommands.scoreCoral());
+    }
+
     public static Command driveForward(CommandSwerveDrivetrain drivetrain) {
         SwerveRequest.FieldCentric forwardStraight = new SwerveRequest.FieldCentric();
         return drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)).withTimeout(2);
