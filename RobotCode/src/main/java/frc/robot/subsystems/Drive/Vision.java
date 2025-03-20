@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import org.photonvision.EstimatedRobotPose;
@@ -33,6 +34,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
@@ -93,8 +95,9 @@ public class Vision {
         }
 
         for (Cameras camera : Cameras.values()) {
-            if (camera.isEnabled()) {
+            if (camera.isEnabled().getAsBoolean()) {
                 if (camera.getPrimaryStrategy() == PoseStrategy.CONSTRAINED_SOLVEPNP) {
+                    // TODO: Probably not right
                     camera.addHeadingData(swerveDrive.getPigeon2().getRotation2d());
                 }
 
@@ -208,20 +211,32 @@ public class Vision {
                         Units.degreesToRadians(-15),
                         Units.degreesToRadians(-15)),
                 new Translation3d(
-                        Units.inchesToMeters(12.214),
-                        Units.inchesToMeters(12.643),
-                        Units.inchesToMeters(8.5)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+                        Units.inchesToMeters(9.162306),
+                        Units.inchesToMeters(10.001698),
+                        Units.inchesToMeters(9.938572)),
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1),
+                new CameraIntrinsics(
+                        1600, 1304,
+                        1378.4945518084592, 1374.6731238827526, 776.2109098410699, 701.3215441831921,
+                        new double[] { -0.030218242577181042, 0.010924281226336615, -2.9036984551012926E-4,
+                                2.3696076486885392E-4, 0.019186086831858823, 0.0022537742416706484,
+                                0.0012685606724970187, -9.966123793520036E-4 })),
         FRONT_RIGHT("Front-Right",
                 new Rotation3d(
                         Units.degreesToRadians(0),
                         Units.degreesToRadians(-15),
                         Units.degreesToRadians(15)),
                 new Translation3d(
-                        Units.inchesToMeters(12.214),
-                        Units.inchesToMeters(-12.643),
-                        Units.inchesToMeters(8.5)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+                        Units.inchesToMeters(9.162306),
+                        Units.inchesToMeters(-10.001698),
+                        Units.inchesToMeters(9.938572)),
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1),
+                new CameraIntrinsics(
+                        1600, 1304,
+                        1374.5414918415538, 1371.4502669827698, 757.1200966271149, 650.6543370498349,
+                        new double[] { -0.02599220352443215, -0.004255449108769354, -0.0010584158777595613,
+                                3.151541785665642E-4, 0.035143858610829005, 0.0010261268177625253, 2.102376068279724E-4,
+                                -0.0013940898120434317 })),
         BACK_LEFT("Back-Left",
                 new Rotation3d(
                         Units.degreesToRadians(0),
@@ -231,7 +246,13 @@ public class Vision {
                         Units.inchesToMeters(3),
                         Units.inchesToMeters(11.947),
                         Units.inchesToMeters(26.125)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1),
+                new CameraIntrinsics(
+                        1280, 800,
+                        906.8650501556826, 904.8249218594106, 685.0939074656633, 440.3743360464017,
+                        new double[] { 0.048427656762511505, -0.07279893955862766, -2.404548497778298E-4,
+                                2.922420290616374E-4, 0.01566490569651964, -0.002543695016824542, 0.00631510120502211,
+                                0.0019736324419207425 })),
         BACK_RIGHT("Back-Right",
                 new Rotation3d(
                         Units.degreesToRadians(0),
@@ -241,7 +262,13 @@ public class Vision {
                         Units.inchesToMeters(3),
                         Units.inchesToMeters(-11.947),
                         Units.inchesToMeters(26.125)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1),
+                new CameraIntrinsics(
+                        1280, 800,
+                        905.165459096268, 903.4404452296051, 640.6433787059736, 412.999885030855,
+                        new double[] { 0.05018289179599694, -0.06965163455567655, -3.9595872419393856E-4,
+                                1.4575235566772828E-4, 0.011609663736452296, -0.0024169860307781403,
+                                0.006570847209678644, 0.0019650281377058872 }));
 
         /**
          * Latency alert to use when high latency is detected.
@@ -292,6 +319,8 @@ public class Vision {
 
         static double timestampOffset = 0;
 
+        private CameraIntrinsics cameraIntrinsics;
+
         /**
          * Construct a Photon Camera class with help. Standard deviations are fake values, experiment and determine
          * estimation noise on an actual robot.
@@ -303,10 +332,11 @@ public class Vision {
          * @param multiTagStdDevsMatrix Multi AprilTag standard deviations of estimated poses from the camera.
          */
         Cameras(String name, Rotation3d robotToCamRotation, Translation3d robotToCamTranslation,
-                Matrix<N3, N1> singleTagStdDevs, Matrix<N3, N1> multiTagStdDevsMatrix) {
+                Matrix<N3, N1> singleTagStdDevs, Matrix<N3, N1> multiTagStdDevsMatrix, CameraIntrinsics intrinsics) {
             latencyAlert = new Alert("'" + name + "' Camera is experiencing high latency.", AlertType.kWarning);
 
             camera = new PhotonCamera(name);
+            this.cameraIntrinsics = intrinsics;
 
             // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
             robotToCamTransform = new Transform3d(robotToCamTranslation, robotToCamRotation);
@@ -322,7 +352,8 @@ public class Vision {
             if (Robot.isSimulation()) {
                 SimCameraProperties cameraProp = new SimCameraProperties();
                 // A 640 x 480 camera with a 100 degree diagonal FOV.
-                cameraProp.setCalibration(1280, 800, Rotation2d.fromDegrees(97.75));
+                cameraProp.setCalibration(intrinsics.resX, intrinsics.resY, intrinsics.getCameraMatrix(),
+                        intrinsics.getDistCoeffs());
                 // Approximate detection noise with average and standard deviation error in pixels.
                 //cameraProp.setCalibError(0.25, 0.08);
                 // Set the camera image capture framerate (Note: this is limited by robot loop rate).
@@ -332,6 +363,7 @@ public class Vision {
                 cameraProp.setLatencyStdDevMs(5);
 
                 cameraSim = new PhotonCameraSim(camera, cameraProp);
+
                 cameraSim.enableDrawWireframe(true);
             }
         }
@@ -399,8 +431,8 @@ public class Vision {
             return estimatedRobotPose;
         }
 
-        public boolean isEnabled() {
-            return enabled;
+        public BooleanSupplier isEnabled() {
+            return () -> enabled;
         }
 
         public void setEnabled(boolean enabled) {
@@ -408,45 +440,24 @@ public class Vision {
         }
 
         /**
-         * Update the latest results, cached with a maximum refresh rate of 1req/15ms. Sorts the list by timestamp.
-         */
+        * Update the latest results, cached with a maximum refresh rate of 1req/15ms. Sorts the list by timestamp.
+        */
         private void updateUnreadResults() {
-            // double mostRecentTimestamp = resultsList.isEmpty() ? 0.0
-            //         : resultsList.get(0).getTimestampSeconds() - timestampOffset;
-            // double currentTimestamp = Microseconds.of(NetworkTablesJNI.now()).in(Seconds);
-            // if (currentTimestamp < mostRecentTimestamp) {
-            //     timestampOffset = mostRecentTimestamp - currentTimestamp;
-            // }
-            // double debounceTime = Milliseconds.of(15).in(Seconds);
-            // SmartDashboard.putNumber("Current Stamp", currentTimestamp);
-            // SmartDashboard.putNumber("Recent Stamp", mostRecentTimestamp);
-
+            // double mostRecentTimestamp = resultsList.isEmpty() ? 0.0 : resultsList.get(0).getTimestampSeconds();
+            //double currentTimestamp = Microseconds.of(NetworkTablesJNI.now()).in(Seconds);
+            //double debounceTime = Milliseconds.of(15).in(Seconds);
             // for (PhotonPipelineResult result : resultsList) {
-            //     mostRecentTimestamp = Math.max(mostRecentTimestamp, result.getTimestampSeconds() - timestampOffset);
-            //     SmartDashboard.putNumber("Most Recent Timestamp", mostRecentTimestamp);
-            // }
-            // if ((resultsList.isEmpty() || (currentTimestamp - mostRecentTimestamp >= debounceTime)) &&
-            //         (currentTimestamp - lastReadTimestamp) >= debounceTime) {
-            //     resultsList = Robot.isReal() ? camera.getAllUnreadResults()
-            //             : cameraSim.getCamera().getAllUnreadResults();
-            //     lastReadTimestamp = currentTimestamp;
-            //     resultsList.sort((PhotonPipelineResult a, PhotonPipelineResult b) -> {
-            //         return a.getTimestampSeconds() >= b.getTimestampSeconds() ? 1 : -1;
-            //     });
-            //     if (!resultsList.isEmpty()) {
-            //         updateEstimatedGlobalPose();
-            //     }
+            //     mostRecentTimestamp = Math.max(mostRecentTimestamp, result.getTimestampSeconds());
             // }
 
-            // // // TODO: Not sure what is best here (do they need sorted)
             resultsList = Robot.isReal() ? camera.getAllUnreadResults() : cameraSim.getCamera().getAllUnreadResults();
-            // // // resultsList.sort((PhotonPipelineResult a, PhotonPipelineResult b) -> {
-            // // //   return a.getTimestampSeconds() >= b.getTimestampSeconds() ? 1 : -1;
-            // // // });
+            //lastReadTimestamp = currentTimestamp;
+            resultsList.sort((PhotonPipelineResult a, PhotonPipelineResult b) -> {
+                return a.getTimestampSeconds() >= b.getTimestampSeconds() ? 1 : -1;
+            });
             if (!resultsList.isEmpty()) {
                 updateEstimatedGlobalPose();
             }
-            // }
         }
 
         /**
@@ -462,7 +473,16 @@ public class Vision {
         private void updateEstimatedGlobalPose() {
             Optional<EstimatedRobotPose> visionEst = Optional.empty();
             for (var change : resultsList) {
-                visionEst = poseEstimator.update(change);
+                if (poseEstimator.getPrimaryStrategy() == PoseStrategy.CONSTRAINED_SOLVEPNP) {
+                    boolean headingFree = DriverStation.isDisabled();
+                    var constrainedPnpParams = new PhotonPoseEstimator.ConstrainedSolvepnpParams(headingFree, 1.0);
+
+                    visionEst = poseEstimator.update(change, camera.getCameraMatrix(),
+                            camera.getDistCoeffs(), Optional.of(constrainedPnpParams));
+                } else {
+                    visionEst = poseEstimator.update(change);
+                }
+
                 updateEstimationStdDevs(visionEst, change.getTargets());
             }
             estimatedRobotPose = visionEst;
