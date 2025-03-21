@@ -31,12 +31,15 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTablesJNI;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.settings.FieldConstants;
 
@@ -54,6 +57,8 @@ public class Vision {
      * Current pose from the pose estimator using wheel odometry.
      */
     private Supplier<Pose2d> currentPose;
+
+    private Rotation2d gyroOffset = new Rotation2d();
 
     /**
      * Constructor for the Vision class.
@@ -94,11 +99,21 @@ public class Vision {
             visionSim.update(currentPose.get());
         }
 
+        SmartDashboard.putNumber("Heading Pigeon", swerveDrive.getPigeon2().getRotation2d().getDegrees());
+        SmartDashboard.putNumber("Heading States", swerveDrive.getState().Pose.getRotation().getDegrees());
+
+        if (DriverStation.isDisabled()) {
+            gyroOffset = new Rotation2d(0);
+            //  swerveDrive.getPigeon2().getRotation2d()
+            //         .minus(swerveDrive.getState().Pose.getRotation());
+        }
+
         for (Cameras camera : Cameras.values()) {
             if (camera.isEnabled().getAsBoolean()) {
-                if (camera.getPrimaryStrategy() == PoseStrategy.CONSTRAINED_SOLVEPNP) {
+                if (camera.getPrimaryStrategy() == PoseStrategy.PNP_DISTANCE_TRIG_SOLVE) {
                     // TODO: Probably not right
-                    camera.addHeadingData(swerveDrive.getPigeon2().getRotation2d());
+
+                    camera.addHeadingData(swerveDrive.getPigeon2().getRotation2d().plus(gyroOffset));
                 }
 
                 Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
@@ -194,8 +209,10 @@ public class Vision {
         Cameras.BACK_LEFT.setEnabled(false);
         Cameras.BACK_RIGHT.setEnabled(false);
 
-        Cameras.FRONT_LEFT.setStrategy(PoseStrategy.CONSTRAINED_SOLVEPNP);
-        Cameras.FRONT_RIGHT.setStrategy(PoseStrategy.CONSTRAINED_SOLVEPNP);
+        // Cameras.FRONT_LEFT.setStrategy(PoseStrategy.PNP_DISTANCE_TRIG_SOLVE);
+        // Cameras.FRONT_RIGHT.setStrategy(PoseStrategy.PNP_DISTANCE_TRIG_SOLVE);
+        Cameras.FRONT_LEFT.setStrategy(PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR);
+        Cameras.FRONT_RIGHT.setStrategy(PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR);
     }
 
     /**
@@ -320,6 +337,9 @@ public class Vision {
         static double timestampOffset = 0;
 
         private CameraIntrinsics cameraIntrinsics;
+
+        private StructPublisher publisher = NetworkTableInstance.getDefault()
+                .getStructTopic("PoseEst", Pose2d.struct).publish();
 
         /**
          * Construct a Photon Camera class with help. Standard deviations are fake values, experiment and determine
@@ -473,15 +493,19 @@ public class Vision {
         private void updateEstimatedGlobalPose() {
             Optional<EstimatedRobotPose> visionEst = Optional.empty();
             for (var change : resultsList) {
-                if (poseEstimator.getPrimaryStrategy() == PoseStrategy.CONSTRAINED_SOLVEPNP) {
+                if (poseEstimator.getPrimaryStrategy() == PoseStrategy.PNP_DISTANCE_TRIG_SOLVE) {
                     boolean headingFree = DriverStation.isDisabled();
                     var constrainedPnpParams = new PhotonPoseEstimator.ConstrainedSolvepnpParams(headingFree, 1.0);
 
-                    visionEst = poseEstimator.update(change, camera.getCameraMatrix(),
-                            camera.getDistCoeffs(), Optional.of(constrainedPnpParams));
+                    visionEst = poseEstimator.update(change, camera.getCameraMatrix(), camera.getDistCoeffs(),
+                            Optional.of(constrainedPnpParams));
+
                 } else {
                     visionEst = poseEstimator.update(change);
                 }
+
+                if(!visionEst.isEmpty())
+                    publisher.set(visionEst.get().estimatedPose);
 
                 updateEstimationStdDevs(visionEst, change.getTargets());
             }

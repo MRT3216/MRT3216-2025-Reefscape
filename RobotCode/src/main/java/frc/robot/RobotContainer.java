@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -115,17 +113,18 @@ public class RobotContainer {
         driverController.a().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT));
         driverController.b().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
         driverController.x().onTrue(comboCommands.scoreCoral());
-        driverController.y().whileTrue(DriveCommands.driveToProcessor(drivetrain));
-
+        //driverController.y().whileTrue(DriveCommands.driveToProcessor(drivetrain));
+        //driverController.y().onTrue(coralEndEffector.intakeCoralCommand().until(coralEndEffector.hasCoral()));
+        driverController.y().onTrue(comboCommands.intakeCoralFromStationCommand());
         driverController.leftTrigger()
                 .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.LEFT));
 
         driverController.rightTrigger()
                 .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.RIGHT));
 
-        // driverController.rightTrigger().onTrue(
+        // driverController.a().onTrue(
         //         CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
-        //                 coralPivot, elevator.getSelectedPosition()));
+        //                 coralPivot, elevator.getTargetPosition()));
 
         // driverController.leftBumper().onTrue(AlgaeCommands.intakeAlgae(algaePivot, algaeRollers));
         // driverController.rightBumper().onTrue(AlgaeCommands.scoreAlgae(algaePivot, algaeRollers));
@@ -165,8 +164,8 @@ public class RobotContainer {
         //         .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
         //                 () -> POSITIONS.SCORE_PREP));
 
-        driverController.leftBumper().whileTrue(coralPivot.adjustPivotAngle(Degrees.of(-1)).repeatedly());
-        driverController.rightBumper().whileTrue(coralPivot.adjustPivotAngle(Degrees.of(1)).repeatedly());
+        // driverController.leftBumper().whileTrue(coralPivot.adjustPivotAngle(Degrees.of(-1)).repeatedly());
+        // driverController.rightBumper().whileTrue(coralPivot.adjustPivotAngle(Degrees.of(1)).repeatedly());
         // driverController.leftBumper().onTrue(algaePivot.adjustPivotAngle(Degrees.of(-1)));
         // driverController.rightBumper().onTrue(algaePivot.adjustPivotAngle(Degrees.of(1)));
 

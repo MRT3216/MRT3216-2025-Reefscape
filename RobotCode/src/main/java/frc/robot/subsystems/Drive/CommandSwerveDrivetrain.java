@@ -316,8 +316,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         SmartDashboard.putString("FR Strategy", Cameras.FRONT_RIGHT.getPrimaryStrategy().toString());
         SmartDashboard.putString("FL Strategy", Cameras.FRONT_LEFT.getPrimaryStrategy().toString());
-        SmartDashboard.putBoolean("BR Enabled", Cameras.BACK_RIGHT.isEnabled());
-        SmartDashboard.putBoolean("BL Enabled", Cameras.BACK_LEFT.isEnabled());
+        SmartDashboard.putBoolean("BR Enabled", Cameras.BACK_RIGHT.isEnabled().getAsBoolean());
+        SmartDashboard.putBoolean("BL Enabled", Cameras.BACK_LEFT.isEnabled().getAsBoolean());
         vision.updatePoseEstimation(this);
     }
 

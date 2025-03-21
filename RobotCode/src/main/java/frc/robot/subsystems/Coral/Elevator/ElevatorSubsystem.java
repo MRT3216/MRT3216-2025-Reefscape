@@ -1,5 +1,6 @@
 package frc.robot.subsystems.Coral.Elevator;
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -30,6 +31,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants.CORAL;
 import frc.robot.settings.Constants.CORAL.ELEVATOR;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
+import frc.robot.settings.Constants.FIELD_OFFSETS;
+import frc.robot.settings.FieldPoses;
 import frc.robot.settings.RobotMap.ROBOT.CORAL_SYSTEM.ELEVATOR_MAP;
 
 @Logged
@@ -182,11 +185,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         return this.run(() -> {
             this.enable();
             setElevatorHeightGoal(position.getHeight());
-        }).until(this.atGoal());
+        }).until(this.nearGoal());
     }
 
     public Command moveToTargetPosition() {
-        return this.defer(()-> this.moveElevatorToHeight(getTargetPosition()));
+        return this.defer(() -> this.moveElevatorToHeight(getTargetPosition()));
     }
 
     public Command adjustElevatorHeight(Distance heightAdjustment) {
@@ -202,8 +205,16 @@ public class ElevatorSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> setPosition(pos));
     }
 
-    protected Trigger atGoal() {
-        return new Trigger(() -> pIDController.atGoal());
+    // protected Trigger atGoal() {
+    //     return new Trigger(() -> pIDController.atGoal());
+    // }
+
+    protected Trigger nearGoal() {
+        return new Trigger(() -> this.aroundHeight(pIDController.getGoal().position, 0.07));
+    }
+
+    public boolean aroundHeight(double height, double allowableError) {
+        return MathUtil.isNear(height, getPositionDistance().in(Meters), allowableError);
     }
 
     public Trigger aboveHeight() {
@@ -212,6 +223,12 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public String currentLevel() {
         return currentPosition.toString();
+    }
+
+    public Trigger nearTargetHeight() {
+        return new Trigger(
+                () -> (Math
+                        .abs(this.getPositionDistance().minus(this.getTargetPosition().getHeight()).in(Inches)) < 5));
     }
 
     // #endregion

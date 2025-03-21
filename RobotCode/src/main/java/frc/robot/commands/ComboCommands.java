@@ -69,14 +69,14 @@ public class ComboCommands {
                 drivetrain.getRobotPose().get()) < Constants.PATHING.pathingMinimumDistance) {
             return new CloseDriveToPose(drivetrain, reefPoseClose, true)
                     .alongWith(
-                            CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator, coralPivot,
+                            CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
                                     position.get()));
         } else {
             return AutoBuilder.pathfindToPose(reefPose.get(), Constants.PATHING.pathConstraints,
                     Constants.PATHING.pathToCloseAlignEndVelocityReefMPS)
                     .andThen(new CloseDriveToPose(drivetrain, reefPoseClose, true)
                             .alongWith(
-                                    CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator, coralPivot,
+                                    CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
                                             position.get())));
         }
     }
