@@ -338,9 +338,6 @@ public class Vision {
 
         private CameraIntrinsics cameraIntrinsics;
 
-        private StructPublisher publisher = NetworkTableInstance.getDefault()
-                .getStructTopic("PoseEst", Pose2d.struct).publish();
-
         /**
          * Construct a Photon Camera class with help. Standard deviations are fake values, experiment and determine
          * estimation noise on an actual robot.
@@ -503,9 +500,6 @@ public class Vision {
                 } else {
                     visionEst = poseEstimator.update(change);
                 }
-
-                if(!visionEst.isEmpty())
-                    publisher.set(visionEst.get().estimatedPose);
 
                 updateEstimationStdDevs(visionEst, change.getTargets());
             }
