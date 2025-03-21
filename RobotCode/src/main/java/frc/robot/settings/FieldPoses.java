@@ -2,7 +2,6 @@ package frc.robot.settings;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.photonvision.PhotonUtils;
 
