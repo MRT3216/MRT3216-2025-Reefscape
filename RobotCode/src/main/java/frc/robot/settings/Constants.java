@@ -193,7 +193,7 @@ public final class Constants {
 
             public static final double kPivotGearing = 14.8;
             public static final Distance kPivotArmLength = Inches.of(12.9);
-            public static final Mass kPivotMass = Pounds.of(5);
+            public static final Mass kPivotMass = Pounds.of(2);
 
             // The soft limits are set in the motor controller to limit
             // movement past a certain point. Consider this an emergency limit
@@ -223,7 +223,7 @@ public final class Constants {
             public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(360); // degrees per second
             public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(450); // degrees per second squared max acceleration
 
-            public static final double kPivotRampRate = 1;
+            public static final double kPivotRampRate = 0.5;
         }
 
         public static final class END_EFFECTOR {
@@ -297,7 +297,7 @@ public final class Constants {
             public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(180); // degrees per second
             public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(360); // degrees per second squared max acceleration
 
-            public static final double kPivotRampRate = 1;
+            public static final double kPivotRampRate = 0.5;
         }
 
         public static final class ROLLERS {
