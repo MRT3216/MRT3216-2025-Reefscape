@@ -163,7 +163,7 @@ public class CoralPivotSubsystem extends SubsystemBase {
                 });
     }
 
-    protected Trigger atGoal() {
+    public Trigger atGoal() {
         return new Trigger(() -> pIDController.atGoal());
     }
 
