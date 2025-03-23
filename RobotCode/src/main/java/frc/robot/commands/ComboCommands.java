@@ -1,13 +1,11 @@
 package frc.robot.commands;
 
-import java.util.Set;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.settings.Constants;
 import frc.robot.settings.Constants.BranchSide;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
@@ -81,10 +79,10 @@ public class ComboCommands {
         }
     }
 
-    public Command driveToNearestReefThenAlignAndScorePrep(Supplier<BranchSide> side) {
-        return Commands.defer(() -> this.driveToReefPoseThenAlignAndScorePrep(
+    public Command driveToNearestReefThenAlignAndScorePrep(Supplier<POSITIONS> position, Supplier<BranchSide> side) {
+        return drivetrain.defer(() -> this.driveToReefPoseThenAlignAndScorePrep(
                 () -> FieldPoses.getNearestReefFaceInitial(side.get(), drivetrain.getRobotPose().get()),
-                () -> elevator.getTargetPosition()), Set.of(drivetrain, elevator));
+                () -> position.get()));
     }
 
     public Command driveAndAlignToReefBranchAndScorePrep(Supplier<ReefBranch> reefBranch,
@@ -106,18 +104,20 @@ public class ComboCommands {
                 .alongWith(
                         // Start the end effector until coral is intaked
                         coralEndEffector.runEndEffectorCommand().until(coralEndEffector.hasCoral()))
-                //.withTimeout(1)
+                // TODO: Remove for real robot
+                .withTimeout(2)
                 .andThen(
                         // Move the elevator and pivot to the score prep height
                         CoralCommands.moveElevatorAndPivotToHeightCommand(
                                 elevator, coralPivot, POSITIONS.SCORE_PREP));
     }
 
-    public Command scoreCoral() {
+    public Command scoreCoral(boolean waitForElevator) {
         return coralEndEffector.outtakeCoralCommand().withTimeout(1)
                 .andThen(
                         CoralCommands.moveElevatorAndPivotToHeightCommand(
-                                elevator, coralPivot, POSITIONS.STOW));
+                                elevator, coralPivot, POSITIONS.STOW))
+                .onlyIf(elevator.atGoal().or(() -> !waitForElevator));
     }
 
     public Command scoreCoralL1() {

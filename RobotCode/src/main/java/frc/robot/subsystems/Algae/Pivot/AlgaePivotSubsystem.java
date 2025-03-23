@@ -37,7 +37,6 @@ public class AlgaePivotSubsystem extends SubsystemBase {
     private ArmFeedforward feedforward;
     private boolean enabled = false;
     private AlgaePivotSimulation simContainer;
-    private PIVOT.Positions currentPosition = PIVOT.Positions.STOW_SCORING;
 
     public AlgaePivotSubsystem() {
         motorController = new SparkFlex(PIVOT_MAP.motorCANID, MotorType.kBrushless);

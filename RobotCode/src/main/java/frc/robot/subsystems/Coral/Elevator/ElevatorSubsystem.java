@@ -14,7 +14,6 @@ import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -31,11 +30,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants.CORAL;
 import frc.robot.settings.Constants.CORAL.ELEVATOR;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
-import frc.robot.settings.Constants.FIELD_OFFSETS;
-import frc.robot.settings.FieldPoses;
 import frc.robot.settings.RobotMap.ROBOT.CORAL_SYSTEM.ELEVATOR_MAP;
 
-@Logged
 public class ElevatorSubsystem extends SubsystemBase {
     // #region Fields
 
@@ -46,8 +42,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     private ElevatorSimulation elevatorSimContainer;
     private ElevatorFeedforward elevatorFeedForward;
     private boolean enabled;
-    // TODO: reset this to stow
-    private POSITIONS currentPosition = POSITIONS.L2;
 
     // #endregion
 
@@ -105,7 +99,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         pIDController.setTolerance(ELEVATOR.kPositionTolerance.in(Meters));
         // Set the inital position so that when enabled the controler
         // matches the initial position
-        pIDController.reset(CORAL.POSITIONS.STOW.getHeight().in(Meters));
+        //pIDController.reset(this.targetPosition.getHeight().in(Meters));
+        pIDController.reset(this.getPositionDistance().in(Meters));
         enabled = false;
 
         if (RobotBase.isSimulation()) {
@@ -132,13 +127,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Elevator encoder", encoder.getPosition());
         SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
         SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
-        SmartDashboard.putBoolean("L4", currentPosition == POSITIONS.L4);
-        SmartDashboard.putBoolean("L3", currentPosition == POSITIONS.L3);
-        SmartDashboard.putBoolean("L2", currentPosition == POSITIONS.L2);
-        SmartDashboard.putBoolean("L1", currentPosition == POSITIONS.L1);
-        SmartDashboard.putBoolean("Stow", currentPosition == POSITIONS.STOW);
-        SmartDashboard.putBoolean("Coral Station", currentPosition == POSITIONS.CORAL_STATION);
-        SmartDashboard.putBoolean("Score Prep", currentPosition == POSITIONS.SCORE_PREP);
     }
 
     private void setElevatorHeightGoal(Distance height) {
@@ -148,23 +136,15 @@ public class ElevatorSubsystem extends SubsystemBase {
         pIDController.setGoal(goalHeightinMeters);
     }
 
-    public Distance getPositionDistance() {
+    private Distance getPositionDistance() {
         return Meters.of(encoder.getPosition() * (2 * Math.PI * ELEVATOR.kElevatorDrumRadius)
                 / ELEVATOR.kElevatorGearing);
     }
 
-    public POSITIONS getTargetPosition() {
-        return currentPosition;
-    }
-
-    public LinearVelocity getVelocity() {
+    private LinearVelocity getVelocity() {
         return MetersPerSecond.of(
                 (encoder.getVelocity() / 60) * (2 * Math.PI * ELEVATOR.kElevatorDrumRadius)
                         / ELEVATOR.kElevatorGearing);
-    }
-
-    private void setPosition(POSITIONS position) {
-        currentPosition = position;
     }
 
     /** Enables the PID control. Resets the controller. */
@@ -181,15 +161,18 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // #region Commands and Triggers
 
-    public Command moveElevatorToHeight(POSITIONS position) {
-        return this.run(() -> {
-            this.enable();
-            setElevatorHeightGoal(position.getHeight());
-        }).until(this.nearGoal());
-    }
+    // public Command moveElevatorToHeight(POSITIONS position) {
+    //     return this.run(() -> {
+    //         this.enable();
+    //         setElevatorHeightGoal(position.getHeight());
+    //     }).until(this.nearGoal());
+    // }
 
-    public Command moveToTargetPosition() {
-        return this.defer(() -> this.moveElevatorToHeight(getTargetPosition()));
+    public Command moveElevatorToPosition(POSITIONS position) {
+        return this.runOnce(() -> {
+            setElevatorHeightGoal(position.getHeight());
+            this.enable();
+        });
     }
 
     public Command adjustElevatorHeight(Distance heightAdjustment) {
@@ -201,34 +184,18 @@ public class ElevatorSubsystem extends SubsystemBase {
                 });
     }
 
-    public Command setTargetPos(POSITIONS pos) {
-        return Commands.runOnce(() -> setPosition(pos));
-    }
-
-    // protected Trigger atGoal() {
-    //     return new Trigger(() -> pIDController.atGoal());
-    // }
-
-    protected Trigger nearGoal() {
-        return new Trigger(() -> this.aroundHeight(pIDController.getGoal().position, 0.07));
-    }
-
-    public boolean aroundHeight(double height, double allowableError) {
-        return MathUtil.isNear(height, getPositionDistance().in(Meters), allowableError);
-    }
-
     public Trigger aboveHeight() {
         return new Trigger(() -> getPositionDistance().gt(Meters.of(ELEVATOR.slowModeHeight)));
     }
 
-    public String currentLevel() {
-        return currentPosition.toString();
+    public Trigger atGoal() {
+        return new Trigger(() -> pIDController.atGoal());
     }
 
-    public Trigger nearTargetHeight() {
+    public Trigger approachingPosition(POSITIONS pos) {
         return new Trigger(
-                () -> (Math
-                        .abs(this.getPositionDistance().minus(this.getTargetPosition().getHeight()).in(Inches)) < 5));
+                () -> MathUtil.isNear(pos.getHeight().in(Inches),
+                        this.getPositionDistance().in(Inches), ELEVATOR.kNearTargetHeight.in(Inches)));
     }
 
     // #endregion

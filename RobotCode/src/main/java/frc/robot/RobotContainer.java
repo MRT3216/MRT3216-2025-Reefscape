@@ -11,11 +11,11 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.ComboCommands;
 import frc.robot.commands.CoralCommands;
-import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.settings.Constants;
 import frc.robot.settings.Constants.ALGAE.PIVOT.Positions;
@@ -56,6 +56,9 @@ public class RobotContainer {
 
     private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("None");;
 
+    // TODO: reset this to stow
+    private POSITIONS targetPosition = POSITIONS.L2;
+
     // #endregion
 
     public RobotContainer() {
@@ -65,15 +68,15 @@ public class RobotContainer {
     }
 
     private void configureAutos() {
-        autoChooser.addOption("Right 1P", AutoCommands.getRight1PAuto(comboCommands));
-        autoChooser.addOption("Right 2P", AutoCommands.getRight2PAuto(comboCommands));
+        // autoChooser.addOption("Right 1P", AutoCommands.getRight1PAuto(comboCommands));
+        // autoChooser.addOption("Right 2P", AutoCommands.getRight2PAuto(comboCommands));
         autoChooser.addOption("Left 3P", AutoCommands.getLeft3PAuto(comboCommands));
-        autoChooser.addOption("Center 1P", AutoCommands.getCenter1PAuto(comboCommands));
-        autoChooser.addOption("Right 3P", AutoCommands.getRight3PAuto(comboCommands));
-        autoChooser.addOption("Drive Forward", AutoCommands.driveForward(drivetrain));
-        autoChooser.addOption("Drive Forward L1",
-                AutoCommands.driveForwardL1(drivetrain, elevator, coralPivot, comboCommands));
-        autoChooser.addOption("Push Forward", AutoCommands.pushForward(drivetrain));
+        // autoChooser.addOption("Center 1P", AutoCommands.getCenter1PAuto(comboCommands));
+        // autoChooser.addOption("Right 3P", AutoCommands.getRight3PAuto(comboCommands));
+        // autoChooser.addOption("Drive Forward", AutoCommands.driveForward(drivetrain));
+        // autoChooser.addOption("Drive Forward L1",
+        //         AutoCommands.driveForwardL1(drivetrain, elevator, coralPivot, comboCommands));
+        // autoChooser.addOption("Push Forward", AutoCommands.pushForward(drivetrain));
         SmartDashboard.putData("Auto Mode", autoChooser);
     }
 
@@ -112,15 +115,17 @@ public class RobotContainer {
 
         driverController.a().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT));
         driverController.b().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
-        driverController.x().onTrue(comboCommands.scoreCoral());
+        driverController.x().onTrue(comboCommands.scoreCoral(false));
         //driverController.y().whileTrue(DriveCommands.driveToProcessor(drivetrain));
         //driverController.y().onTrue(coralEndEffector.intakeCoralCommand().until(coralEndEffector.hasCoral()));
         driverController.y().onTrue(comboCommands.intakeCoralFromStationCommand());
         driverController.leftTrigger()
-                .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.LEFT));
+                .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> this.targetPosition,
+                        () -> BranchSide.LEFT));
 
         driverController.rightTrigger()
-                .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> BranchSide.RIGHT));
+                .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> this.targetPosition,
+                        () -> BranchSide.RIGHT));
 
         // driverController.a().onTrue(
         //         CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
@@ -138,10 +143,10 @@ public class RobotContainer {
 
         // #region Testing
 
-        driverController.povDown().onTrue(elevator.setTargetPos(POSITIONS.L1));
-        driverController.povLeft().onTrue(elevator.setTargetPos(POSITIONS.L2));
-        driverController.povRight().onTrue(elevator.setTargetPos(POSITIONS.L3));
-        driverController.povUp().onTrue(elevator.setTargetPos(POSITIONS.L4));
+        driverController.povDown().onTrue(this.setTargetPos(POSITIONS.L1));
+        driverController.povLeft().onTrue(this.setTargetPos(POSITIONS.L2));
+        driverController.povRight().onTrue(this.setTargetPos(POSITIONS.L3));
+        driverController.povUp().onTrue(this.setTargetPos(POSITIONS.L4));
 
         // TODO: Use this method to aim wheels for climb
         // driverController.b().whileTrue(drivetrain.applyRequest(
@@ -180,13 +185,13 @@ public class RobotContainer {
     }
 
     private void configureOperatorBindings() {
-        operatorController.a().onTrue(elevator.setTargetPos(POSITIONS.L1));
-        operatorController.b().onTrue(elevator.setTargetPos(POSITIONS.L2));
-        operatorController.x().onTrue(elevator.setTargetPos(POSITIONS.L3));
-        operatorController.y().onTrue(elevator.setTargetPos(POSITIONS.L4));
+        operatorController.a().onTrue(this.setTargetPos(POSITIONS.L1));
+        operatorController.b().onTrue(this.setTargetPos(POSITIONS.L2));
+        operatorController.x().onTrue(this.setTargetPos(POSITIONS.L3));
+        operatorController.y().onTrue(this.setTargetPos(POSITIONS.L4));
         operatorController.start().onTrue(
                 CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
-                        coralPivot, elevator.getTargetPosition()));
+                        coralPivot, this.targetPosition));
 
         operatorController.leftStick().onTrue(
                 CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, POSITIONS.STOW));
@@ -214,9 +219,21 @@ public class RobotContainer {
         return autoChooser.getSelected();
     }
 
+    public Command setTargetPos(POSITIONS pos) {
+        return Commands.runOnce(() -> targetPosition = pos);
+    }
+
     public void periodic() {
         // This method will be called once per scheduler run
         SmartDashboard.putBoolean("Slow Mode",
                 drivetrain.isSlowMode().getAsBoolean() || elevator.aboveHeight().getAsBoolean());
+
+        SmartDashboard.putBoolean("L4", targetPosition == POSITIONS.L4);
+        SmartDashboard.putBoolean("L3", targetPosition == POSITIONS.L3);
+        SmartDashboard.putBoolean("L2", targetPosition == POSITIONS.L2);
+        SmartDashboard.putBoolean("L1", targetPosition == POSITIONS.L1);
+        SmartDashboard.putBoolean("Stow", targetPosition == POSITIONS.STOW);
+        SmartDashboard.putBoolean("Coral Station", targetPosition == POSITIONS.CORAL_STATION);
+        SmartDashboard.putBoolean("Score Prep", targetPosition == POSITIONS.SCORE_PREP);
     }
 }

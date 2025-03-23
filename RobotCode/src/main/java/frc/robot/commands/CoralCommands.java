@@ -13,8 +13,8 @@ public class CoralCommands {
             CoralPivotSubsystem pivot,
             POSITIONS position) {
         return pivot.movePivotToAngle(POSITIONS.SCORE_PREP)
-                .alongWith(elevator.moveToTargetPosition())
-                .andThen(pivot.movePivotToAngle(position));
+                .alongWith(elevator.moveElevatorToPosition(position))
+                .andThen(pivot.movePivotToAngle(position).onlyIf(elevator.approachingPosition(position)));
     }
 
     // Move the elevator and pivot to the specified position and immediately
@@ -23,7 +23,7 @@ public class CoralCommands {
             ElevatorSubsystem elevator,
             CoralPivotSubsystem pivot,
             POSITIONS position) {
-        return elevator.moveElevatorToHeight(position)
+        return elevator.moveElevatorToPosition(position)
                 .alongWith(pivot.movePivotToAngle(position));
     }
 }

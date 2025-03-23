@@ -147,19 +147,19 @@ public class CoralPivotSubsystem extends SubsystemBase {
     // #region Commands and Triggers
 
     public Command movePivotToAngle(POSITIONS angle) {
-        return this.run(() -> {
+        return this.runOnce(() -> {
             setPivotGoal(angle.getAngle());
             this.enable();
-        }).until(this.atGoal());
+        });
     }
 
     public Command adjustPivotAngle(Angle angleAdjustment) {
         return Commands.runOnce(
                 () -> {
-                    enable();
                     setPivotGoal(
                             Degrees.of(Units.rotationsToDegrees(
                                     pIDController.getGoal().position + angleAdjustment.in(Rotations))));
+                    enable();
                 });
     }
 
