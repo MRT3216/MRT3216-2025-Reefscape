@@ -190,7 +190,7 @@ public class RobotContainer {
         operatorController.x().onTrue(this.setTargetPos(POSITIONS.L3));
         operatorController.y().onTrue(this.setTargetPos(POSITIONS.L4));
         operatorController.start().onTrue(
-                CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
+                CoralCommands.moveElevatorAndPivotToHeightCommand(elevator,
                         coralPivot, this.targetPosition));
 
         operatorController.leftStick().onTrue(
