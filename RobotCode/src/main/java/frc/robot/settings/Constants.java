@@ -51,13 +51,13 @@ public final class Constants {
         public static final PathConstraints pathConstraints = new PathConstraints(
                 Constants.PATHING.maxVelocityMPS, Constants.PATHING.maxAccelerationMPSSq,
                 Constants.PATHING.maxAngularVelocityRPS, Constants.PATHING.maxAngularAccelerationRPSS);
-        public static final double maxVelocityMPS = 1.5;
-        public static final double maxAccelerationMPSSq = 3;
+        public static final double maxVelocityMPS = 2;
+        public static final double maxAccelerationMPSSq = 4;
         public static final double maxAngularVelocityRPS = Units.degreesToRadians(540);
         public static final double maxAngularAccelerationRPSS = Units.degreesToRadians(720);
         public static final double pathingMinimumDistance = 1;
         public static final double pathToCloseAlignEndVelocityMPS = 0;
-        public static final double pathToCloseAlignEndVelocityReefMPS = 0.5;
+        public static final double pathToCloseAlignEndVelocityReefMPS = 1;
     }
 
     public static final class CLOSE_PATHING {
@@ -70,15 +70,12 @@ public final class Constants {
     }
 
     public static final class FIELD_OFFSETS {
-        public static double reefXOffsetCloseAdj = 0.55;
+        public static double reefXOffsetCloseAdj = 0.56;
         public static double reefXOffsetInitial = 1.05;
         public static double reefYOffsetLeftBranch = Units.inchesToMeters(-6.469);
         public static double reefYOffsetRightBranch = -1 * reefYOffsetLeftBranch;
         public static double coralStationXOffset = 0.19;
         public static double processorXOffset = 0.5;
-        // public static double cageXOffset = 0.0;
-        // public static double cageYOffset = 0.0;
-        // public static double cageRotation = 90;
 
         public static Distance elevatorPrepCoralStationDistance = Meters.of(1);
 
@@ -102,10 +99,6 @@ public final class Constants {
                 FIELD_OFFSETS.coralStationXOffset, 0,
                 Rotation2d.fromDegrees(180));
 
-        // public static final Transform2d cageOffset = new Transform2d(
-        //         FIELD_OFFSETS.cageXOffset,
-        //         FIELD_OFFSETS.cageYOffset,
-        //         Rotation2d.fromDegrees(FIELD_OFFSETS.cageRotation));
         public static final Transform2d processorOffset = new Transform2d(FIELD_OFFSETS.processorXOffset, 0,
                 Rotation2d.fromDegrees(0));
     }
@@ -181,7 +174,7 @@ public final class Constants {
 
             public static final LinearVelocity kMaxElevatorVelocity = Meters.of(2).per(Second); // m/s
             public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(3.1).per(Second).per(Second);
-
+            public static final Distance kNearTargetHeight = Inches.of(5);
             public static final double kElevatorRampRate = 0.5;
         }
 
@@ -191,7 +184,7 @@ public final class Constants {
             public static final int kVoltageCompensation = 10;
             public static final Angle kMaxPivotError = Degree.of(1.0); // Degrees
 
-            public static final double kPivotGearing = 14.8;
+            public static final double kPivotGearing = (40 / 7) * (50 / 20);
             public static final Distance kPivotArmLength = Inches.of(12.9);
             public static final Mass kPivotMass = Pounds.of(2);
 
