@@ -6,6 +6,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants;
 import frc.robot.settings.Constants.BranchSide;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
@@ -37,12 +38,12 @@ public class ComboCommands {
         // #region Triggers
 
         // Robot is near the left coaral station, so move elevator and start end effector
-        DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.LEFT, drivetrain.getRobotPose())
-                .onTrue(this.intakeCoralFromStationCommand());
+        // DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.LEFT, robotPoseSupplier)
+        //         .onTrue(this.intakeCoralFromStationCommand());
 
-        // Robot is near the right coaral station, so move elevator and start end effector
-        DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.RIGHT, drivetrain.getRobotPose())
-                .onTrue(this.intakeCoralFromStationCommand());
+        //Robot is near the right coaral station, so move elevator and start end effector
+        // DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.RIGHT, robotPoseSupplier)
+        //         .onTrue(this.intakeCoralFromStationCommand());
 
         // Robot is moving away from the left coral station, 
         // so stow the elevator if the end effector has no coral
@@ -55,6 +56,11 @@ public class ComboCommands {
         // DriveCommands.shouldStowElevator(() -> CoralStationSide.RIGHT, drivetrain.getRobotPose())
         //         .onTrue(CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
         //                 POSITIONS.STOW).onlyIf(coralEndEffector.noCoral()));
+
+        // public Trigger readyToScoreCoral() {
+        //     return //coralEndEffector.hasCoral().and(
+        //     elevator.atGoal().and(coralPivot.atGoal());
+        // }
 
         // #endregion
     }
@@ -87,13 +93,28 @@ public class ComboCommands {
 
     public Command driveAndAlignToReefBranchAndScorePrep(Supplier<ReefBranch> reefBranch,
             Supplier<POSITIONS> position) {
-        return this.driveToReefPoseThenAlignAndScorePrep(
-                () -> FieldPoses.getReefPolePose(reefBranch.get()), position);
+        return drivetrain.defer(() -> this.driveToReefPoseThenAlignAndScorePrep(
+                () -> FieldPoses.getReefPolePose(reefBranch.get()), position));
     }
 
     public Command retrieveFromCoralStationCommand(Supplier<CoralStationSide> side) {
-        return DriveCommands.driveToCoralStation(drivetrain, side).until(coralEndEffector.hasCoral());
+        return DriveCommands.driveToCoralStation(drivetrain, side)
+                .alongWith(this.intakeCoralFromStationCommand());
     }
+
+    // public Command retrieveFromCoralStationCommandAuto(Supplier<CoralStationSide> side) {
+    //     return DriveCommands.driveToCoralStation(drivetrain, side)
+    //             .alongWith( // Move the elevator to the coral station height
+    //                     CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot,
+    //                             POSITIONS.CORAL_STATION))
+    //             .alongWith(
+    //                     // Start the end effector until coral is intaked
+    //                     coralEndEffector.runEndEffectorCommand())
+    //             .until(coralEndEffector.hasCoral())
+    //             .andThen(// Move the elevator and pivot to the score prep height
+    //                     CoralCommands.moveElevatorAndPivotToHeightCommand(
+    //                             elevator, coralPivot, POSITIONS.SCORE_PREP));
+    // }
 
     // Moves the elevator to the coral station height and starts the end effector until
     // coral is intaked, then moves the elevator and pivot to the score prep height
@@ -105,19 +126,18 @@ public class ComboCommands {
                         // Start the end effector until coral is intaked
                         coralEndEffector.runEndEffectorCommand().until(coralEndEffector.hasCoral()))
                 // TODO: Remove for real robot
-                .withTimeout(2)
+                .withTimeout(4)
                 .andThen(
                         // Move the elevator and pivot to the score prep height
                         CoralCommands.moveElevatorAndPivotToHeightCommand(
                                 elevator, coralPivot, POSITIONS.SCORE_PREP));
     }
 
-    public Command scoreCoral(boolean waitForElevator) {
+    public Command scoreCoral() {
         return coralEndEffector.outtakeCoralCommand().withTimeout(1)
                 .andThen(
                         CoralCommands.moveElevatorAndPivotToHeightCommand(
-                                elevator, coralPivot, POSITIONS.STOW))
-                .onlyIf(elevator.atGoal().or(() -> !waitForElevator));
+                                elevator, coralPivot, POSITIONS.STOW));
     }
 
     public Command scoreCoralL1() {
