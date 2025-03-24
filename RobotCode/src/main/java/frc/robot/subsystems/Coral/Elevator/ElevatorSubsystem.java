@@ -192,11 +192,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         return new Trigger(() -> pIDController.atGoal());
     }
 
-    public Trigger approachingPosition(POSITIONS pos) {
-        return new Trigger(
-                () -> MathUtil.isNear(pos.getHeight().in(Inches),
-                        this.getPositionDistance().in(Inches), ELEVATOR.kNearTargetHeight.in(Inches)));
-    }
+    // public Trigger approachingPosition(POSITIONS pos) {
+    //     return new Trigger(
+    //             () -> MathUtil.isNear(pos.getHeight().in(Inches),
+    //                     this.getPositionDistance().in(Inches), ELEVATOR.kNearTargetHeight.in(Inches)*3));
+    // }
 
     // #endregion
 
