@@ -31,26 +31,6 @@ public class FieldPoses {
                 FieldConstants.Processor.centerFace.transformBy(Constants.FIELD_OFFSETS.processorOffset));
     }
 
-    // public static Pose2d getBargePose(BargeCage cage) {
-    //     Translation2d bargeTranslation = new Translation2d();
-
-    //     switch (cage) {
-    //         case farCage:
-    //             bargeTranslation = FieldConstants.Barge.farCage;
-    //             break;
-    //         case middleCage:
-    //             bargeTranslation = FieldConstants.Barge.middleCage;
-    //             break;
-    //         case closeCage:
-    //             bargeTranslation = FieldConstants.Barge.closeCage;
-    //     }
-
-    //     // Alliance flip the pose
-    //     return AllianceFlipUtil.apply(
-    //             new Pose2d(bargeTranslation, Rotation2d.fromDegrees(0))
-    //                     .transformBy(Constants.FIELD_OFFSETS.cageOffset));
-    // }
-
     public static Pose2d getCoralStationPose(CoralStationSide side) {
         return AllianceFlipUtil.apply(
                 side.equals(CoralStationSide.LEFT) ? FieldConstants.CoralStation.leftCenterFace
