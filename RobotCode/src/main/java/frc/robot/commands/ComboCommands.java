@@ -37,7 +37,7 @@ public class ComboCommands {
     public void configureBindings() {
         // #region Triggers
 
-        // Robot is near the left coaral station, so move elevator and start end effector
+        // Robot is near the left coral station, so move elevator and start end effector
         // DriveCommands.readyToPrepElevatorForCoralStation(() -> CoralStationSide.LEFT, robotPoseSupplier)
         //         .onTrue(this.intakeCoralFromStationCommand());
 
