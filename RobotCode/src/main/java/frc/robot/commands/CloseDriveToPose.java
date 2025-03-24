@@ -14,7 +14,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.settings.Constants;
 import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 
@@ -25,7 +24,6 @@ public class CloseDriveToPose extends Command {
     private Pose2d m_goalPose;
     private boolean useOnlyFrontCams = false;
     private SwerveRequest.ApplyFieldSpeeds m_drive;
-    private boolean running = false;
 
     public CloseDriveToPose(CommandSwerveDrivetrain drivetrain, Pose2d goalPose, boolean useOnlyFrontCams) {
         m_goalPose = goalPose;
@@ -59,12 +57,12 @@ public class CloseDriveToPose extends Command {
             m_drivetrain.setCloseStrategy();
         }
 
-        running = true;
-
         Pose2d initialPose = m_drivetrain.getState().Pose;
-
-        m_translationController.setTolerance(0.05);
-        m_thetaController.setTolerance(Units.degreesToRadians(1.0));
+        // TODO: Check these tolerances
+        // m_translationController.setTolerance(0.05);
+        // m_thetaController.setTolerance(Units.degreesToRadians(1.0));
+        m_translationController.setTolerance(0.1);
+        m_thetaController.setTolerance(Units.degreesToRadians(2.0));
 
         m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -79,10 +77,6 @@ public class CloseDriveToPose extends Command {
 
         m_thetaController.reset(initialPose.getRotation().getRadians(), robotVelocity.omegaRadiansPerSecond);
         m_lastSetpointTranslation = initialPose.getTranslation();
-    }
-
-    public final Trigger closeDriveRunning() {
-        return new Trigger(() -> running);
     }
 
     @Override
@@ -140,7 +134,6 @@ public class CloseDriveToPose extends Command {
     @Override
     public void end(boolean interrupted) {
         m_drivetrain.setFarStrategy();
-        running = false;
     }
 
     @Override
