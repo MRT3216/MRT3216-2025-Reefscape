@@ -59,11 +59,8 @@ public class CloseDriveToPose extends Command {
 
         Pose2d initialPose = m_drivetrain.getState().Pose;
         // TODO: Check these tolerances
-        // m_translationController.setTolerance(0.05);
-        // m_thetaController.setTolerance(Units.degreesToRadians(1.0));
-        m_translationController.setTolerance(0.1);
-        m_thetaController.setTolerance(Units.degreesToRadians(2.0));
-
+        m_translationController.setTolerance(0.05);
+        m_thetaController.setTolerance(Units.degreesToRadians(1.0));
         m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         ChassisSpeeds robotVelocity = getFieldRelativeChassisSpeeds(m_drivetrain.getState().Speeds,
