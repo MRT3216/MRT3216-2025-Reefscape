@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -39,7 +42,6 @@ public class RobotContainer {
             .withDeadband(Constants.DRIVETRAIN.MaxSpeed * Constants.OI.kJoystickDeadband)
             .withRotationalDeadband(Constants.DRIVETRAIN.MaxAngularRate * Constants.OI.kJoystickDeadband) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
     private final Telemetry logger = new Telemetry(Constants.DRIVETRAIN.MaxSpeed);
 
     private final CommandXboxController driverController = new CommandXboxController(
@@ -58,7 +60,7 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("None");;
 
     // TODO: reset this to stow
-    private POSITIONS targetPosition = POSITIONS.L2;
+    private POSITIONS targetPosition = POSITIONS.STOW;
 
     // #endregion
 
@@ -113,10 +115,10 @@ public class RobotContainer {
                                                                 : 0.8)) // Drive counterclockwise with negative X (left)
                 ));
 
-        driverController.a().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT));
-        driverController.b().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
-        driverController.x().onTrue(comboCommands.scoreCoral());
-        driverController.y().onTrue(comboCommands.intakeCoralFromStationCommand());
+        driverController.x().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.LEFT));
+        driverController.y().whileTrue(comboCommands.retrieveFromCoralStationCommand(() -> CoralStationSide.RIGHT));
+        driverController.a().onTrue(comboCommands.scoreCoral());
+        driverController.b().onTrue(comboCommands.intakeCoralFromStationCommand());
         //driverController.y().whileTrue(DriveCommands.driveToProcessor(drivetrain));
         //driverController.y().onTrue(coralEndEffector.intakeCoralCommand().until(coralEndEffector.hasCoral()));
 
@@ -127,10 +129,6 @@ public class RobotContainer {
         driverController.rightTrigger()
                 .whileTrue(comboCommands.driveToNearestReefThenAlignAndScorePrep(() -> this.targetPosition,
                         () -> BranchSide.RIGHT));
-
-        // driverController.a().onTrue(
-        //         CoralCommands.moveElevatorAndPivotToHeightCommandDelayPivot(elevator,
-        //                 coralPivot, elevator.getTargetPosition()));
 
         driverController.leftBumper().onTrue(AlgaeCommands.intakeAlgae(algaePivot, algaeRollers));
         driverController.rightBumper().onTrue(AlgaeCommands.scoreAlgae(algaePivot, algaeRollers));
@@ -174,8 +172,6 @@ public class RobotContainer {
         operatorController.leftStick().onTrue(
                 CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, POSITIONS.STOW));
 
-        // operatorController.leftTrigger().whileTrue(climber.runClimber(-CLIMBER.speed));
-        // operatorController.rightTrigger().whileTrue(climber.runClimber(CLIMBER.speed));
         operatorController.leftTrigger().onTrue(algaePivot.movePivotToAngle(Positions.INTAKING));
         operatorController.rightTrigger().onTrue(algaePivot.movePivotToAngle(Positions.STOW_SCORING));
         operatorController.leftBumper().onTrue(coralEndEffector.intakeCoralCommand());
@@ -197,7 +193,7 @@ public class RobotContainer {
         return autoChooser.getSelected();
     }
 
-    public Command setTargetPos(POSITIONS pos) {
+    private Command setTargetPos(POSITIONS pos) {
         return Commands.runOnce(() -> targetPosition = pos);
     }
 
