@@ -1,6 +1,5 @@
 package frc.robot.subsystems.Coral.Elevator;
 
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -27,7 +26,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.settings.Constants.CORAL;
 import frc.robot.settings.Constants.CORAL.ELEVATOR;
 import frc.robot.settings.Constants.CORAL.POSITIONS;
 import frc.robot.settings.RobotMap.ROBOT.CORAL_SYSTEM.ELEVATOR_MAP;
@@ -97,10 +95,10 @@ public class ElevatorSubsystem extends SubsystemBase {
                 ELEVATOR.kElevatorkG, ELEVATOR.kElevatorkV, ELEVATOR.kElevatorkA);
 
         pIDController.setTolerance(ELEVATOR.kPositionTolerance.in(Meters));
-        // Set the inital position so that when enabled the controler
+
+        // Resets the controller so that when enabled the controler
         // matches the initial position
-        //pIDController.reset(this.targetPosition.getHeight().in(Meters));
-        pIDController.reset(this.getPositionDistance().in(Meters));
+        pIDController.reset(getPositionDistance().in(Meters));
         enabled = false;
 
         if (RobotBase.isSimulation()) {
@@ -114,6 +112,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             double pidOutput = pIDController.calculate(getPositionDistance().in(Meters));
             double feedForward = elevatorFeedForward.calculateWithVelocities(
                     getVelocity().in(MetersPerSecond), pIDController.getSetpoint().velocity);
+
             double motorEffortVoltage = pidOutput + feedForward;
 
             leadMotorController.setVoltage(motorEffortVoltage);
@@ -129,6 +128,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
     }
 
+    /*
+     * Sets the goal height for the elevator. Clamps the goal height to the
+     * elevator's min and max height.
+     */
     private void setElevatorHeightGoal(Distance height) {
         double goalHeightinMeters = MathUtil.clamp(height.in(Meters),
                 ELEVATOR.kMinHeight.in(Meters),
@@ -136,11 +139,17 @@ public class ElevatorSubsystem extends SubsystemBase {
         pIDController.setGoal(goalHeightinMeters);
     }
 
+    /* 
+     * Returns the current position of the elevator in meters
+     */
     private Distance getPositionDistance() {
         return Meters.of(encoder.getPosition() * (2 * Math.PI * ELEVATOR.kElevatorDrumRadius)
                 / ELEVATOR.kElevatorGearing);
     }
 
+    /*
+     * Returns the current velocity of the elevator in meters per second
+     */
     private LinearVelocity getVelocity() {
         return MetersPerSecond.of(
                 (encoder.getVelocity() / 60) * (2 * Math.PI * ELEVATOR.kElevatorDrumRadius)
@@ -150,24 +159,22 @@ public class ElevatorSubsystem extends SubsystemBase {
     /** Enables the PID control. Resets the controller. */
     protected void enable() {
         enabled = true;
+        pIDController.reset(getPositionDistance().in(Meters));
     }
 
     /** Disables the PID control. Sets output to zero. */
     public void disable() {
-        pIDController.setGoal(encoder.getPosition());
         leadMotorController.set(0);
         enabled = false;
     }
 
     // #region Commands and Triggers
 
-    // public Command moveElevatorToHeight(POSITIONS position) {
-    //     return this.run(() -> {
-    //         this.enable();
-    //         setElevatorHeightGoal(position.getHeight());
-    //     }).until(this.nearGoal());
-    // }
-
+    /*
+     * Moves the elevator to the specified position. This command is run once.
+     * The elevator will move to the specified position and stop.
+     * @param position The position to move the elevator to
+     */
     public Command moveElevatorToPosition(POSITIONS position) {
         return this.runOnce(() -> {
             setElevatorHeightGoal(position.getHeight());
@@ -175,6 +182,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         });
     }
 
+    /*
+     * Adjust the current position of the elevator by the specified distance.
+     * This command is run once. The elevator will move to the specified position
+     * and stop.
+     */
     public Command adjustElevatorHeight(Distance heightAdjustment) {
         return Commands.runOnce(
                 () -> {
@@ -184,19 +196,21 @@ public class ElevatorSubsystem extends SubsystemBase {
                 });
     }
 
+    /*
+     * Trigger monitors for when its above the height threshold for drivetrainlow mode.
+     * @return Trigger that is true when the elevator is above the height threshold for drivetrain low mode.
+     */
     public Trigger aboveHeight() {
         return new Trigger(() -> getPositionDistance().gt(Meters.of(ELEVATOR.slowModeHeight)));
     }
 
+    /*
+     * Trigger monitors for when its below the height threshold for drivetrainlow mode.
+     * @return Trigger that is true when the elevator is below the height threshold for drivetrain low mode.
+     */
     public Trigger atGoal() {
         return new Trigger(() -> pIDController.atGoal());
     }
-
-    // public Trigger approachingPosition(POSITIONS pos) {
-    //     return new Trigger(
-    //             () -> MathUtil.isNear(pos.getHeight().in(Inches),
-    //                     this.getPositionDistance().in(Inches), ELEVATOR.kNearTargetHeight.in(Inches)*3));
-    // }
 
     // #endregion
 
