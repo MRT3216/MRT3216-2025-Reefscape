@@ -1,8 +1,5 @@
 package frc.robot.subsystems.Drive;
 
-import static edu.wpi.first.units.Units.Microseconds;
-import static edu.wpi.first.units.Units.Seconds;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +10,6 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.PhotonUtils;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
@@ -23,7 +19,6 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -31,12 +26,10 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTablesJNI;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -57,8 +50,6 @@ public class Vision {
      * Current pose from the pose estimator using wheel odometry.
      */
     private Supplier<Pose2d> currentPose;
-
-    private Rotation2d gyroOffset = new Rotation2d();
 
     /**
      * Constructor for the Vision class.
@@ -101,31 +92,34 @@ public class Vision {
 
         SmartDashboard.putNumber("Heading Pigeon", swerveDrive.getPigeon2().getRotation2d().getDegrees());
         SmartDashboard.putNumber("Heading States", swerveDrive.getState().Pose.getRotation().getDegrees());
-
+        SmartDashboard.putString("FR Strategy", Cameras.FRONT_RIGHT.getPrimaryStrategy().toString());
+        SmartDashboard.putString("FL Strategy", Cameras.FRONT_LEFT.getPrimaryStrategy().toString());
+        SmartDashboard.putBoolean("BR Enabled", Cameras.BACK_RIGHT.isEnabled().getAsBoolean());
+        SmartDashboard.putBoolean("BL Enabled", Cameras.BACK_LEFT.isEnabled().getAsBoolean());
+        
         if (DriverStation.isDisabled()) {
-            gyroOffset = new Rotation2d(0);
+            //gyroOffset = new Rotation2d(0);
             //  swerveDrive.getPigeon2().getRotation2d()
             //         .minus(swerveDrive.getState().Pose.getRotation());
         }
 
         for (Cameras camera : Cameras.values()) {
-            if (camera.isEnabled().getAsBoolean()) {
-                if (camera.getPrimaryStrategy() == PoseStrategy.PNP_DISTANCE_TRIG_SOLVE) {
-                    // TODO: Probably not right
+            if (camera.getPrimaryStrategy() == PoseStrategy.PNP_DISTANCE_TRIG_SOLVE ||
+                    camera.getPrimaryStrategy() == PoseStrategy.CONSTRAINED_SOLVEPNP) {
+                // TODO: Probably not right
+                //camera.addHeadingData(swerveDrive.getPigeon2().getRotation2d().plus(gyroOffset));
+                camera.addHeadingData(swerveDrive.getRobotPose().get().getRotation());
+            }
 
-                    camera.addHeadingData(swerveDrive.getPigeon2().getRotation2d().plus(gyroOffset));
-                }
+            Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
 
-                Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
+            if (poseEst.isPresent()) {
+                var pose = poseEst.get();
 
-                if (poseEst.isPresent()) {
-                    var pose = poseEst.get();
-
-                    swerveDrive.addVisionMeasurement(
-                            pose.estimatedPose.toPose2d(),
-                            pose.timestampSeconds,
-                            camera.curStdDevs);
-                }
+                swerveDrive.addVisionMeasurement(
+                        pose.estimatedPose.toPose2d(),
+                        pose.timestampSeconds,
+                        camera.curStdDevs);
             }
         }
     }
@@ -156,39 +150,6 @@ public class Vision {
     }
 
     /**
-     * Get distance of the robot from the AprilTag pose.
-     *
-     * @param id AprilTag ID
-     * @return Distance
-     */
-    public double getDistanceFromAprilTag(int id) {
-        Optional<Pose3d> tag = FieldConstants.fieldLayout.getTagPose(id);
-        return tag.map(pose3d -> PhotonUtils.getDistanceToPose(currentPose.get(), pose3d.toPose2d())).orElse(-1.0);
-    }
-
-    /**
-     * Get tracked target from a camera of AprilTagID
-     *
-     * @param id     AprilTag ID
-     * @param camera Camera to check.
-     * @return Tracked target.
-     */
-    public PhotonTrackedTarget getTargetFromId(int id, Cameras camera) {
-        PhotonTrackedTarget target = null;
-        for (PhotonPipelineResult result : camera.resultsList) {
-            if (result.hasTargets()) {
-                for (PhotonTrackedTarget i : result.getTargets()) {
-                    if (i.getFiducialId() == id) {
-                        return i;
-                    }
-                }
-            }
-        }
-
-        return target;
-    }
-
-    /**
      * Vision simulation.
      *
      * @return Vision Simulation
@@ -209,10 +170,10 @@ public class Vision {
         Cameras.BACK_LEFT.setEnabled(false);
         Cameras.BACK_RIGHT.setEnabled(false);
 
-        // Cameras.FRONT_LEFT.setStrategy(PoseStrategy.PNP_DISTANCE_TRIG_SOLVE);
-        // Cameras.FRONT_RIGHT.setStrategy(PoseStrategy.PNP_DISTANCE_TRIG_SOLVE);
-        Cameras.FRONT_LEFT.setStrategy(PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR);
-        Cameras.FRONT_RIGHT.setStrategy(PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR);
+        Cameras.FRONT_LEFT.setStrategy(PoseStrategy.PNP_DISTANCE_TRIG_SOLVE);
+        Cameras.FRONT_RIGHT.setStrategy(PoseStrategy.PNP_DISTANCE_TRIG_SOLVE);
+        // Cameras.FRONT_LEFT.setStrategy(PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR);
+        // Cameras.FRONT_RIGHT.setStrategy(PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR);
     }
 
     /**
@@ -231,7 +192,12 @@ public class Vision {
                         Units.inchesToMeters(9.162306),
                         Units.inchesToMeters(10.001698),
                         Units.inchesToMeters(9.938572)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1),
+                // Trig Std Devs
+                VecBuilder.fill(4, 4, Double.MAX_VALUE),
+                // Single-Tag Std Devs
+                VecBuilder.fill(4, 4, 8),
+                // Multi-Tag Std Devs
+                VecBuilder.fill(0.5, 0.5, 1),
                 new CameraIntrinsics(
                         1600, 1304,
                         1378.4945518084592, 1374.6731238827526, 776.2109098410699, 701.3215441831921,
@@ -247,7 +213,12 @@ public class Vision {
                         Units.inchesToMeters(9.162306),
                         Units.inchesToMeters(-10.001698),
                         Units.inchesToMeters(9.938572)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1),
+                // Trig Std Devs
+                VecBuilder.fill(4, 4, Double.MAX_VALUE),
+                // Single-Tag Std Devs
+                VecBuilder.fill(4, 4, 8),
+                // Multi-Tag Std Devs
+                VecBuilder.fill(0.5, 0.5, 1),
                 new CameraIntrinsics(
                         1600, 1304,
                         1374.5414918415538, 1371.4502669827698, 757.1200966271149, 650.6543370498349,
@@ -263,7 +234,12 @@ public class Vision {
                         Units.inchesToMeters(3),
                         Units.inchesToMeters(11.947),
                         Units.inchesToMeters(26.125)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1),
+                // Trig Std Devs
+                VecBuilder.fill(4, 4, Double.MAX_VALUE),
+                // Single-Tag Std Devs
+                VecBuilder.fill(4, 4, 8),
+                // Multi-Tag Std Devs
+                VecBuilder.fill(0.5, 0.5, 1),
                 new CameraIntrinsics(
                         1280, 800,
                         906.8650501556826, 904.8249218594106, 685.0939074656633, 440.3743360464017,
@@ -279,7 +255,12 @@ public class Vision {
                         Units.inchesToMeters(3),
                         Units.inchesToMeters(-11.947),
                         Units.inchesToMeters(26.125)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1),
+                // Trig Std Devs
+                VecBuilder.fill(1, 1, Double.MAX_VALUE),
+                // Single-Tag Std Devs
+                VecBuilder.fill(4, 4, 8),
+                // Multi-Tag Std Devs
+                VecBuilder.fill(0.5, 0.5, 1),
                 new CameraIntrinsics(
                         1280, 800,
                         905.165459096268, 903.4404452296051, 640.6433787059736, 412.999885030855,
@@ -299,6 +280,10 @@ public class Vision {
          * Pose estimator for camera.
          */
         public final PhotonPoseEstimator poseEstimator;
+        /**
+        * Standard Deviation for trig readings for pose estimation.
+        */
+        private final Matrix<N3, N1> trigStdDevs;
         /**
          * Standard Deviation for single tag readings for pose estimation.
          */
@@ -327,16 +312,8 @@ public class Vision {
          * Results list to be updated periodically and cached to avoid unnecessary queries.
          */
         public List<PhotonPipelineResult> resultsList = new ArrayList<>();
-        /**
-         * Last read from the camera timestamp to prevent lag due to slow data fetches.
-         */
-        private double lastReadTimestamp = Microseconds.of(NetworkTablesJNI.now()).in(Seconds);
 
         private boolean enabled = true;
-
-        static double timestampOffset = 0;
-
-        private CameraIntrinsics cameraIntrinsics;
 
         /**
          * Construct a Photon Camera class with help. Standard deviations are fake values, experiment and determine
@@ -348,12 +325,16 @@ public class Vision {
          * @param singleTagStdDevs      Single AprilTag standard deviations of estimated poses from the camera.
          * @param multiTagStdDevsMatrix Multi AprilTag standard deviations of estimated poses from the camera.
          */
-        Cameras(String name, Rotation3d robotToCamRotation, Translation3d robotToCamTranslation,
-                Matrix<N3, N1> singleTagStdDevs, Matrix<N3, N1> multiTagStdDevsMatrix, CameraIntrinsics intrinsics) {
+        Cameras(String name,
+                Rotation3d robotToCamRotation,
+                Translation3d robotToCamTranslation,
+                Matrix<N3, N1> trigStdDevs,
+                Matrix<N3, N1> singleTagStdDevs,
+                Matrix<N3, N1> multiTagStdDevsMatrix,
+                CameraIntrinsics intrinsics) {
             latencyAlert = new Alert("'" + name + "' Camera is experiencing high latency.", AlertType.kWarning);
 
             camera = new PhotonCamera(name);
-            this.cameraIntrinsics = intrinsics;
 
             // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
             robotToCamTransform = new Transform3d(robotToCamTranslation, robotToCamRotation);
@@ -363,6 +344,7 @@ public class Vision {
                     robotToCamTransform);
             poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
+            this.trigStdDevs = trigStdDevs;
             this.singleTagStdDevs = singleTagStdDevs;
             this.multiTagStdDevs = multiTagStdDevsMatrix;
 
@@ -372,7 +354,7 @@ public class Vision {
                 cameraProp.setCalibration(intrinsics.resX, intrinsics.resY, intrinsics.getCameraMatrix(),
                         intrinsics.getDistCoeffs());
                 // Approximate detection noise with average and standard deviation error in pixels.
-                //cameraProp.setCalibError(0.25, 0.08);
+                cameraProp.setCalibError(0.25, 0.08);
                 // Set the camera image capture framerate (Note: this is limited by robot loop rate).
                 cameraProp.setFPS(30);
                 // The average and standard deviation in milliseconds of image data latency.
@@ -383,6 +365,22 @@ public class Vision {
 
                 cameraSim.enableDrawWireframe(true);
             }
+        }
+
+        public BooleanSupplier isEnabled() {
+            return () -> enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public void setStrategy(PoseStrategy strategy) {
+            poseEstimator.setPrimaryStrategy(strategy);
+        }
+
+        public PoseStrategy getPrimaryStrategy() {
+            return poseEstimator.getPrimaryStrategy();
         }
 
         /**
@@ -396,79 +394,24 @@ public class Vision {
             }
         }
 
-        public void setStrategy(PoseStrategy strategy) {
-            poseEstimator.setPrimaryStrategy(strategy);
-        }
-
-        public PoseStrategy getPrimaryStrategy() {
-            return poseEstimator.getPrimaryStrategy();
-        }
-
         /**
-         * Get the result with the least ambiguity from the best tracked target within the Cache. This may not be the most
-         * recent result!
-         *
-         * @return The result in the cache with the least ambiguous best tracked target. This is not the most recent result!
-         */
-        public Optional<PhotonPipelineResult> getBestResult() {
-            if (resultsList.isEmpty()) {
-                return Optional.empty();
-            }
-
-            PhotonPipelineResult bestResult = resultsList.get(0);
-            double amiguity = bestResult.getBestTarget().getPoseAmbiguity();
-            double currentAmbiguity = 0;
-            for (PhotonPipelineResult result : resultsList) {
-                currentAmbiguity = result.getBestTarget().getPoseAmbiguity();
-                if (currentAmbiguity < amiguity && currentAmbiguity > 0) {
-                    bestResult = result;
-                    amiguity = currentAmbiguity;
-                }
-            }
-            return Optional.of(bestResult);
-        }
-
-        /**
-         * Get the latest result from the current cache.
-         *
-         * @return Empty optional if nothing is found. Latest result if something is there.
-         */
-        public Optional<PhotonPipelineResult> getLatestResult() {
-            return resultsList.isEmpty() ? Optional.empty() : Optional.of(resultsList.get(0));
-        }
-
-        /**
-         * Get the estimated robot pose. Updates the current robot pose estimation, standard deviations, and flushes the
-         * cache of results.
-         *
-         * @return Estimated pose.
-         */
+        * Get the estimated robot pose. Updates the current robot pose estimation, standard deviations, and flushes the
+        * cache of results.
+        *
+        * @return Estimated pose.
+        */
         public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
             updateUnreadResults();
             return estimatedRobotPose;
-        }
-
-        public BooleanSupplier isEnabled() {
-            return () -> enabled;
-        }
-
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
         }
 
         /**
         * Update the latest results, cached with a maximum refresh rate of 1req/15ms. Sorts the list by timestamp.
         */
         private void updateUnreadResults() {
-            // double mostRecentTimestamp = resultsList.isEmpty() ? 0.0 : resultsList.get(0).getTimestampSeconds();
-            //double currentTimestamp = Microseconds.of(NetworkTablesJNI.now()).in(Seconds);
-            //double debounceTime = Milliseconds.of(15).in(Seconds);
-            // for (PhotonPipelineResult result : resultsList) {
-            //     mostRecentTimestamp = Math.max(mostRecentTimestamp, result.getTimestampSeconds());
-            // }
+            resultsList = Robot.isReal() ? camera.getAllUnreadResults()
+                    : cameraSim.getCamera().getAllUnreadResults();
 
-            resultsList = Robot.isReal() ? camera.getAllUnreadResults() : cameraSim.getCamera().getAllUnreadResults();
-            //lastReadTimestamp = currentTimestamp;
             resultsList.sort((PhotonPipelineResult a, PhotonPipelineResult b) -> {
                 return a.getTimestampSeconds() >= b.getTimestampSeconds() ? 1 : -1;
             });
@@ -489,19 +432,22 @@ public class Vision {
          */
         private void updateEstimatedGlobalPose() {
             Optional<EstimatedRobotPose> visionEst = Optional.empty();
-            for (var change : resultsList) {
-                if (poseEstimator.getPrimaryStrategy() == PoseStrategy.PNP_DISTANCE_TRIG_SOLVE) {
-                    boolean headingFree = DriverStation.isDisabled();
-                    var constrainedPnpParams = new PhotonPoseEstimator.ConstrainedSolvepnpParams(headingFree, 1.0);
+            if (this.enabled) {
+                for (var change : resultsList) {
+                    if (poseEstimator.getPrimaryStrategy() == PoseStrategy.PNP_DISTANCE_TRIG_SOLVE ||
+                            poseEstimator.getPrimaryStrategy() == PoseStrategy.CONSTRAINED_SOLVEPNP) {
 
-                    visionEst = poseEstimator.update(change, camera.getCameraMatrix(), camera.getDistCoeffs(),
-                            Optional.of(constrainedPnpParams));
+                        boolean headingFree = DriverStation.isDisabled();
+                        var constrainedPnpParams = new PhotonPoseEstimator.ConstrainedSolvepnpParams(headingFree, 1.0);
 
-                } else {
-                    visionEst = poseEstimator.update(change);
+                        visionEst = poseEstimator.update(change, camera.getCameraMatrix(), camera.getDistCoeffs(),
+                                Optional.of(constrainedPnpParams));
+                    } else {
+                        visionEst = poseEstimator.update(change);
+                    }
+
+                    updateEstimationStdDevs(visionEst, change.getTargets());
                 }
-
-                updateEstimationStdDevs(visionEst, change.getTargets());
             }
             estimatedRobotPose = visionEst;
         }
@@ -519,12 +465,15 @@ public class Vision {
          */
         private void updateEstimationStdDevs(
                 Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets) {
+
+            boolean usingTrig = poseEstimator.getPrimaryStrategy() == PoseStrategy.PNP_DISTANCE_TRIG_SOLVE;
+
             if (estimatedPose.isEmpty()) {
                 // No pose input. Default to single-tag std devs
                 curStdDevs = singleTagStdDevs;
             } else {
                 // Pose present. Start running Heuristic
-                var estStdDevs = singleTagStdDevs;
+                var estStdDevs = usingTrig ? trigStdDevs : singleTagStdDevs;
                 int numTags = 0;
                 double avgDist = 0;
 
@@ -534,7 +483,16 @@ public class Vision {
                     if (tagPose.isEmpty()) {
                         continue;
                     }
+                    // Get the target AprilTag, and reject the measurement if the
+                    // tag is not configured to be utilized by the pose estimator.
+                    if (usingTrig) {
+                        int id = tgt.fiducialId;
+                        if (!isReefTag(id))
+                            continue;
+                    }
+
                     numTags++;
+
                     avgDist += tagPose
                             .get()
                             .toPose2d()
@@ -561,6 +519,14 @@ public class Vision {
                     curStdDevs = estStdDevs;
                 }
             }
+        }
+
+        /**
+        * Returns {@code true} if an AprilTag should be utilized.
+        * @param id The ID of the AprilTag.
+        */
+        private boolean isReefTag(int id) {
+            return DriverStation.getAlliance().get() == Alliance.Blue ? (id >= 17 && id <= 22) : (id >= 6 && id <= 11);
         }
     }
 }
