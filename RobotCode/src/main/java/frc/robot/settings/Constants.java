@@ -111,13 +111,13 @@ public final class Constants {
 
     public static final class CORAL {
         public enum POSITIONS {
-            STOW(Meters.of(0), Degrees.of(20)),
+            STOW(Meters.of(0.05), Degrees.of(20)),
             SCORE_PREP(Meters.of(0.3), Degrees.of(-60)),
             // CORAL_STATION(Meters.of(0.39), Degrees.of(19)),
             // TODO: Reset at comp field
             // CORAL_STATION(Meters.of(0.37), Degrees.of(21)),
             CORAL_STATION(Meters.of(0.3), Degrees.of(22)),
-            L1(Meters.of(0), Degrees.of(20)),
+            L1(Meters.of(0.5), Degrees.of(20)),
             L2(Meters.of(0.58), Degrees.of(-32)),
             L3(Meters.of(1.03), Degrees.of(-32)),
             L4(Meters.of(1.75), Degrees.of(-31));
@@ -156,14 +156,14 @@ public final class Constants {
             // // code to move the elevator. These should allow less movement than
             // // the soft limits
             public static final Distance kMaxHeight = Meters.of(1.75);
-            public static final Distance kMinHeight = Inches.of(0.5);
-            public static final Distance kPositionTolerance = Inches.of(3);
+            public static final Distance kMinHeight = Inches.of(0.05);
+            public static final Distance kPositionTolerance = Inches.of(1);
 
             public static final double kElevatorGearing = 60 / 7;
             public static final double kElevatorDrumRadius = Units.inchesToMeters(2.256 / 2);
             public static final Mass kCarriageMass = Kilograms.of(4.0); // kg
 
-            public static final double kElevatorKp = 50;
+            public static final double kElevatorKp = 20;
             public static final double kElevatorKi = 0;
             public static final double kElevatorKd = 0;
 
@@ -173,9 +173,9 @@ public final class Constants {
             public static final double kElevatorkA = 0;//0.17; // volt per acceleration (V/(m/s²))
 
             public static final LinearVelocity kMaxElevatorVelocity = Meters.of(2).per(Second); // m/s
-            public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(3.1).per(Second).per(Second);
-            public static final Distance kNearTargetHeight = Inches.of(5);
-            public static final double kElevatorRampRate = 0.5;
+            public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(3).per(Second).per(Second);
+            //public static final Distance kNearTargetHeight = Inches.of(5);
+            public static final double kElevatorRampRate = 1;
         }
 
         public static final class PIVOT {
@@ -298,7 +298,7 @@ public final class Constants {
             public static final double HOLD_ALGAE_INTAKE_VOLTAGE = 0.8;
             public static final AngularVelocity HAS_ALGAE_VELOCITY = RotationsPerSecond.of(75);
             public static final double intakeSpeed = 0.7;
-            public static final double outtakeSpeed = -0.7;
+            public static final double outtakeSpeed = -1.0;
 
             public static final TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
             static {
