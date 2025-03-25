@@ -24,14 +24,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.settings.Constants;
-import frc.robot.subsystems.Drive.Vision.Cameras;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -43,7 +41,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /**
      * PhotonVision class to keep an accurate odometry.
      */
-    public Vision vision;
+    //public Vision vision;
+    public VisionSystem vision;
 
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
@@ -292,7 +291,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     * Setup the photon vision class.
     */
     private void setupPhotonVision() {
-        vision = new Vision(() -> getState().Pose);
+        //vision = new Vision(() -> getState().Pose);
+        vision = new VisionSystem(this);
     }
 
     @Override
@@ -314,11 +314,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
 
-        SmartDashboard.putString("FR Strategy", Cameras.FRONT_RIGHT.getPrimaryStrategy().toString());
-        SmartDashboard.putString("FL Strategy", Cameras.FRONT_LEFT.getPrimaryStrategy().toString());
-        SmartDashboard.putBoolean("BR Enabled", Cameras.BACK_RIGHT.isEnabled().getAsBoolean());
-        SmartDashboard.putBoolean("BL Enabled", Cameras.BACK_LEFT.isEnabled().getAsBoolean());
-        vision.updatePoseEstimation(this);
+        //vision.updatePoseEstimation(this);
+        vision.addAllFilteredPoses();
     }
 
     public void setCloseStrategy() {
