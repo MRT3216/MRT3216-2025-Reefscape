@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import frc.robot.subsystems.Drive.CameraIntrinsics;
+import frc.robot.subsystems.Vision.CameraIntrinsics;
 
 public class VisionConstants {
     /**

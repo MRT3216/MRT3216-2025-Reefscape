@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.Drive;
+package frc.robot.subsystems.Vision;
 
 import java.util.HashMap;
 
@@ -13,9 +13,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.settings.FieldConstants;
 import frc.robot.settings.VisionConstants.CamerasConstants;
+import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 
 public class VisionSystem {
-    // 
     private HashMap<String, Camera> cams = new HashMap<String, Camera>();
     private VisionSystemSim visionSim = new VisionSystemSim("Vision");
 
@@ -40,7 +40,7 @@ public class VisionSystem {
             // If the camera is enabled, add the filtered pose
             if (camera.isEnabled().getAsBoolean()) {
                 camera.addFilteredPose();
-            } 
+            }
 
             SmartDashboard.putBoolean(camera.getPhotonName() + " Enabled", camera.isEnabled().getAsBoolean());
             SmartDashboard.putString(camera.getPhotonName() + " Strat", camera.getPrimaryStrategy().toString());
