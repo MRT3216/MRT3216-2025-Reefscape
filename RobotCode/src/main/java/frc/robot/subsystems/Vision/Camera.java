@@ -38,9 +38,6 @@ import frc.robot.settings.VisionConstants.CamerasConstants;
 import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 
 public class Camera extends SubsystemBase {
-    // Save the previous result for reference pose strategy
-    Pose2d savedResult = new Pose2d(0, 0, new Rotation2d(0.01, 0.01));
-
     private PhotonCamera photonCamera;
     private PhotonPoseEstimator photonPoseEstimator;
     private CommandSwerveDrivetrain driveTrain;
@@ -58,7 +55,7 @@ public class Camera extends SubsystemBase {
      * @param cameraConstants
      * @param driveTrain
      * @param visionSim
-     */
+     **/
     public Camera(CamerasConstants cameraConstants, CommandSwerveDrivetrain driveTrain, VisionSystemSim visionSim) {
         this.driveTrain = driveTrain;
         this.visionSim = visionSim;
@@ -113,11 +110,8 @@ public class Camera extends SubsystemBase {
      * @param pipelineResult The pipeline result to use for pose estimation.
      */
     public Optional<EstimatedRobotPose> getMultiTagPose3d(
-            Pose2d previousRobotPose,
             PhotonPipelineResult pipelineResult) {
         Optional<EstimatedRobotPose> visionEst = Optional.empty();
-        // Pass in the previous robot pose for reference pose strategy
-        photonPoseEstimator.setReferencePose(previousRobotPose);
 
         if (photonPoseEstimator.getPrimaryStrategy() == PoseStrategy.PNP_DISTANCE_TRIG_SOLVE ||
                 photonPoseEstimator.getPrimaryStrategy() == PoseStrategy.CONSTRAINED_SOLVEPNP) {
@@ -140,19 +134,6 @@ public class Camera extends SubsystemBase {
             visionEst = photonPoseEstimator.update(pipelineResult);
         }
         return visionEst;
-    }
-
-    /*
-     * Returns the estimated robot pose from the given pipeline result.
-     * @param pipelineResult The pipeline result to use for pose estimation.
-     */
-    public Pose2d getPose2d(PhotonPipelineResult pipelineResult) {
-        Optional<EstimatedRobotPose> pose3d = getMultiTagPose3d(savedResult, pipelineResult);
-        if (pose3d.isEmpty()) {
-            return null;
-        }
-        savedResult = pose3d.get().estimatedPose.toPose2d();
-        return savedResult;
     }
 
     /*
@@ -214,9 +195,17 @@ public class Camera extends SubsystemBase {
         for (PhotonPipelineResult pipelineResult : resultsList) {
             if (pipelineResult != null && hasTarget(pipelineResult)) {
                 // Get the estimated pose from the pipeline result
-                Optional<EstimatedRobotPose> estPose = getMultiTagPose3d(driveTrain.getState().Pose, pipelineResult);
+                Optional<EstimatedRobotPose> estPose = getMultiTagPose3d(pipelineResult);
+
+                // If the pose is empty, skip this iteration
+                if (estPose.isEmpty()) {
+                    continue;
+                }
+
+                // Add the pose to the simulation
                 this.addPoseToSim(estPose);
 
+                // Get the targets from the pipeline result
                 List<PhotonTrackedTarget> targets = pipelineResult.getTargets();
                 // Start assuming a reef tag is visible
                 boolean hasReefTag = true;
@@ -226,10 +215,11 @@ public class Camera extends SubsystemBase {
                     }
                 }
 
+                // If a reef tag is visible or the strategy is multi-tag PNP on the coprocessor, 
                 if (hasReefTag
                         || photonPoseEstimator.getPrimaryStrategy() == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR) {
-
-                    Pose2d bestRobotPose2d = getPose2d(pipelineResult);
+     
+                    Pose2d bestRobotPose2d = estPose.get().estimatedPose.toPose2d();
 
                     if (bestRobotPose2d != null) {
                         //Matrix<N3, N1> visionMatrix = getSpeedStdDev(pipelineResult);
