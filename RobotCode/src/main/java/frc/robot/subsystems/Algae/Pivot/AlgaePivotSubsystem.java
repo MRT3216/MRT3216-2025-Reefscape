@@ -110,9 +110,11 @@ public class AlgaePivotSubsystem extends SubsystemBase {
                 Units.rotationsToDegrees(pIDController.getPositionError()));
         SmartDashboard.putNumber("Algae Pivot position setpoint",
                 Units.rotationsToDegrees(pIDController.getSetpoint().position));
-        SmartDashboard.putNumber("Algae Pivot encoder absolute", absoluteEncoder.getPosition());
-        SmartDashboard.putNumber("Algae Pivot encoder motor", motorController.getEncoder().getPosition());
-        SmartDashboard.putNumber("Algae Pivot Motor effort", motorController.getAppliedOutput());
+        SmartDashboard.putNumber("Algae Pivot position goal",
+                Units.rotationsToDegrees(pIDController.getGoal().position));
+        // SmartDashboard.putNumber("Algae Pivot encoder absolute", absoluteEncoder.getPosition());
+        // SmartDashboard.putNumber("Algae Pivot encoder motor", motorController.getEncoder().getPosition());
+        // SmartDashboard.putNumber("Algae Pivot Motor effort", motorController.getAppliedOutput());
     }
 
     private void setPivotGoal(Angle angle) {
