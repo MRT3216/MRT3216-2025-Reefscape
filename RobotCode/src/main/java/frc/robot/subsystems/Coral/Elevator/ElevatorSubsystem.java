@@ -4,12 +4,16 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.EncoderConfig;
+import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -21,6 +25,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -39,6 +44,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private ProfiledPIDController pIDController;
     private ElevatorSimulation elevatorSimContainer;
     private ElevatorFeedforward elevatorFeedForward;
+    private SparkLimitSwitch limitSwitch;
     private boolean enabled;
 
     // #endregion
@@ -81,6 +87,11 @@ public class ElevatorSubsystem extends SubsystemBase {
                 .smartCurrentLimit(ELEVATOR.kMotorCurrentLimit)
                 .voltageCompensation(ELEVATOR.kVoltageCompensation);
 
+        limitSwitch = followerMotorController.getForwardLimitSwitch();
+        followerConfig.limitSwitch
+                .forwardLimitSwitchType(Type.kNormallyOpen)
+                .forwardLimitSwitchEnabled(false);
+
         followerMotorController.configure(followerConfig, ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
 
@@ -118,14 +129,22 @@ public class ElevatorSubsystem extends SubsystemBase {
             leadMotorController.setVoltage(motorEffortVoltage);
         }
 
+        if (limitSwitch.isPressed()) {
+            encoder.setPosition(0);
+        }
+
         SmartDashboard.putBoolean("Elevator Enabled", enabled);
+
+        SmartDashboard.putBoolean("Elevator Limit Swtich", limitSwitch.isPressed());
         SmartDashboard.putNumber("Elevator position", getPositionDistance().in(Meters));
         SmartDashboard.putNumber("Elevator pos. error inches", Units.metersToInches(pIDController.getPositionError()));
         SmartDashboard.putNumber("Elevator position setpoint", pIDController.getSetpoint().position);
         SmartDashboard.putNumber("Elevator position goal", pIDController.getGoal().position);
-        SmartDashboard.putNumber("Elevator encoder", encoder.getPosition());
-        SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
-        SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
+        //SmartDashboard.putNumber("Elevator encoder", encoder.getPosition());
+        //SmartDashboard.putNumber("Elevator Motor effort", leadMotorController.getAppliedOutput());
+
+        double volts = leadMotorController.getAppliedOutput() * RobotController.getBatteryVoltage();
+        SmartDashboard.putNumber("ELevator Volts", volts);
     }
 
     /*
@@ -194,6 +213,20 @@ public class ElevatorSubsystem extends SubsystemBase {
                     setElevatorHeightGoal(
                             Meters.of(pIDController.getGoal().position).plus(heightAdjustment));
                 });
+    }
+
+    /**
+     * A manual translation command that uses feed forward calculation to maintain position
+     * 
+     * @param speed The speed at which the elevator translates
+     * @return Sets motor voltage to translate the elevator and maintain position
+     */
+    public Command runManualElevator(DoubleSupplier speed) {
+        return run(() -> {
+            double desired = MathUtil.applyDeadband(speed.getAsDouble(), .05);
+            leadMotorController.set(desired);
+
+        });
     }
 
     /*
