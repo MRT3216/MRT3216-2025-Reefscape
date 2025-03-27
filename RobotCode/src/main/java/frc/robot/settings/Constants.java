@@ -117,7 +117,7 @@ public final class Constants {
             // TODO: Reset at comp field
             // CORAL_STATION(Meters.of(0.37), Degrees.of(21)),
             CORAL_STATION(Meters.of(0.3), Degrees.of(22)),
-            L1(Meters.of(0.5), Degrees.of(20)),
+            L1(Meters.of(0.05), Degrees.of(20)),
             L2(Meters.of(0.58), Degrees.of(-32)),
             L3(Meters.of(1.03), Degrees.of(-32)),
             L4(Meters.of(1.75), Degrees.of(-31));
@@ -174,7 +174,6 @@ public final class Constants {
 
             public static final LinearVelocity kMaxElevatorVelocity = Meters.of(2).per(Second); // m/s
             public static final LinearAcceleration kMaxElevatorAcceleration = Meters.of(3).per(Second).per(Second);
-            //public static final Distance kNearTargetHeight = Inches.of(5);
             public static final double kElevatorRampRate = 1;
         }
 
