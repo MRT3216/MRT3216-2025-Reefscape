@@ -117,15 +117,12 @@ public final class Constants {
             // TODO: Reset at comp field
             // CHECK THIS!!!!!
             CORAL_STATION(Meters.of(0.37), Degrees.of(21)),
+            // Home Position
             //CORAL_STATION(Meters.of(0.3), Degrees.of(22)),
             L1(Meters.of(0.05), Degrees.of(20)),
             L2(Meters.of(0.58), Degrees.of(-32)),
             L3(Meters.of(1.03), Degrees.of(-32)),
             L4(Meters.of(1.75), Degrees.of(-31));
-            // L1(Meters.of(0), Degrees.of(20)),
-            // L2(Meters.of(0.61), Degrees.of(-32)),
-            // L3(Meters.of(1.02), Degrees.of(-32)),
-            // L4(Meters.of(1.75), Degrees.of(-31));
 
             private Distance height;
             private Angle angle;
