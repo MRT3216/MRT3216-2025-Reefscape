@@ -47,14 +47,6 @@ public class CoralEndEffectorSubsystem extends SubsystemBase {
 
     // region Commands and Triggers
 
-    public Command runEndEffectorCommand() {
-        if (coralInIntake()) {
-            return outtakeCoralCommand();
-        } else {
-            return intakeCoralCommand();
-        }
-    }
-
     public Command intakeCoralCommand() {
         return this.startEnd(
                 () -> runAtSpeed(END_EFFECTOR.intakeSpeed),
