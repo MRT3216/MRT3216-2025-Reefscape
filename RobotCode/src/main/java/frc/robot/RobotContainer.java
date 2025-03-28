@@ -139,7 +139,7 @@ public class RobotContainer {
         driverController.povLeft().onTrue(//this.setTargetPos(POSITIONS.L2));
                 CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, POSITIONS.L2));
         driverController.povRight().onTrue(//this.setTargetPos(POSITIONS.L3));
-                elevator.moveElevatorToPosition(POSITIONS.L3));
+                CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, POSITIONS.L3));
         driverController.povUp().onTrue(//this.setTargetPos(POSITIONS.L4));
                 CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, POSITIONS.L4));
 
