@@ -107,12 +107,12 @@ public final class Constants {
 
     public static final class CORAL {
         public enum POSITIONS {
-            STOW(Meters.of(0.05), Degrees.of(20)),
+            STOW(Meters.of(0.05), Degrees.of(22)),
             LOWER_ALGAE_PREP(Meters.of(0.19), Degrees.of(-20)),
             UPPER_ALGAE_PREP(Meters.of(0.60), Degrees.of(-20)),
             LOWER_ALGAE_REMOVE(Meters.of(0.8), Degrees.of(-15)),
             UPPER_ALGAE_REMOVE(Meters.of(1.4), Degrees.of(-15)),
-            SCORE_PREP(Meters.of(0.3), Degrees.of(-60)),
+            SCORE_PREP(Meters.of(0.345), Degrees.of(-60)),
             // CHECK THIS!!!!!
             CORAL_STATION(Meters.of(0.345), Degrees.of(22)),
             // Home Position
