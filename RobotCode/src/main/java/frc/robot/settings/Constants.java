@@ -47,8 +47,8 @@ public final class Constants {
         public static final PathConstraints pathConstraints = new PathConstraints(
                 Constants.PATHING.maxVelocityMPS, Constants.PATHING.maxAccelerationMPSSq,
                 Constants.PATHING.maxAngularVelocityRPS, Constants.PATHING.maxAngularAccelerationRPSS);
-        public static final double maxVelocityMPS = 2.5;
-        public static final double maxAccelerationMPSSq = 4;
+        public static final double maxVelocityMPS = 2;
+        public static final double maxAccelerationMPSSq = 3.5;
         public static final double maxAngularVelocityRPS = Units.degreesToRadians(540);
         public static final double maxAngularAccelerationRPSS = Units.degreesToRadians(720);
         public static final double pathingMinimumDistance = 1;
@@ -70,7 +70,7 @@ public final class Constants {
         public static double reefXOffsetInitial = 1.05;
         public static double reefYOffsetLeftBranch = Units.inchesToMeters(-6.469);
         public static double reefYOffsetRightBranch = -1 * reefYOffsetLeftBranch;
-        public static double coralStationXOffset = 0.4;
+        public static double coralStationXOffset = 0.45;
         public static double processorXOffset = 0.5;
 
         public static Distance elevatorPrepCoralStationDistance = Meters.of(1);
@@ -107,6 +107,7 @@ public final class Constants {
 
     public static final class CORAL {
         public enum POSITIONS {
+            ZERO(Meters.of(0.0), Degrees.of(22)),
             STOW(Meters.of(0.05), Degrees.of(22)),
             LOWER_ALGAE_PREP(Meters.of(0.19), Degrees.of(-20)),
             UPPER_ALGAE_PREP(Meters.of(0.60), Degrees.of(-20)),
@@ -114,7 +115,7 @@ public final class Constants {
             UPPER_ALGAE_REMOVE(Meters.of(1.4), Degrees.of(-15)),
             SCORE_PREP(Meters.of(0.345), Degrees.of(-60)),
             // CHECK THIS!!!!!
-            CORAL_STATION(Meters.of(0.345), Degrees.of(22)),
+            CORAL_STATION(Meters.of(0.34), Degrees.of(22)),
             // Home Position
             //CORAL_STATION(Meters.of(0.3), Degrees.of(22)),
             L1(Meters.of(0.05), Degrees.of(20)),
@@ -152,7 +153,7 @@ public final class Constants {
             // // code to move the elevator. These should allow less movement than
             // // the soft limits
             public static final Distance kMaxHeight = Meters.of(1.75);
-            public static final Distance kMinHeight = Inches.of(0.05);
+            public static final Distance kMinHeight = Inches.of(0.0);
             public static final Distance kPositionTolerance = Inches.of(1);
 
             public static final double kElevatorGearing = 60 / 7;
@@ -217,8 +218,8 @@ public final class Constants {
             public static final double kPivotkV = 2.39;//3; // volts * seconds / radians
             public static final double kPivotkA = 0.12; // volts * seconds^2 / radians
 
-            public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(360); // degrees per second
-            public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(450); // degrees per second squared max acceleration
+            public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(180); // degrees per second
+            public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(360); // degrees per second squared max acceleration
 
             public static final double kPivotRampRate = 0.5;
         }
@@ -292,7 +293,7 @@ public final class Constants {
             public static final double kPivotkA = 0; // volts * seconds^2 / radians
 
             public static final AngularVelocity kMaxAngularVelocity = DegreesPerSecond.of(180); // degrees per second
-            public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(360); // degrees per second squared max acceleration
+            public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(270); // degrees per second squared max acceleration
 
             public static final double kPivotRampRate = 0.5;
         }

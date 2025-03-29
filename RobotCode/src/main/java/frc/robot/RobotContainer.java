@@ -166,7 +166,7 @@ public class RobotContainer {
                         coralPivot, this.targetPosition));
 
         operatorController.leftStick().onTrue(
-                CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, POSITIONS.STOW));
+                CoralCommands.moveElevatorAndPivotToHeightCommand(elevator, coralPivot, POSITIONS.ZERO));
 
         operatorController.leftTrigger().onTrue(algaePivot.movePivotToAngle(Positions.INTAKING));
         operatorController.rightTrigger().onTrue(algaePivot.movePivotToAngle(Positions.STOW_SCORING));
