@@ -17,14 +17,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.settings.Constants;
 import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 
-public class DriveToPose extends Command {
+public class CloseDriveToPose extends Command {
     private final CommandSwerveDrivetrain m_drivetrain;
     private final ProfiledPIDController m_translationController, m_thetaController;
     private Translation2d m_lastSetpointTranslation;
     private Pose2d m_goalPose;
+    private boolean useOnlyFrontCams = false;
     private SwerveRequest.ApplyFieldSpeeds m_drive;
 
-    public DriveToPose(CommandSwerveDrivetrain drivetrain, Pose2d goalPose) {
+    public CloseDriveToPose(CommandSwerveDrivetrain drivetrain, Pose2d goalPose, boolean useOnlyFrontCams) {
         m_goalPose = goalPose;
         m_translationController = new ProfiledPIDController(
                 Constants.CLOSE_PATHING.TRANSLATION_PID.kP,
@@ -46,39 +47,32 @@ public class DriveToPose extends Command {
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
                 .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
+        this.useOnlyFrontCams = useOnlyFrontCams;
         addRequirements(drivetrain);
     }
 
     @Override
     public void initialize() {
-        Pose2d initialPose = m_drivetrain.getState().Pose;
+        if (this.useOnlyFrontCams) {
+            m_drivetrain.setCloseStrategy();
+        }
 
+        Pose2d initialPose = m_drivetrain.getState().Pose;
+        // TODO: Check these tolerances
         m_translationController.setTolerance(0.05);
         m_thetaController.setTolerance(Units.degreesToRadians(1.0));
-
         m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         ChassisSpeeds robotVelocity = getFieldRelativeChassisSpeeds(m_drivetrain.getState().Speeds,
                 initialPose);
 
-        m_translationController.reset(
-                initialPose.getTranslation().getDistance(m_goalPose.getTranslation()),
-                Math.min(
-                        0.0,
-                        -new Translation2d(robotVelocity.vxMetersPerSecond,
-                                robotVelocity.vyMetersPerSecond)
-                                .rotateBy(
-                                        m_goalPose
-                                                .getTranslation()
-                                                .minus(initialPose
-                                                        .getTranslation())
-                                                .getAngle()
-                                                .unaryMinus())
+        m_translationController.reset(initialPose.getTranslation().getDistance(m_goalPose.getTranslation()),
+                Math.min(0.0,
+                        -new Translation2d(robotVelocity.vxMetersPerSecond, robotVelocity.vyMetersPerSecond).rotateBy(
+                                m_goalPose.getTranslation().minus(initialPose.getTranslation()).getAngle().unaryMinus())
                                 .getX()));
 
-        m_thetaController.reset(
-                initialPose.getRotation().getRadians(),
-                robotVelocity.omegaRadiansPerSecond);
+        m_thetaController.reset(initialPose.getRotation().getRadians(), robotVelocity.omegaRadiansPerSecond);
         m_lastSetpointTranslation = initialPose.getTranslation();
     }
 
@@ -132,6 +126,11 @@ public class DriveToPose extends Command {
         final ChassisSpeeds CS = new ChassisSpeeds(driveVelocity.getX(), driveVelocity.getY(), thetaVelocity);
 
         m_drivetrain.setControl(m_drive.withSpeeds(CS));
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_drivetrain.setFarStrategy();
     }
 
     @Override

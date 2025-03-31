@@ -10,7 +10,7 @@
           {
             "title": "Has Coral",
             "x": 0.0,
-            "y": 240.0,
+            "y": 144.0,
             "width": 240.0,
             "height": 144.0,
             "type": "Boolean Box",
@@ -18,8 +18,8 @@
               "topic": "/SmartDashboard/Has Coral",
               "period": 0.06,
               "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
+              "true_color": 4294967295,
+              "false_color": 4278190080,
               "true_icon": "None",
               "false_icon": "None"
             }
@@ -68,10 +68,10 @@
           },
           {
             "title": "Match Time",
-            "x": 336.0,
+            "x": 240.0,
             "y": 0.0,
-            "width": 336.0,
-            "height": 192.0,
+            "width": 288.0,
+            "height": 288.0,
             "type": "Match Time",
             "properties": {
               "topic": "/SmartDashboard/Match Time",
@@ -84,10 +84,10 @@
           },
           {
             "title": "Slow Mode",
-            "x": 336.0,
-            "y": 192.0,
-            "width": 336.0,
-            "height": 192.0,
+            "x": 0.0,
+            "y": 288.0,
+            "width": 240.0,
+            "height": 144.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/Slow Mode",
@@ -101,9 +101,9 @@
           },
           {
             "title": "L4",
-            "x": 768.0,
+            "x": 816.0,
             "y": 0.0,
-            "width": 96.0,
+            "width": 144.0,
             "height": 96.0,
             "type": "Boolean Box",
             "properties": {
@@ -118,9 +118,9 @@
           },
           {
             "title": "L2",
-            "x": 768.0,
+            "x": 816.0,
             "y": 192.0,
-            "width": 96.0,
+            "width": 144.0,
             "height": 96.0,
             "type": "Boolean Box",
             "properties": {
@@ -135,9 +135,9 @@
           },
           {
             "title": "L3",
-            "x": 768.0,
+            "x": 816.0,
             "y": 96.0,
-            "width": 96.0,
+            "width": 144.0,
             "height": 96.0,
             "type": "Boolean Box",
             "properties": {
@@ -152,9 +152,9 @@
           },
           {
             "title": "L1",
-            "x": 768.0,
+            "x": 816.0,
             "y": 288.0,
-            "width": 96.0,
+            "width": 144.0,
             "height": 96.0,
             "type": "Boolean Box",
             "properties": {
@@ -165,6 +165,26 @@
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
+            }
+          },
+          {
+            "title": "Pose",
+            "x": 528.0,
+            "y": 0.0,
+            "width": 288.0,
+            "height": 480.0,
+            "type": "Field",
+            "properties": {
+              "topic": "/Pose",
+              "period": 0.06,
+              "field_game": "Reefscape",
+              "robot_width": 0.85,
+              "robot_length": 0.85,
+              "show_other_objects": true,
+              "show_trajectories": true,
+              "field_rotation": 90.0,
+              "robot_color": 4294198070,
+              "trajectory_color": 4294967295
             }
           }
         ]
@@ -191,7 +211,7 @@
           },
           {
             "title": "Coral Pivot Enabled",
-            "x": 1008.0,
+            "x": 816.0,
             "y": 144.0,
             "width": 192.0,
             "height": 144.0,
@@ -235,48 +255,6 @@
             }
           },
           {
-            "title": "Coral Pivot Motor effort",
-            "x": 816.0,
-            "y": 144.0,
-            "width": 192.0,
-            "height": 144.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Coral Pivot Motor effort",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Coral Pivot encoder motor",
-            "x": 816.0,
-            "y": 288.0,
-            "width": 192.0,
-            "height": 144.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Coral Pivot encoder motor",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Coral Pivot encoder absolute",
-            "x": 624.0,
-            "y": 288.0,
-            "width": 192.0,
-            "height": 144.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Coral Pivot encoder absolute",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
             "title": "Coral Pivot position goal",
             "x": 1008.0,
             "y": 0.0,
@@ -292,7 +270,7 @@
           },
           {
             "title": "Elevator Enabled",
-            "x": 384.0,
+            "x": 192.0,
             "y": 144.0,
             "width": 192.0,
             "height": 144.0,
@@ -305,34 +283,6 @@
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
-            }
-          },
-          {
-            "title": "Elevator Motor effort",
-            "x": 192.0,
-            "y": 144.0,
-            "width": 192.0,
-            "height": 144.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Elevator Motor effort",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Elevator encoder",
-            "x": 192.0,
-            "y": 288.0,
-            "width": 192.0,
-            "height": 144.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Elevator encoder",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
             }
           },
           {
@@ -375,23 +325,6 @@
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": false
-            }
-          },
-          {
-            "title": "Has Coral",
-            "x": 1008.0,
-            "y": 288.0,
-            "width": 192.0,
-            "height": 144.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Has Coral",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
             }
           },
           {
@@ -439,7 +372,7 @@
           {
             "title": "Algae Pivot position",
             "x": 0.0,
-            "y": 432.0,
+            "y": 288.0,
             "width": 192.0,
             "height": 144.0,
             "type": "Text Display",
@@ -452,8 +385,8 @@
           },
           {
             "title": "Algae Pivot position setpoint",
-            "x": 384.0,
-            "y": 432.0,
+            "x": 192.0,
+            "y": 288.0,
             "width": 192.0,
             "height": 144.0,
             "type": "Text Display",
@@ -465,16 +398,200 @@
             }
           },
           {
-            "title": "Algae Pivot encoder absolute",
+            "title": "Algae Pivot Enabled",
             "x": 192.0,
+            "y": 432.0,
+            "width": 192.0,
+            "height": 144.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Algae Pivot Enabled",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Algae Pivot position error",
+            "x": 0.0,
             "y": 432.0,
             "width": 192.0,
             "height": 144.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/SmartDashboard/Algae Pivot encoder absolute",
+              "topic": "/SmartDashboard/Algae Pivot position error",
               "period": 0.06,
               "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Elevator Limit Swtich",
+            "x": 384.0,
+            "y": 144.0,
+            "width": 192.0,
+            "height": 144.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Elevator Limit Swtich",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Vision",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "photonvision-left_Port_1184_Output_MJPEG_Server",
+            "x": 288.0,
+            "y": 0.0,
+            "width": 288.0,
+            "height": 288.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision-left_Port_1184_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "photonvision-left_Port_1182_Output_MJPEG_Server",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 288.0,
+            "height": 288.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision-left_Port_1182_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "photonvision-right_Port_1182_Output_MJPEG_Server",
+            "x": 912.0,
+            "y": 0.0,
+            "width": 288.0,
+            "height": 288.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision-right_Port_1182_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "photonvision-right_Port_1184_Output_MJPEG_Server",
+            "x": 624.0,
+            "y": 0.0,
+            "width": 288.0,
+            "height": 288.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision-right_Port_1184_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "FR Strategy",
+            "x": 624.0,
+            "y": 432.0,
+            "width": 288.0,
+            "height": 144.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/FR Strategy",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "BL Enabled",
+            "x": 0.0,
+            "y": 288.0,
+            "width": 144.0,
+            "height": 144.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/BL Enabled",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "BR Enabled",
+            "x": 1056.0,
+            "y": 288.0,
+            "width": 144.0,
+            "height": 144.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/BR Enabled",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Front-Left Strat",
+            "x": 288.0,
+            "y": 288.0,
+            "width": 288.0,
+            "height": 144.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Front-Left Strat",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Front-Right Strat",
+            "x": 624.0,
+            "y": 288.0,
+            "width": 288.0,
+            "height": 144.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Front-Right Strat",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "FL Strategy",
+            "x": 288.0,
+            "y": 432.0,
+            "width": 288.0,
+            "height": 144.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/FL Strategy",
+              "period": 0.06,
+              "data_type": "string",
               "show_submit_button": false
             }
           }

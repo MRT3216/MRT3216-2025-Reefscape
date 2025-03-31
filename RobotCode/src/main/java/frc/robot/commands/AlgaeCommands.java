@@ -7,10 +7,10 @@ import frc.robot.subsystems.Algae.Rollers.AlgaeRollersSubsystem;
 
 public class AlgaeCommands {
     public static Command intakeAlgae(AlgaePivotSubsystem pivot, AlgaeRollersSubsystem rollers) {
-        return pivot.movePivotToAngle(Positions.INTAKING.getAngle())
+        return pivot.movePivotToAngle(Positions.INTAKING)
                 .alongWith(rollers.intakeAlgae())
                 .until(rollers.hasAlgaeTrigger())
-                .andThen(pivot.movePivotToAngle((Positions.STOW_SCORING.getAngle())));
+                .andThen(pivot.movePivotToAngle(Positions.STOW_SCORING));
     }
 
     public static Command scoreAlgae(AlgaePivotSubsystem pivot, AlgaeRollersSubsystem rollers) {

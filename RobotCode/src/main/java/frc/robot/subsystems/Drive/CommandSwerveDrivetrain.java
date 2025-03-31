@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.settings.Constants;
+import frc.robot.subsystems.Vision.VisionSystem;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -41,8 +42,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /**
      * PhotonVision class to keep an accurate odometry.
      */
-    // TODO: Uncomment this line when PhotonVision is implemented
-    // public Vision vision;
+    //public Vision vision;
+    public VisionSystem vision;
 
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
@@ -291,8 +292,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     * Setup the photon vision class.
     */
     private void setupPhotonVision() {
-        // TODO: Uncomment this line when PhotonVision is implemented
         //vision = new Vision(() -> getState().Pose);
+        vision = new VisionSystem(this);
     }
 
     @Override
@@ -313,8 +314,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-        // TODO: Uncomment this line when PhotonVision is implemented
-        // vision.updatePoseEstimation(this);
+
+        //vision.updatePoseEstimation(this);
+        vision.addAllFilteredPoses();
+    }
+
+    public void setCloseStrategy() {
+        vision.configureCloseStrategy();
+    }
+
+    public void setFarStrategy() {
+        vision.configureFarStrategy();
     }
 
     private void startSimThread() {
